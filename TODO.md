@@ -1,26 +1,8 @@
-- [ ] SFT coding ds 
-- [x] 1. code completion
-- [ ] Review 2. js2jac
-- [ ] SFT eval
-    - [ ] jac check
-    - [ ] jac run
-    - [ ] jac build
-    - [ ] jac start (HTTP 200)
+[ ] compare original ornith capability (any stack) with finetuned model with jac
+[ ] tool-use fim training 
+[ ] read AST report
+[ ] Full stack app eval
 
-- [x] peek_ds.ipynb (also statistic plots)
-- [ ] plot_eval.ipynb
-- [ ] SFT training pipeline
-    - [x] build
-    - [ ] test
-    - [ ] check continue training works
-    - [x] resume from a checkpoint alone
-        - [x] `train.py` saves the recipe to `<run>/recipe.<ext>` at start
-        - [x] `train.py --resume <run>/checkpoint-N` without `--recipe` reads it (`--recipe` still overrides)
-        - [x] model loads from the checkpoint, so a CPT→SFT stage keeps its LoRA shape without the `adapter: ""` + CPT `lora_alpha` workaround
-        - [x] update recipe/README.md, docs/CLOUD_GPU.md, CLAUDE.md resume notes
-    - [ ] fix `recipe/dev/smoke_sft.yaml` (points at archived `osp/Nitin-1k-osp`)
-- [ ] markdown collecting and preproc
-- [ ] slide: current situation, bottleneck, plan, resource required
 - [ ] Establish LLM-as-judge standard for semantic failure-mode categorization
     - [ ] Rubric file — fixed category list with definitions + 1-2 examples each
     - [ ] Per-case prompt template (in: prefix/python/reference/completion/failing-test names; out: JSON `{category, secondary, one_line_reason}`)
