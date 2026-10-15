@@ -4,7 +4,7 @@ October 15, 2026
 
 **Goal:** teach SFTv1.3 (`0926-v13-A`) to work as a coding agent inside the pi harness: find a stubbed Jac function in a real repo, read the code around it, fill the body with the `edit` tool and run `jac check`. One overnight run, as a demo, not a tuned recipe.
 
-**Result:** on 144 held-out tasks run through the real pi agent, the task is solved 71.5% of the time, against 43.1% for SFTv1.3. The new model has a new failure: when an edit or `jac check` fails, it often retries the same call in a loop (22 of 144 runs used 50 or more tool calls, none of them solved). The training data has no failed steps, so the model never saw a recovery.
+**Result:** on 144 held-out tasks run through the real pi agent, the task is solved 71.5% of the time, against 43.1% for SFTv1.3. The new model has a new failure: when an edit or `jac check` fails, it often retries the same call in a loop (22 of 144 runs used 50 or more tool calls, none of them solved). The training data has no failed steps, so the model never saw a recovery; the next step is real agent session logs that include failed attempts and their fixes.
 
 ---
 
@@ -182,16 +182,62 @@ All 22 runs with 50 or more tool calls failed (the longest made 267 calls). In t
 
 Over all 144 runs, 22 saw a failing `jac check`; only 3 of them ended solved and 16 turned into loops. Every train row ends with a passing `jac check` and contains no failed edit (checked over all 2,481 rows), so the model has seen how to finish a task but never how to recover from a failed step. The repeated calls are mostly the same `rg` search over and over.
 
+### Why the edits fail
+
+The first edit of a run is usually fine. The failures come from the retries after something went wrong.
+
+| | SFTv1.3 | tool FIM model |
+|---|---:|---:|
+| `edit` calls | 137 | 504 |
+| Failed `edit` calls | 34 (25%) | 345 (68%) |
+| Runs whose first `edit` failed | 11 of 77 | 15 of 141 |
+
+The 345 failed edits of the tool FIM model, by cause:
+
+| Cause | calls | runs |
+|---|---:|---:|
+| The old text is code that is not in the file (written from memory, not copied from the file) | 186 | 16 |
+| The old text and the new text are identical (a "fix" that rewrites the same body) | 99 | 17 |
+| The old text is the `# TODO: implement` stub, which an earlier edit had already replaced | 56 | 5 |
+| The old text is the stub, but does not match the file | 4 | 1 |
+
+After a failed edit, 196 of the 345 times (57%) the next 2 calls did not `read` the file again.
+
+Each failure matches a habit from the training rows, where every `edit` replaces the stub with the full correct body and the file is never read after an edit:
+
+- the old text is always the stub, so the model keeps trying to replace a stub that is gone;
+- the new text is always the correct full body, so a retry writes that body again, unchanged;
+- no row reads the file after an edit, so retries write the old text from memory.
+
+So the loops come mainly from data coverage: the training rows never reach a state after a failure, and in that state the model repeats the one edit it knows. The second epoch may make this more rigid, but this run cannot separate the two; evaluating `checkpoint-200` would.
+
 ---
 
 ## 4. Next steps
 
-1. **Recovery trajectories.** Add rows where an edit fails or `jac check` reports an error, followed by a fix: break the body on purpose (from real model mistakes or compiler-error edits), keep the real `jac check` output and finish with the original body. Train the failed step with weight 0, so the model learns the fix but not the mistake.
-2. **Wrong-file cases in the producer.** For bodies in an `impl` file, look the symbol up so the search hits both the declaration and the `impl`, and make the trajectory read the `impl`. For names defined in several files, make the trajectory pick the file named in the prompt.
-3. **Epochs.** Evaluate `checkpoint-200` against the final model, or train 1 epoch, to see whether epoch 2 helps.
-4. **Harder split.** Hold out whole repos, not only files, to measure projects the model has never seen.
-5. **Behavior, not only compile.** Add tests or run checks for a subset of tasks, since "solved" only means the file compiles.
-6. **Thinking.** All training turns have an empty thinking block because there is no good reasoning data yet. Real agent trajectories with their reasoning (for example a full JacHammer export with tool calls and results) should go into training once available.
+1. **Real session logs instead of only synthesized tasks.** The synthesized rows have clean prompts, one perfect edit and no failure, which is what the model failed to generalize from. Real agent sessions from JacHammer users (`dataset/raw/session/`) have vague or badly written prompts, multi-step diffs, failed edits, failing checks and the attempts that fixed them. The current export only has the file-changing calls (`edit_code`, `write_code`, `delete_code`) and a final summary per turn; the `read_file`, `list_files`, `jac_check` and `jac_docs` calls and their results are missing, so a full export has been requested before these can become trajectories.
+2. **Deduplicate the session logs.** The current export (1,103 conversations) has repeats:
+
+   | | count |
+   |---|---:|
+   | Conversations identical to another one | 42 |
+   | Conversations whose first prompt repeats another conversation's | 237 (70 distinct prompts) |
+   | User messages sent twice in a row with the same text | 73 of 674 back-to-back user messages |
+   | Successful code changes that repeat another change exactly | 1,416 of 21,545 |
+
+   Repeated starter prompts (for example "Build a full-stack expense tracker with user accounts, categories, and a dashboard", 19 times) come from templates and suggested prompts, so deduplication should look at the whole conversation, not only the first prompt.
+3. **Keep failed steps in context, without training on them.** Instead of dropping failed attempts, keep them in the conversation and give their assistant turns weight 0, so the model is trained on the recovery that follows the failure but not on the mistake. `script/train/sft.py` already supports this (`weight: 0`). Published work supports learning from failures:
+   - SWE-Lego keeps the full trajectory and masks the loss on agent responses that caused tool errors, found by regular expressions on the terminal output; this alone gave about 2 points on SWE-bench Verified.
+   - Step Rejection Fine-Tuning (JetBrains) uses a critic model to grade each step, masks the loss on wrong steps but keeps them in context, and keeps unresolved trajectories: 3.7% gain on SWE-bench Verified against 2.4% for keeping only successful trajectories.
+   - Agent-R builds training data by cutting a failed trajectory at its first error and joining it to a correct continuation, so the model learns to notice and correct its own mistakes.
+   - Negative-Aware Training trains on failed trajectories too, marked with a prefix that tells the model it is a failure, and reports gains over training on successes only.
+
+   A synthetic version is also possible for the tool FIM data: a wrong first body from a real model run, its real `jac check` output, a `read`, then the correct edit.
+4. **Wrong-file cases in the producer.** For bodies in an `impl` file, look the symbol up so the search hits both the declaration and the `impl`, and make the trajectory read the `impl`. For names defined in several files, make the trajectory pick the file named in the prompt.
+5. **Epochs.** Evaluate `checkpoint-200` against the final model, or train 1 epoch, to see whether epoch 2 helps.
+6. **Harder split.** Hold out whole repos, not only files, to measure projects the model has never seen.
+7. **Behavior, not only compile.** Add tests or run checks for a subset of tasks, since "solved" only means the file compiles.
+8. **Thinking.** All training turns have an empty thinking block because there is no good reasoning data yet. Real agent trajectories with their reasoning (for example a full JacHammer export with tool calls and results) should go into training once available.
 
 ## Reproduce
 
@@ -222,3 +268,5 @@ PI_CODING_AGENT_DIR=output/eval/tool_fim/repo-all-pi/toolfim-spike_10-15_04-18/p
 | Run log | `logs/1015-toolfim-v13A.log` |
 
 Each eval folder has `report.json`, `results.jsonl` (one row per task) and `transcripts/` (the full pi event stream per task).
+
+Sources: [SWE-Lego](https://arxiv.org/abs/2601.01426), [Step Rejection Fine-Tuning](https://arxiv.org/abs/2605.10674), [Agent-R](https://arxiv.org/abs/2501.11425), [Negative-Aware Training](https://arxiv.org/abs/2402.11651) (NAACL 2025).
