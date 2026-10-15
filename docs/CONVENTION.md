@@ -35,7 +35,7 @@ script/
 │   ├── pipeline.py       shared record-write pipeline (used by every producer; write_rl_set for RL sets)
 │   ├── inspect.py        JSONL schema inspector (standalone CLI)
 │   ├── sample_hf.py      N random rows per group of a local HF parquet dataset → Markdown (standalone CLI)
-│   ├── statistics.py     per-dataset statistics writer (statistic.json)
+│   ├── statistics.py     per-dataset statistics writer (statistic.json) + token-estimate table (chars/4) over many dirs
 │   ├── repo_stats.py     codebase statistics of raw/repo (raw/repo/stats.json)
 │   ├── cpt/              CPT producers, one per input shape
 │   ├── sft/              SFT producers, one per task type
