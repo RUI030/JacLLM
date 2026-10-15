@@ -3,7 +3,7 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 from utils.classifier    import classify_structural as classify
-from dataset.parser.repo import body_spans, iter_repo_files, strip_bodies
+from dataset.parser.repo import body_spans, iter_repo_files, iter_repos, strip_bodies
 from dataset.pipeline    import load_prompts, report, split_and_write
 
 # Setting =================================================
@@ -141,12 +141,12 @@ def repo2scaffold2impl(in_dir=IN_DIR, out_dir=OUT_DIR, format=OUT_FORMAT,
     out_dir = Path(out_dir)
     format  = format.lower()
 
-    repos = sorted(p for p in in_dir.iterdir() if p.is_dir())
+    repos = list(iter_repos(in_dir))
     if not repos:
         raise FileNotFoundError(f"No repos found in: {in_dir}")
 
     samples: list[tuple[str, str, str]] = []
-    for repo_root in repos:
+    for key, repo_root in repos:
         for path in iter_repo_files(repo_root):
             if path.suffix != ".jac":
                 continue
@@ -160,7 +160,7 @@ def repo2scaffold2impl(in_dir=IN_DIR, out_dir=OUT_DIR, format=OUT_FORMAT,
             if scaffold == source or "{ ... }" not in scaffold:
                 continue                # nothing to fill; skip
             rel = path.relative_to(repo_root).as_posix()
-            samples.append((f"{repo_root.name}::{rel}", scaffold, source))
+            samples.append((f"{key}::{rel}", scaffold, source))
     if not samples:
         raise FileNotFoundError(f"No fillable Jac scaffolds found under: {in_dir}")
 

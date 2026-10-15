@@ -6,6 +6,7 @@ Convert coding-agent session logs (Claude Code, opencode, pi, …) into one flat
 |---|---|
 | `claude.py` | Claude Code logs (`~/.claude/projects`) → trajectory JSONL. **Reference converter**: copy its shape for a new harness. |
 | `common.py` | Shared helpers: `redact` (secrets), `responses`, `mask`, `mark_loops`, `stats`, `write_trajectories` (validates role/mode, redacts, writes stats), and `to_template_input` (rows → what the chat template takes). |
+| `harness/pi.json` | pi 1.0.4's exact system prompt (`{cwd}` placeholder) and tool schemas, captured from the request body it sends to an OpenAI-compatible endpoint. Used by `sft/tool_fim.py`; recapture after a pi upgrade (the eval runs pi with `--no-mcp --no-context-files --no-skills --no-extensions --no-prompt-templates`, which gives this same prompt). |
 
 ```bash
 python script/dataset/trajectory/claude.py                       # all projects -> dataset/raw/trajectory/claude.jsonl (+ .stats.json)

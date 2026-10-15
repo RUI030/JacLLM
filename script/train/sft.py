@@ -1,4 +1,4 @@
-import argparse
+import argparse, json
 import sys
 from pathlib import Path
 
@@ -72,17 +72,42 @@ def default_config() -> dict:
     }
 
 
+def chat_inputs(row: dict) -> tuple[list[dict], list[dict] | None]:
+    """One dataset row -> (messages, tools) as the chat template takes them.
+
+    Tool-call datasets (`dataset/sft/tool_fim/`) store `tools` and every call's
+    `arguments` as JSON strings, because Arrow would merge the keys of differing
+    schemas; Arrow also fills keys a message lacks with None, which the template
+    would render (`tool_calls: None`), so those are dropped.
+    """
+    msgs = []
+    for m in row["messages"]:
+        m = {k: v for k, v in m.items() if v is not None}
+        if "tool_calls" in m:
+            m["tool_calls"] = [{**c, "function": {**c["function"], "arguments": json.loads(c["function"]["arguments"])}}
+                               for c in m["tool_calls"]]
+        msgs.append(m)
+    tools = row.get("tools")
+    return msgs, json.loads(tools) if tools else None
+
+
 def apply_chat_template(batch: dict, tokenizer) -> dict:
+    rows = [dict(zip(batch, vals)) for vals in zip(*batch.values())]
     return {
         "text": [
-            tokenizer.apply_chat_template(msgs, tokenize=False, add_generation_prompt=False)
-            for msgs in batch["messages"]
+            tokenizer.apply_chat_template(msgs, tools=tools, tokenize=False, add_generation_prompt=False)
+            for msgs, tools in map(chat_inputs, rows)
         ]
     }
 
 
-def tokenize_with_assistant_mask(msgs: list[dict], tokenizer, max_len: int) -> dict:
+def tokenize_with_assistant_mask(msgs: list[dict], tools: list[dict] | None, tokenizer, max_len: int) -> dict:
     """Tokenize one conversation; `labels` keep only each assistant turn's tokens.
+
+    Everything the model writes is trained: reply text, tool calls and the turn's
+    <|im_end|>. System prompt (incl. rendered tool schemas), user turns and tool
+    results stay context. An assistant message with `weight: 0` (a denied or looped
+    response, trajectory/README.md) stays context too.
 
     Packing needs the mask per conversation: train_on_responses_only runs on the
     packed sequence and unmasks from an assistant marker to the next user marker,
@@ -91,12 +116,12 @@ def tokenize_with_assistant_mask(msgs: list[dict], tokenizer, max_len: int) -> d
     tokens the unpacked path trains on.
     """
     render = lambda m, gen: tokenizer.apply_chat_template(
-        m, tokenize=False, add_generation_prompt=gen
+        m, tools=tools, tokenize=False, add_generation_prompt=gen
     )
     text  = render(msgs, False)
     spans = []
     for i, m in enumerate(msgs):
-        if m["role"] != "assistant":
+        if m["role"] != "assistant" or m.get("weight", 1) == 0:
             continue
         start, end = len(render(msgs[:i], True)), len(render(msgs[: i + 1], False))
         if not text.startswith(render(msgs[: i + 1], False)):
@@ -130,7 +155,7 @@ def run_sft(config: dict, train_ds, eval_ds=None):
         # by Unsloth's column selection). Rows truncated down to no assistant
         # tokens are dropped.
         prep = lambda ds, split: ds.map(
-            lambda r: tokenize_with_assistant_mask(r["messages"], tokenizer, cfg["max_seq_length"]),
+            lambda r: tokenize_with_assistant_mask(*chat_inputs(r), tokenizer, cfg["max_seq_length"]),
             remove_columns=ds.column_names, desc=f"Tokenizing + assistant mask ({split})",
         ).filter(lambda r: any(l != -100 for l in r["labels"]),
                  desc=f"Dropping rows with no assistant tokens ({split})")

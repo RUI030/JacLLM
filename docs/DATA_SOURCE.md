@@ -8,6 +8,8 @@ Column meaning:
 - **Producer**: the script that wrote the checked-in split.
 - **Verification**: `meta.verification` of the records.
 
+`dataset/raw/repo/` (gitignored) holds whole repos as `<group>/<name>/`, keyed `group/name` (`script/dataset/parser/repo.py:iter_repos`): `golden/` founder projects, `Rui/` own apps, `jaseci/` jaseci-labs apps (flowline, jms, this_is_jac), and `JacHack{SF,Spring,2026,A2Tech}/` hackathon repos (`<owner>__<repo>`). `raw/repo/meta.json` (jac-data-gen `repo_meta.py`) records size, Jac usage and the training whitelist per repo. Datasets built before this layout (rows below up to `Rui-toolcall-fim`) used flat `raw/repo/<name>/` and repo-name ids.
+
 ## Checked-in datasets
 ### CPT (`dataset/cpt/`)
 | Dataset | Rows | Upstream | Intermediate | Producer | Verification | Added |
@@ -32,6 +34,7 @@ Column meaning:
 | `osp/Nitin-osp-merged` | 1,933 | same as `cpt/Nitin-osp` | `osp_merged_corpus.jsonl` | jac-data-gen | check + tests | `c9bf4e5` |
 | `py2osp/Nitin-osp-lift-gold` | 325 | OSP lift: GitHub issue seeds → Python → OSP Jac | `osp_merged_corpus.jsonl` (tier `v21_gold`) | jac-data-gen | check + tests + elimination | `c9bf4e5` |
 | `scaffold2impl/Rui-jacapp-scaffold` | 433 | same as `cpt/Rui-jacapp-4` | `dataset/raw/repo/` | `script/dataset/sft/scaffold2impl.py` | — | `ff19bd9` |
+| `tool_fim/repo-all-pi` | 2,625 (2,481 train / 144 valid, valid = held-out files) | all 35 `raw/repo/` apps (whitelisted or not, minus `exclude_files`): one Jac body stubbed to `# TODO: implement`, synthesized pi trajectory rg → read → (rg + read cross-file symbols) → edit → `jac check \| tail`, real tool outputs; skips `::py::` bodies and files whose original fails `jac check` | `dataset/raw/trajectory/repo-all-pi.jsonl` (rows), `raw/repo/stats.json` (`script/dataset/repo_stats.py`) | `script/dataset/sft/tool_fim.py` | check (original file passes; tool results replayed byte-identical through pi 1.0.4) | — |
 
 v1.3 sets (`c9bf4e5`) are filtered, deduped and eval-decontaminated (`eval_denylist`, `osp_holdout`); see `dataset/v13_SUMMARY.md`.
 

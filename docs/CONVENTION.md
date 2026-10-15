@@ -36,13 +36,14 @@ script/
 │   ├── inspect.py        JSONL schema inspector (standalone CLI)
 │   ├── sample_hf.py      N random rows per group of a local HF parquet dataset → Markdown (standalone CLI)
 │   ├── statistics.py     per-dataset statistics writer (statistic.json)
+│   ├── repo_stats.py     codebase statistics of raw/repo (raw/repo/stats.json)
 │   ├── cpt/              CPT producers, one per input shape
 │   ├── sft/              SFT producers, one per task type
 │   ├── rl/               RL task-set producers, one per upstream (kodcode.py)
 │   ├── parser/           parsers/transformers used by producers
 │   │   ├── chunk.py
 │   │   ├── md2ast.py
-│   │   └── repo.py       repo walker + Jac scaffold extractor
+│   │   └── repo.py       repo walker, Jac scaffold extractor, declaration/symbol index
 │   └── template/         prompt_template.json, ds_report.json
 ├── rl/
 │   ├── task.py           load dataset/rl/<task>/<set> splits → HF Dataset(prompt, task_*)

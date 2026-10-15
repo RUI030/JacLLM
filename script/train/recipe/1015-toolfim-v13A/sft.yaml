@@ -1,0 +1,52 @@
+# Tool-use FIM spike: SFT v1.3-A on pi tool-call trajectories that fill stubbed Jac bodies
+# (dataset/sft/tool_fim/repo-all-pi, all 35 raw/repo apps; valid = held-out files, kept for the pi eval).
+# Settings = v13-A SFT (0926-v13-compile-only-ablation/sft-A.yaml) except: adapter (continue from v13-A SFT),
+# max_seq_length 8192 (system prompt + tool schemas alone are ~1.6k tokens), train split only, epochs.
+recipe:
+  name: toolfim-v13A
+  stage: sft
+  base_model: ornith-ai/Ornith-1.5-9B
+  adapter: output/adapter/0926-v13-A/sft/adapter
+  out_dir: output/adapter/1015-toolfim-v13A/sft
+  seed: 3407
+  max_seq_length: 8192
+  load_in_4bit: true
+  text_only: true
+  chat_template: null           # native Ornith template: renders tool schemas and <tool_call> blocks
+
+hyperparams:
+  epochs: 2
+  batch_size: 1
+  grad_acc: 10
+  lr: 2.0e-4
+  embed_lr: 0
+  optimizer: adamw_8bit
+  scheduler: linear
+  warmup_steps: 10
+  weight_decay: 1.0e-3
+  save_steps: 100
+  eval_steps: 0.1
+  do_eval: false
+  lora_rank: 64
+  lora_alpha: 16
+  lora_dropout: 0
+  rslora: true
+  bias: none
+  grad_checkpt: unsloth
+  packing: true                 # selects per-conversation labels (sft.py); Unsloth does not pack Ornith
+  target_module:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+  instruction_part: "<|im_start|>user\n"
+  response_part:    "<|im_start|>assistant\n"
+
+mixing:
+  strategy: concat
+
+datasets:
+  - {task: tool_fim, name: repo-all-pi, split: [train]}

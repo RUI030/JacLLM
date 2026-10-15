@@ -3,7 +3,7 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 from utils.classifier    import classify_structural as classify
-from dataset.parser.repo import iter_repo_files
+from dataset.parser.repo import iter_repo_files, iter_repos
 from dataset.pipeline    import report, split_and_write
 
 # Setting =================================================
@@ -117,14 +117,14 @@ def repo2cpt(in_dir=IN_DIR, out_dir=OUT_DIR, format=OUT_FORMAT):
     out_dir = Path(out_dir)
     format  = format.lower()
 
-    repos = sorted(p for p in in_dir.iterdir() if p.is_dir())
+    repos = list(iter_repos(in_dir))
     if not repos:
         raise FileNotFoundError(f"No repos found in: {in_dir}")
 
     samples: list[tuple[str, dict]] = []
-    for repo_root in repos:
+    for key, repo_root in repos:
         for i, chunk in enumerate(build_repo_chunks(repo_root, TARGET_CHARS)):
-            samples.append((f"{repo_root.name}::chunk_{i:04d}", chunk))
+            samples.append((f"{key}::chunk_{i:04d}", chunk))
 
     rng = random.Random(SEED)
     rng.shuffle(samples)

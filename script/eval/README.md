@@ -20,6 +20,9 @@ script/eval/
     adapter_viewer.ipynb     # interactive companion to svd_energy
   rl/
     run_eval.py              # RL task sets: sample n per task → rl.graders → pass@k, per-task pass counts
+  tool_fim/
+    run_eval.py              # pi agent fills held-out stubbed Jac bodies via an OpenAI-compatible server; solved/check/similarity
+    serve_eval.sh            # llama-server on a GGUF + run_eval.py
 ```
 
 ## I want to…
@@ -33,6 +36,7 @@ script/eval/
 | See which samples flipped between two runs | `python script/eval/compare/confmat.py --a A/report.json --b B/report.json` |
 | Cluster failures by error type | `python script/eval/compare/taxonomy.py --a A/report.json --b B/report.json` |
 | Eval a GGUF export (llama-server + gate) | `bash script/eval/gguf_eval.sh <gguf> <tag> <limit>` |
+| Tool-use FIM through the real pi agent on a GGUF (held-out stubbed bodies) | `bash script/eval/tool_fim/serve_eval.sh <gguf> <tag> [limit]` (`tool_fim/run_eval.py`: solved = stub replaced + `jac check`) |
 | Nitin function tests on a GGUF | `bash script/eval/Nitin-test/run_gguf.sh <gguf> <tag> test` (see `docs/CLOUD_GPU.md`) |
 | Check LoRA rank utilization | `python script/eval/probe/svd_energy.py --adapter <adapter_dir>` |
 | CPT loss per checkpoint | `python script/eval/probe/cpt_loss.py --run <cpt-run> --ds <ds>` |

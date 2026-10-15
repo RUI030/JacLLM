@@ -65,5 +65,28 @@
         "Implement the Jac function described below, starting from the given starter file. Return the complete file in exactly one ```jac ... ``` block.",
         "Solve the following task in Jac. Complete the starter code and reply with the whole file inside a single ```jac ... ``` block.",
         "Write a Jac implementation for the request below. Keep the function signature from the starter and return the full file as one ```jac``` block."
+    ],
+    "tool_fim":[
+        "Implement `{target}` in {path}.",
+        "The body of `{target}` in `{path}` is just a TODO. Fill it in.",
+        "Fill in the missing implementation of `{target}` ({path}).",
+        "{path} has a stubbed-out `{target}`. Write the implementation so it fits the rest of the codebase.",
+        "Can you implement `{target}`? It's in {path}, currently a TODO.",
+        "Finish `{target}` in {path} and make sure the file still type-checks.",
+        "Please write the body of `{target}` in {path}.",
+        "`{target}` in {path} is unimplemented. Implement it."
+    ],
+    "tool_fim_nopath":[
+        "Implement `{target}`.",
+        "There's a TODO stub for `{target}` somewhere in this project. Implement it.",
+        "Find `{target}` and fill in its body.",
+        "`{target}` is still a TODO. Can you implement it?",
+        "Please implement the `{target}` stub."
+    ],
+    "tool_fim_multi":[
+        "Implement the TODO stubs in {path}:\n{targets}",
+        "These functions in {path} are still stubs, fill them in:\n{targets}",
+        "{path} has several unimplemented bodies. Implement:\n{targets}",
+        "Please finish the following in {path} and check the file:\n{targets}"
     ]
 }

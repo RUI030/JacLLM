@@ -112,6 +112,7 @@ def execute(
     cwd: str | Path | None = None,
     env: dict[str, str] | None = None,
     mem_limit_bytes: int | None = None,
+    merge_stderr: bool = False,
 ) -> JacResult:
     """Run `jac <args>` in its own process group, with a timeout and an optional memory cap.
 
@@ -121,7 +122,8 @@ def execute(
     RLIMIT_AS is not used: jac reserves enough virtual memory that a 12GB cap fails
     thread creation on correct code. jac's embedded postgres daemonizes out of the
     group and is not counted; start it outside any cap (`start_pg`) so an OOM kill
-    of one scope cannot take it down.
+    of one scope cannot take it down. `merge_stderr` interleaves stderr into stdout
+    as a terminal shows it (`2>&1`); `stderr` is then empty.
     """
     cmd, rss_cap = [JAC, *args], None
     if mem_limit_bytes and scopes_available():
@@ -136,7 +138,7 @@ def execute(
     try:
         proc = subprocess.Popen(
             cmd, cwd=cwd, env=full_env, text=True,
-            stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT if merge_stderr else subprocess.PIPE,
             start_new_session=True,
         )
     except OSError as exc:
@@ -155,9 +157,9 @@ def execute(
                 except ProcessLookupError:
                     pass
                 out, err = proc.communicate()
-                return JacResult(proc.returncode, out, err, elapsed(), timed_out=not over, mem_capped=over)
+                return JacResult(proc.returncode, out, err or "", elapsed(), timed_out=not over, mem_capped=over)
     # A cgroup OOM kill surfaces as SIGKILL on the scope's main process.
-    return JacResult(proc.returncode, out, err, elapsed(),
+    return JacResult(proc.returncode, out, err or "", elapsed(),
                      mem_capped=bool(mem_limit_bytes) and proc.returncode == -signal.SIGKILL)
 
 

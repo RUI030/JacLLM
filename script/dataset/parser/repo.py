@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-import re
+import json, re
 from pathlib import Path
 from typing import Iterator
 
@@ -34,6 +34,16 @@ def keep_path(path: Path, repo_root: Path) -> bool:
     if path.suffix in KEEP_EXTS:
         return True
     return path.stem in KEEP_NAMES and path.suffix == ""
+
+
+def iter_repos(raw_dir: Path) -> Iterator[tuple[str, Path]]:
+    """Yield `(group/name, repo_root)` for every repo under `raw_dir/<group>/<name>/`.
+
+    Groups: `golden` (founder projects), `Rui`, `jaseci`, `JacHack<edition>`.
+    """
+    for group in sorted(p for p in Path(raw_dir).iterdir() if p.is_dir()):
+        for repo in sorted(p for p in group.iterdir() if p.is_dir()):
+            yield f"{group.name}/{repo.name}", repo
 
 
 def iter_repo_files(repo_root: Path) -> Iterator[Path]:
@@ -137,3 +147,90 @@ def strip_bodies(source: str, keep: set[int] | None = None) -> str:
         cursor = close
     out.append(source[cursor:])
     return "".join(out)
+
+
+# Declaration index ==========================================
+# Named top-level-ish declarations, used for codebase statistics and to find the
+# file a symbol is defined in (tool-call trajectories read it as context).
+
+_DECL_HEAD = re.compile(
+    r"^[ \t]*(?:(?P<arch>node|edge|walker|obj|class|enum)(?::\w+)?|(?P<fn>def|can)(?::\w+)?|(?P<impl>impl))"
+    r"\s+(?P<name>[\w.]+)",
+    re.MULTILINE,
+)
+
+
+def decl_kind(m: re.Match) -> str:
+    return m.group("arch") or m.group("fn") or "impl"
+
+
+def declarations(source: str) -> list[dict]:
+    """Every named declaration: `{kind, name, line, start, end}` (end = past its `}`, or line end).
+
+    `name` is the last dotted part, so `impl Foo.bar` indexes as `bar` (kind `impl`).
+    """
+    decls = []
+    for m in _DECL_HEAD.finditer(source):
+        start = m.start()
+        stop  = re.compile(r"[{;]").search(source, m.end())
+        end   = source.find("\n", m.end())
+        if stop and source[stop.start()] == "{":
+            close = _find_matching_close(source, stop.start())
+            if close > 0:
+                end = close
+        decls.append({
+            "kind":  decl_kind(m),
+            "name":  m.group("name").split(".")[-1],
+            "line":  source.count("\n", 0, start) + 1,
+            "start": start,
+            "end":   len(source) if end < 0 else end,
+        })
+    return decls
+
+
+def body_name(source: str, span: tuple[int, int, int]) -> str | None:
+    """Name of the def/can/impl whose body is `span`; None for `with entry` and anonymous blocks."""
+    m = _DECL_HEAD.match(source, source.rfind("\n", 0, span[0]) + 1)
+    return m.group("name").split(".")[-1] if m and m.group("arch") is None else None
+
+
+# Repo-level symbol lookup ===================================
+IDENT = re.compile(r"\b[A-Za-z_]\w{2,}\b")
+
+
+def jac_sources(repo_root: Path, exclude: set[str]) -> dict[str, str]:
+    """`{rel path: source}` for every Jac file of a repo, minus meta.json's `exclude_files`."""
+    out = {}
+    for path in iter_repo_files(repo_root):
+        rel = path.relative_to(repo_root).as_posix()
+        if path.suffix != ".jac" or rel in exclude:
+            continue
+        try:
+            out[rel] = path.read_text(encoding="utf-8")
+        except (UnicodeDecodeError, OSError):
+            continue
+    return out
+
+
+def symbol_index(sources: dict[str, str]) -> dict[str, list[dict]]:
+    """`{name: [{file, kind, line, start, end}, ...]}` over all Jac files of one repo."""
+    index: dict[str, list[dict]] = {}
+    for rel, source in sources.items():
+        for d in declarations(source):
+            index.setdefault(d["name"], []).append({"file": rel, **{k: d[k] for k in ("kind", "line", "start", "end")}})
+    return index
+
+
+def cross_refs(body: str, rel: str, index: dict[str, list[dict]]) -> list[str]:
+    """Names used in `body` that are declared exactly once, in another file of the repo (first-use order)."""
+    seen = []
+    for name in IDENT.findall(body):
+        defs = index.get(name, [])
+        if len(defs) == 1 and defs[0]["file"] != rel and name not in seen:
+            seen.append(name)
+    return seen
+
+
+def load_meta(path: str | Path) -> dict:
+    """raw/repo/meta.json (jac-data-gen): whitelist and per-repo `exclude_files`."""
+    return json.loads(Path(path).read_text())

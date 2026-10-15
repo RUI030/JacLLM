@@ -73,7 +73,7 @@ def resolve_names(stage: str, task: str | None, names) -> list[Path]:
     return [base / n for n in names]
 
 
-TRAIN_COLUMNS = ("text", "messages", "prompt", "task_id", "task_dir", "task_type")  # columns the trainers consume
+TRAIN_COLUMNS = ("text", "messages", "tools", "prompt", "task_id", "task_dir", "task_type")  # columns the trainers consume
 
 
 def load_splits(ds_dir: Path, splits: list[str]) -> Dataset | None:
