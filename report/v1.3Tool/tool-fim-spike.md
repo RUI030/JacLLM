@@ -90,7 +90,7 @@ Every assistant turn in the data has an empty thinking block (`<think>\n\n</thin
 | 260 | 1.04 | 0.078 |
 | 490 | 1.97 | 0.055 |
 
-The loss halves right at the epoch boundary and stays near 0.06 for all of epoch 2 (mean 0.067). That drop at the moment rows repeat suggests the second epoch mostly memorized the training rows. Held-out loss was not measured and the epoch-1 checkpoint (`checkpoint-200`, the closest saved one) was not evaluated, so whether epoch 2 helped or hurt is open.
+The loss halves right at the epoch boundary and stays near 0.06 for all of epoch 2 (mean 0.067). That drop at the moment rows repeat suggests the second epoch mostly memorized the training rows. Held-out loss was not measured and the checkpoint closest to the end of epoch 1 (`checkpoint-200`, epoch 0.80; checkpoints were saved every 100 steps) was not evaluated, so whether epoch 2 helped or hurt is open.
 
 Log: `output/adapter/1015-toolfim-v13A/sft/checkpoint-498/trainer_state.json`.
 
@@ -209,7 +209,7 @@ Each failure matches a habit from the training rows, where every `edit` replaces
 - the new text is always the correct full body, so a retry writes that body again, unchanged;
 - no row reads the file after an edit, so retries write the old text from memory.
 
-So the loops come mainly from data coverage: the training rows never reach a state after a failure, and in that state the model repeats the one edit it knows. The second epoch may make this more rigid, but this run cannot separate the two; evaluating `checkpoint-200` would.
+So the loops come mainly from data coverage: the training rows never reach a state after a failure, and in that state the model repeats the one edit it knows. The second epoch may make this more rigid, but this run cannot separate the two; evaluating `checkpoint-200` (epoch 0.80) would.
 
 ---
 
@@ -227,14 +227,14 @@ So the loops come mainly from data coverage: the training rows never reach a sta
 
    Repeated starter prompts (for example "Build a full-stack expense tracker with user accounts, categories, and a dashboard", 19 times) come from templates and suggested prompts, so deduplication should look at the whole conversation, not only the first prompt.
 3. **Keep failed steps in context, without training on them.** Instead of dropping failed attempts, keep them in the conversation and give their assistant turns weight 0, so the model is trained on the recovery that follows the failure but not on the mistake. `script/train/sft.py` already supports this (`weight: 0`). Published work supports learning from failures:
-   - SWE-Lego keeps the full trajectory and masks the loss on agent responses that caused tool errors, found by regular expressions on the terminal output; this alone gave about 2 points on SWE-bench Verified.
-   - Step Rejection Fine-Tuning (JetBrains) uses a critic model to grade each step, masks the loss on wrong steps but keeps them in context, and keeps unresolved trajectories: 3.7% gain on SWE-bench Verified against 2.4% for keeping only successful trajectories.
-   - Agent-R builds training data by cutting a failed trajectory at its first error and joining it to a correct continuation, so the model learns to notice and correct its own mistakes.
-   - Negative-Aware Training trains on failed trajectories too, marked with a prefix that tells the model it is a failure, and reports gains over training on successes only.
+   - SWE-Lego [1] keeps the full trajectory and masks the loss on agent responses that caused tool errors, found by regular expressions on the terminal output; this alone gave about 2 points on SWE-bench Verified.
+   - Step Rejection Fine-Tuning [2] uses a critic model to grade each step, masks the loss on wrong steps but keeps them in context, and keeps unresolved trajectories: 3.7% gain on SWE-bench Verified against 2.4% for keeping only successful trajectories.
+   - Agent-R [3] builds training data by cutting a failed trajectory at its first error and joining it to a correct continuation, so the model learns to notice and correct its own mistakes.
+   - Negative-Aware Training [4] trains on failed trajectories too, marked with a prefix that tells the model it is a failure, and reports gains over training on successes only.
 
    A synthetic version is also possible for the tool FIM data: a wrong first body from a real model run, its real `jac check` output, a `read`, then the correct edit.
 4. **Wrong-file cases in the producer.** For bodies in an `impl` file, look the symbol up so the search hits both the declaration and the `impl`, and make the trajectory read the `impl`. For names defined in several files, make the trajectory pick the file named in the prompt.
-5. **Epochs.** Evaluate `checkpoint-200` against the final model, or train 1 epoch, to see whether epoch 2 helps.
+5. **Epochs.** Evaluate `checkpoint-200` (epoch 0.80) against the final model, or train 1 epoch, to see whether epoch 2 helps. Save checkpoints per epoch in the next run so epochs can be compared directly.
 6. **Harder split.** Hold out whole repos, not only files, to measure projects the model has never seen.
 7. **Behavior, not only compile.** Add tests or run checks for a subset of tasks, since "solved" only means the file compiles.
 8. **Thinking.** All training turns have an empty thinking block because there is no good reasoning data yet. Real agent trajectories with their reasoning (for example a full JacHammer export with tool calls and results) should go into training once available.
@@ -269,4 +269,9 @@ PI_CODING_AGENT_DIR=output/eval/tool_fim/repo-all-pi/toolfim-spike_10-15_04-18/p
 
 Each eval folder has `report.json`, `results.jsonl` (one row per task) and `transcripts/` (the full pi event stream per task).
 
-Sources: [SWE-Lego](https://arxiv.org/abs/2601.01426), [Step Rejection Fine-Tuning](https://arxiv.org/abs/2605.10674), [Agent-R](https://arxiv.org/abs/2501.11425), [Negative-Aware Training](https://arxiv.org/abs/2402.11651) (NAACL 2025).
+## References
+
+1. Chaofan Tao, Jierun Chen, Yuxin Jiang, et al. *SWE-Lego: Pushing the Limits of Supervised Fine-tuning for Software Issue Resolving.* arXiv:2601.01426, January 2026. https://arxiv.org/abs/2601.01426 (step-level error masking: section 3.1, ablation in table 7)
+2. Igor Slinko, Ilia Zavidnyi, Egor Bogomolov, Yaroslav Zharov. *Step Rejection Fine-Tuning: A Practical Distillation Recipe.* arXiv:2605.10674, May 2026. https://arxiv.org/abs/2605.10674
+3. Siyu Yuan, Zehui Chen, Zhiheng Xi, Junjie Ye, Zhengyin Du, Jiecao Chen. *Agent-R: Training Language Model Agents to Reflect via Iterative Self-Training.* arXiv:2501.11425, January 2025. https://arxiv.org/abs/2501.11425
+4. Renxi Wang, Haonan Li, Xudong Han, Yixuan Zhang, Timothy Baldwin. *Learning From Failure: Integrating Negative Examples when Fine-tuning Large Language Models as Agents.* arXiv:2402.11651, February 2024; published as *NAT: Enhancing Agent Tuning with Negative Samples*, NAACL 2025. https://arxiv.org/abs/2402.11651
