@@ -1,6 +1,6 @@
 # Reinforcement Learning
 
-> **Purpose:** Increase the chance that JacCoder solves verifiable Jac tasks through trial and error. Start from an SFT model that can already solve some tasks; if every answer to a problem fails, GRPO has no relative signal to learn from.
+> **Purpose:** Increase the chance that JacLLM solves verifiable Jac tasks through trial and error. Start from an SFT model that can already solve some tasks; if every answer to a problem fails, GRPO has no relative signal to learn from.
 
 ## Spike
 

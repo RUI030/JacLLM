@@ -1,6 +1,6 @@
-# JacCoder
+# JacLLM
 
-JacCoder is a small training workspace for Jac-focused language model work. It currently centers on:
+JacLLM is a small training workspace for Jac-focused language model work. It currently centers on:
 
 - continual pretraining (CPT) and supervised fine-tuning (SFT) with Unsloth
 - recipe-driven multi-dataset training
@@ -18,7 +18,7 @@ The repo is organized so that most day-to-day work happens in three folders:
 ## Repo Layout
 
 ```text
-JacCoder/
+JacLLM/
 ├── dataset/
 │   ├── cpt/              # text-only training datasets
 │   ├── sft/              # instruction / response datasets
@@ -142,7 +142,7 @@ tensorboard --logdir path/to/tensorboard
 ```
 under `run` folder in the adapter folder, default path is 
 ```bash
-tensorboard --logdir JacCoder/output/adapter/<YOUR_EXPERIMENT_NAME>/runs
+tensorboard --logdir JacLLM/output/adapter/<YOUR_EXPERIMENT_NAME>/runs
 ```
 
 

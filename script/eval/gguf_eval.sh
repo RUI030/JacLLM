@@ -3,7 +3,7 @@
 #   bash script/eval/gguf_eval.sh <gguf> <tag> <limit> [parallel]   (limit 0 = all)
 set -uo pipefail
 GGUF="$1"; TAG="$2"; LIMIT="$3"; NP="${4:-16}"
-ROOT=/workspace/JacCoder
+ROOT=/workspace/JacLLM
 PY=/root/miniforge3/envs/jacllm/bin/python
 LLAMA_CPP="${LLAMA_CPP:-/workspace/unsloth-studio/llama.cpp}"   # Unsloth Studio's prebuilt llama.cpp
 cd "$ROOT"

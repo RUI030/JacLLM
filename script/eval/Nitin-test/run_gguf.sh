@@ -4,7 +4,7 @@
 # Needs a non-root `jacgrader` user (useradd -m jacgrader) and jac at /workspace/bin/jac.
 set -uo pipefail
 GGUF="$1"; TAG="$2"; SPLIT="$3"; LIMIT="${4:-0}"; PORT="${5:-8091}"   # not 8081: RunPod nginx listens there and proxies to 8080; NP=16
-ROOT=/workspace/JacCoder
+ROOT=/workspace/JacLLM
 LLAMA_CPP="${LLAMA_CPP:-/workspace/unsloth-studio/llama.cpp}"   # Unsloth Studio's prebuilt llama.cpp
 cd "$ROOT"
 

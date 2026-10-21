@@ -18,7 +18,7 @@ RL algorithms (GRPO, PPO, DPO with reward model, rejection sampling) all want th
 | **JacPlayground** | Single file, one prompt, one reply | Seconds | RL training, unit eval, quick smoke |
 | **JacProjectFactory** | Multi-file repo, many phases | ~10 min | Repo-level eval, dataset generation |
 
-Common ground (extract as shared lib later): `jac check` / `jac run` / `jac test` wrappers already live at `JacCoder/script/utils/jac_cli.py`. Playground reuses those.
+Common ground (extract as shared lib later): `jac check` / `jac run` / `jac test` wrappers already live at `JacLLM/script/utils/jac_cli.py`. Playground reuses those.
 
 ## Layout (proposed)
 
@@ -63,7 +63,7 @@ timeout_seconds: 10              # per grade() call
 ```python
 # verifier.py
 from dataclasses import dataclass
-from utils.jac_cli import check as jac_check, test as jac_test  # reuse JacCoder's
+from utils.jac_cli import check as jac_check, test as jac_test  # reuse JacLLM's
 
 @dataclass
 class GradeResult:
@@ -126,7 +126,7 @@ Three drivers hit the verifier through the same API:
 2. **GRPO trainer** — `reward_funcs=[lambda task, c: verifier.grade(task, c).reward]` fed to `UnslothGRPOTrainer`
 3. **Eval driver** — sweep tasks × model checkpoints, dump CSV like `gate.py` does
 
-Playground doesn't own any of these — they live in `JacCoder/script/train/` and `JacCoder/script/eval/`. Playground is a library + task bank.
+Playground doesn't own any of these — they live in `JacLLM/script/train/` and `JacLLM/script/eval/`. Playground is a library + task bank.
 
 ## What Playground is NOT
 
@@ -146,7 +146,7 @@ Playground doesn't own any of these — they live in `JacCoder/script/train/` an
 
 ## Open questions
 
-- **Where does Playground live** — sibling repo (`JacLLM/JacPlayground/`) mirroring Factory, or subfolder inside JacCoder (`JacCoder/playground/`)? Sibling if we want other repos to depend on it; subfolder if it stays JacCoder-internal. Leaning sibling for cleanliness
+- **Where does Playground live** — sibling repo (`JacLLM/JacPlayground/`) mirroring Factory, or subfolder inside JacLLM (`JacLLM/playground/`)? Sibling if we want other repos to depend on it; subfolder if it stays JacLLM-internal. Leaning sibling for cleanliness
 - **Golden solutions**: keep them in-repo (under `tasks/<id>/golden.jac`, gitignored during eval), or archive elsewhere? In-repo is convenient but risks leakage into training data
 - **Test isolation**: if two tasks import overlapping identifiers, tempfile handling matters. Prob just run each grade() in its own tempdir
 - **Task rotation for GRPO**: sample uniformly, weight by difficulty, or curriculum (easy → hard)? Start uniform, revisit after first GRPO run

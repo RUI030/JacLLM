@@ -2,7 +2,7 @@
 
 ## Motivation
 
-Current JacCoder eval only has:
+Current JacLLM eval only has:
 - `loss.py` — forward NLL per checkpoint (proxy signal; low is nice, doesn't prove anything)
 - `gate.py` — `jac check` pass rate on SFT valid split (single-file, syntax-level)
 
@@ -94,7 +94,7 @@ For eval-mode batch, need a way to swap adapters between runs. Simplest: script 
 
 - **Time budget**: `full` level ran ~10 min/spec on Ornith. `naked` will retry-cap fast so probably faster. Still, 5 specs × 3 levels × N adapters gets slow. Do we accept overnight batches, or trim to 1 level for routine eval and 3 levels only for milestone comparisons?
 - **Non-determinism**: even with fixed seed, claude-p and jac test may have variance. Do we run each cell N=3 and report median, or accept single-shot?
-- **Where does the CSV live** — in JacCoder's `output/eval/factory/` (this repo's convention) or in `JacProjectFactory/output/`? Argument for JacCoder side: eval belongs to the trainee, not the harness.
+- **Where does the CSV live** — in JacLLM's `output/eval/factory/` (this repo's convention) or in `JacProjectFactory/output/`? Argument for JacLLM side: eval belongs to the trainee, not the harness.
 - **Naked-mode fairness**: with 0 retries and no skills, base Ornith will likely score 0/5. That's fine as a floor, but the gradient between adapters may be invisible at this level until models get much better — might want to defer `naked` until adapters are stronger.
 
 ---
@@ -192,6 +192,6 @@ Factory is a **fantastic verifier**, a **very expensive rollout environment**. F
 
 ## What NOT to do
 
-- Don't copy Factory into JacCoder. Two repos, one pipeline, one truth.
+- Don't copy Factory into JacLLM. Two repos, one pipeline, one truth.
 - Don't add eval-only code paths that bypass real gates. If a gate is too strict for eval, weaken it globally (with justification) — never fork the gate.
 - Don't tune Factory's prompts to make a specific adapter look better. Prompts stay frozen; only the model changes.

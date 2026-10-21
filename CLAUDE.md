@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-JacCoder is a training workspace for LoRA-tuning LLMs (`ornith-ai/Ornith-1.5-9B`, a Qwen-family VLM wrapper, and `unsloth/Qwen3-Coder-30B-A3B-Instruct`, a MoE model) on the Jac language, built on Unsloth. It is a collection of runnable Python scripts, not an installable package: there is no build step, linter, or test suite. Everything under `script/` needs an NVIDIA GPU and the pinned Unsloth/Transformers/TRL stack, except the dataset producers and `graders/`.
+JacLLM is a training workspace for LoRA-tuning LLMs (`ornith-ai/Ornith-1.5-9B`, a Qwen-family VLM wrapper, and `unsloth/Qwen3-Coder-30B-A3B-Instruct`, a MoE model) on the Jac language, built on Unsloth. It is a collection of runnable Python scripts, not an installable package: there is no build step, linter, or test suite. Everything under `script/` needs an NVIDIA GPU and the pinned Unsloth/Transformers/TRL stack, except the dataset producers and `graders/`.
 
 `docs/CONVENTION.md` is the authoritative style and layout guide for all Python under `script/`. Read it before adding or restructuring code.
 

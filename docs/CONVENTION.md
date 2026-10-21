@@ -1,11 +1,11 @@
-# JacCoder conventions
+# JacLLM conventions
 
 Reference for how code is organised and written in this repo. Applies to all
 Python under `script/`.
 
 ## What this project is
 
-JacCoder is a training workspace for Jac-focused language models. Four
+JacLLM is a training workspace for Jac-focused language models. Four
 domains sit under `script/`:
 
 - `dataset/` — turn raw source (`.jac` files, JSONL, GitHub repos, agent

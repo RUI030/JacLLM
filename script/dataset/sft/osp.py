@@ -40,7 +40,7 @@ def jsonl2osp(in_dir=IN_DIR, out_dir=OUT_DIR, format=OUT_FORMAT):
 
     Source rows are already SFT-shaped (user + assistant ```jac``` block) and
     validator-gated (`compiler_pass=True, test_pass=True`); this script only
-    adds the JacCoder `meta` block and splits.
+    adds the JacLLM `meta` block and splits.
     """
     in_dir  = Path(in_dir)
     out_dir = Path(out_dir)
