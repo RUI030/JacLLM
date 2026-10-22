@@ -4,7 +4,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 
 from utils.classifier import classify_structural as classify
-from dataset.pipeline import load_prompts, report, split_and_write
+from dataset.pipeline import chat_style, load_prompts, report, split_and_write
 
 # Setting =================================================
 DS_FORMAT = "jac"
@@ -27,12 +27,12 @@ def build_record(fp: str, archetype: str, node: str, walkers: str,
                  prompts: dict, rng: random.Random) -> dict:
     prefix      = rng.choice(prompts[TASK_TYPE]).format(node=node)
     instruction = f"{prefix}\n\n```jac\n{archetype}\n```"
-    answer      = f"```jac\n{walkers}\n```"
+    system, wrap = chat_style(fp, prompts)
     return {
         "messages": [
-            {"role": "system",    "content": rng.choice(prompts["system"])},
+            {"role": "system",    "content": system},
             {"role": "user",      "content": instruction},
-            {"role": "assistant", "content": answer},
+            {"role": "assistant", "content": wrap(walkers)},
         ],
         "meta": {
             "source":    SOURCE,
@@ -73,7 +73,7 @@ def jsonl2farm(in_dir=IN_DIR, out_dir=OUT_DIR, format=OUT_FORMAT):
     if not samples:
         raise FileNotFoundError(f"No samples found in: {in_dir}")
 
-    prompts = load_prompts(PROMPT, "system", TASK_TYPE)
+    prompts = load_prompts(PROMPT, "system", "system_chat", TASK_TYPE)
     rng     = random.Random(SEED)
     rng.shuffle(samples)
     records = [build_record(fp, a, n, w, prompts, rng) for fp, a, n, w in samples]

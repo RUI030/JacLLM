@@ -1,0 +1,55 @@
+# Trajectory SFT: Codex trajectories (colleague archive, harness/codex.json prompt + tools) on top of the merged v1.3 CPT.
+# Base = CPT v1.3-A adapter (0926-v13-A/cpt) merged into bf16 (output/model/JacLLM-CPT-Ornith-9B-v1.3A-bf16), then a fresh
+# r64 LoRA. This skips the v1.3 SFT stage on purpose: the base is v1.3 CPT only.
+# Settings = v13-A SFT (0926-v13-compile-only-ablation/sft-A.yaml) except: base_model/adapter, max_seq_length 16384
+# (probe: script/eval/probe/seq_mem.py, 13.1GB peak on the 5080), dataset.
+# Data must be built for the same length first: python script/dataset/sft/tool_use.py --in-file dataset/raw/trajectory/codex.jsonl
+#   --out-dir dataset/sft/tool_use/codex --max-token 16384  (the 32k build keeps only 117 of 781 trajectories, see report)
+recipe:
+  name: trajectory-sft
+  stage: sft
+  base_model: output/model/JacLLM-CPT-Ornith-9B-v1.3A-bf16
+  adapter: ""
+  out_dir: output/adapter/1022-trajectory-sft/sft
+  seed: 3407
+  max_seq_length: 16384
+  load_in_4bit: true
+  text_only: true
+  chat_template: null           # native Ornith template: renders tool schemas and <tool_call> blocks
+
+hyperparams:
+  epochs: 1
+  batch_size: 1
+  grad_acc: 10
+  lr: 2.0e-4
+  embed_lr: 0
+  optimizer: adamw_8bit
+  scheduler: linear
+  warmup_steps: 10
+  weight_decay: 1.0e-3
+  save_steps: 100
+  eval_steps: 0.1
+  do_eval: false
+  lora_rank: 64
+  lora_alpha: 16
+  lora_dropout: 0
+  rslora: true
+  bias: none
+  grad_checkpt: unsloth
+  packing: true                 # selects per-conversation labels (sft.py); Unsloth does not pack Ornith
+  target_module:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+  instruction_part: "<|im_start|>user\n"
+  response_part:    "<|im_start|>assistant\n"
+
+mixing:
+  strategy: concat
+
+datasets:
+  - {task: tool_use, name: codex, split: [train]}

@@ -2,9 +2,9 @@
     "system":[
         "You are a helpful assistant.",
         "You are an expert AI assistant specializing in the jac programming language.",
-        "You are an expert jac language assistant. Provide syntatically correct Jac code inside ```jac code blocks when applicable."
+        "You are an expert jac language assistant."
     ],
-    "cpt_jac": [
+    "cpt_jac":[
         "# Language: Jac",
         "# Language: jac",
         "# language: jac",
@@ -12,54 +12,54 @@
         "# written in jac"
     ],
     "js2jac":[
-        "Convert the following JavaScript/TypeScript code into Jac. Return only a ```jac ... ``` block:",
-        "Translate this JS/TS snippet to idiomatic Jac. Wrap your answer in ```jac ... ```.",
-        "Rewrite the code below in Jac. Reply with only the Jac source in a ```jac``` block.",
-        "Port the JS/TS below to Jac. Keep the behavior identical. Return a single ```jac ... ``` block.",
-        "Please produce the Jac equivalent of the following TypeScript. Output only ```jac ... ```.",
-        "Given this JS/TS source, write the equivalent Jac. Respond with a ```jac ... ``` code block only.",
-        "Migrate the code below from JavaScript/TypeScript to Jac. Answer with ```jac ... ``` only.",
-        "Rewrite the following file in Jac, preserving semantics. Wrap the output in ```jac ... ```.",
-        "Convert JS/TS → Jac. Reply with the full Jac source inside ```jac ... ```.",
-        "Translate the TypeScript below into Jac. Output only a ```jac``` code block containing the translation."
+        "Convert the following JavaScript/TypeScript code into Jac. Return only the Jac code:",
+        "Translate this JS/TS snippet to idiomatic Jac.",
+        "Rewrite the code below in Jac. Reply with only the Jac source.",
+        "Port the JS/TS below to Jac. Keep the behavior identical. Return a single Jac file.",
+        "Please produce the Jac equivalent of the following TypeScript. Output only the Jac code.",
+        "Given this JS/TS source, write the equivalent Jac. Respond with the code only.",
+        "Migrate the code below from JavaScript/TypeScript to Jac. Answer with the Jac code only.",
+        "Rewrite the following file in Jac, preserving semantics.",
+        "Convert JS/TS → Jac. Reply with the full Jac source.",
+        "Translate the TypeScript below into Jac. Output only the translation."
     ],
     "code_completion":[
         "Complete the following Jac code based on the docstring and signature:",
-        "Finish the jac code below. Wrap your answer in ```jac <CODE>```.",
+        "Finish the jac code below.",
         "Given the docstring and imports below, write the full Jac implementation:",
-        "Here is the start of a Jac function. Complete it and return the whole file wrapped in ```jac ... ```.",
-        "Write the Jac function described by the comment(s) below. Reply with just the code, wrapped in ```jac ... ```.",
-        "Implement the following in Jac. Include the docstring in your answer and wrap the code in ```jac ... ```.",
-        "Continue this Jac source. Return the complete file inside a ```jac``` code block.",
+        "Here is the start of a Jac function. Complete it and return the whole file.",
+        "Write the Jac function described by the comment(s) below. Reply with just the code.",
+        "Implement the following in Jac. Include the docstring in your answer.",
+        "Continue this Jac source. Return the complete file.",
         "Fill in the missing Jac implementation for the description below:",
-        "Please provide the full Jac code for the function described. Respond with a ```jac ... ``` block only.",
+        "Please provide the full Jac code for the function described. Respond with the code only.",
         "Based on the header below, produce the corresponding Jac implementation."
     ],
     "scaffold2impl":[
-        "Fill in the implementation bodies for the Jac scaffold below. Preserve the declarations, imports, and docstrings; replace every `{ ... }` with real code. Respond with a single ```jac ... ``` block containing the completed file.",
-        "The Jac file below has its function, ability, and entry-block bodies stripped to `{ ... }`. Complete each body so the file is fully implemented. Reply with a ```jac ... ``` block only.",
-        "Given the Jac scaffold below (declarations only, bodies replaced with `{ ... }`), write the full implementation. Keep the existing structure and docstrings. Wrap your answer in ```jac ... ```.",
-        "Complete this Jac source. Every `{ ... }` marks a body you must fill in. Return the finished file inside a ```jac ... ``` block.",
-        "Below is a Jac file skeleton. Replace each `{ ... }` placeholder with a working implementation consistent with the declarations and docstrings. Output a single ```jac ... ``` block.",
-        "Turn this Jac scaffold into a runnable file by writing every missing body. Return only ```jac ... ```."
+        "Fill in the implementation bodies for the Jac scaffold below. Preserve the declarations, imports, and docstrings; replace every `{ ... }` with real code. Respond with the completed file.",
+        "The Jac file below has its function, ability, and entry-block bodies stripped to `{ ... }`. Complete each body so the file is fully implemented. Reply with the code only.",
+        "Given the Jac scaffold below (declarations only, bodies replaced with `{ ... }`), write the full implementation. Keep the existing structure and docstrings.",
+        "Complete this Jac source. Every `{ ... }` marks a body you must fill in. Return the finished file.",
+        "Below is a Jac file skeleton. Replace each `{ ... }` placeholder with a working implementation consistent with the declarations and docstrings. Output the completed file.",
+        "Turn this Jac scaffold into a runnable file by writing every missing body. Return only the code."
     ],
     "farm":[
-        "Given the following Jac graph schema, write CRUD walkers (create, list, delete, and update where applicable) for the '{node}' node. Respond with only a ```jac ... ``` block.",
-        "Below is a Jac schema with node and edge declarations. Produce the public CRUD walkers targeting the '{node}' node. Wrap your answer in ```jac ... ```.",
-        "You are given a Jac graph schema. Write walker:pub archetypes that create, list, delete, and (if appropriate) update instances of '{node}'. Reply with a ```jac ... ``` code block only.",
-        "From the schema below, generate the CRUD walker set for '{node}' — create/list/delete/update. Return the code inside a ```jac``` block.",
-        "Implement the CRUD walkers for the '{node}' node in the schema below. Output a single ```jac ... ``` block.",
-        "Write Jac walker:pub definitions to create, list, delete, and update '{node}' instances given this schema. Respond only with ```jac ... ```."
+        "Given the following Jac graph schema, write CRUD walkers (create, list, delete, and update where applicable) for the '{node}' node. Respond with only the code.",
+        "Below is a Jac schema with node and edge declarations. Produce the public CRUD walkers targeting the '{node}' node.",
+        "You are given a Jac graph schema. Write walker:pub archetypes that create, list, delete, and (if appropriate) update instances of '{node}'. Reply with the code only.",
+        "From the schema below, generate the CRUD walker set for '{node}' — create/list/delete/update.",
+        "Implement the CRUD walkers for the '{node}' node in the schema below. Output the walkers only.",
+        "Write Jac walker:pub definitions to create, list, delete, and update '{node}' instances given this schema. Respond only with the code."
     ],
-    "scaffold2impl_partial_full": [
-        "The Jac file below has its bodies stripped to `{ ... }`. Implement ONLY these declarations:\n{names}\nLeave every other `{ ... }` exactly as it is. Respond with the whole file in a single ```jac ... ``` block.",
-        "Fill in the bodies of just the following declarations in this Jac scaffold:\n{names}\nDo not touch the remaining `{ ... }` placeholders. Return the complete file inside ```jac ... ```.",
-        "Complete part of this Jac file: write the bodies for\n{names}\nand keep all other bodies as `{ ... }`. Reply with the full file as one ```jac``` block."
+    "scaffold2impl_partial_full":[
+        "The Jac file below has its bodies stripped to `{ ... }`. Implement ONLY these declarations:\n{names}\nLeave every other `{ ... }` exactly as it is. Respond with the whole file.",
+        "Fill in the bodies of just the following declarations in this Jac scaffold:\n{names}\nDo not touch the remaining `{ ... }` placeholders. Return the complete file.",
+        "Complete part of this Jac file: write the bodies for\n{names}\nand keep all other bodies as `{ ... }`. Reply with the full file."
     ],
-    "scaffold2impl_partial_decls": [
-        "The Jac file below has its bodies stripped to `{ ... }`. Implement these declarations:\n{names}\nReply with only those declarations, fully implemented, in a single ```jac ... ``` block.",
-        "Using the Jac scaffold below as context, write the full implementation of\n{names}\nReturn just those declarations inside ```jac ... ```.",
-        "Write the missing bodies for the following declarations of this Jac file:\n{names}\nOutput only the completed declarations as one ```jac``` block."
+    "scaffold2impl_partial_decls":[
+        "The Jac file below has its bodies stripped to `{ ... }`. Implement these declarations:\n{names}\nReply with only those declarations, fully implemented.",
+        "Using the Jac scaffold below as context, write the full implementation of\n{names}\nReturn just those declarations.",
+        "Write the missing bodies for the following declarations of this Jac file:\n{names}\nOutput only the completed declarations."
     ],
     "rl_functions":[
         "Implement the Jac function described below, starting from the given starter file. Return the complete file in exactly one ```jac ... ``` block.",
@@ -88,5 +88,10 @@
         "These functions in {path} are still stubs, fill them in:\n{targets}",
         "{path} has several unimplemented bodies. Implement:\n{targets}",
         "Please finish the following in {path} and check the file:\n{targets}"
+    ],
+    "system_chat":[
+        "You are a Jac programming assistant in a chat interface. Put all Jac code in your reply inside a ```jac fenced code block.",
+        "You are an expert AI assistant for the jac programming language. This is a chat interface, so write any Jac code you give as a ```jac fenced block.",
+        "You are a helpful assistant in a chat window. Respond with Jac code in a ```jac code block."
     ]
 }

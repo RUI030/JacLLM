@@ -3,7 +3,7 @@ from collections import defaultdict
 from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parent.parent))
-from utils.jac_block import first_jac_block, classify_output
+from utils.jac_block import extract_code, classify_output
 from utils.jac_cli import check as jac_check, run as jac_run
 
 # Setting =================================================
@@ -36,8 +36,8 @@ def evaluate(pred_file=PRED_FILE, checks=CHECKS):
     if not pred_path.is_file():
         raise FileNotFoundError(f"Predictions not found: {pred_path}")
 
-    # aggregate counters — track has_block / wrong_fence / no_output separately
-    output_kinds = ["has_block", "wrong_fence", "no_output"]
+    # aggregate counters — track has_block / bare / wrong_fence / no_output separately
+    output_kinds = ["has_block", "bare", "wrong_fence", "no_output"]
     counter_keys = ["n"] + output_kinds + [f"{c}_pass" for c in checks]
     def _zero(): return {k: 0 for k in counter_keys}
     overall = _zero()
@@ -58,7 +58,7 @@ def evaluate(pred_file=PRED_FILE, checks=CHECKS):
                 "id":         rec.get("id"),
                 "class":      cls,
                 "prediction": pred_txt,
-                "kind":       kind,   # has_block / wrong_fence / no_output
+                "kind":       kind,   # has_block / bare / wrong_fence / no_output
             }
             for c in checks:
                 entry[f"{c}_ok"]  = None
@@ -67,12 +67,12 @@ def evaluate(pred_file=PRED_FILE, checks=CHECKS):
             overall[kind] += 1
             by_class[cls][kind] += 1
 
-            if kind != "has_block":
+            if kind not in ("has_block", "bare"):
                 samples.append(entry)
                 continue
 
-            block = first_jac_block(pred_txt)
-            # kind == has_block guarantees block is not None
+            block = extract_code(pred_txt)
+            # kind in (has_block, bare) guarantees block is not None
 
             # ladder: run each gate only if prior passed
             prev_ok = True
@@ -102,14 +102,14 @@ def evaluate(pred_file=PRED_FILE, checks=CHECKS):
         json.dump(report, dst, indent=2, ensure_ascii=False)
 
     n = overall["n"] or 1
-    header = (f"n={overall['n']}  has_block={overall['has_block']}/{n}  "
+    header = (f"n={overall['n']}  has_block={overall['has_block']}/{n}  bare={overall['bare']}  "
               f"wrong_fence={overall['wrong_fence']}  no_output={overall['no_output']}")
     for c in checks:
         header += f"  {c}_pass={overall[f'{c}_pass']}/{n}"
     print(header)
     for cls, s in by_class.items():
         cn = s["n"] or 1
-        parts = [f"n={s['n']:4d}", f"block={s['has_block']:4d}",
+        parts = [f"n={s['n']:4d}", f"block={s['has_block']:4d}", f"bare={s['bare']}",
                  f"wf={s['wrong_fence']}", f"no={s['no_output']}"]
         for c in checks:
             parts.append(f"{c}={s[f'{c}_pass']:4d} ({s[f'{c}_pass']*100/cn:.1f}%)")

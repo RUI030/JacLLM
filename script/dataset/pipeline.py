@@ -5,7 +5,7 @@ then splits + writes them. This module owns the split+write half so each
 script only has to know how to turn one raw sample into one record (or task).
 """
 
-import json, random, shutil
+import hashlib, json, random, shutil
 import sys
 from collections import Counter
 from pathlib import Path
@@ -21,6 +21,23 @@ def load_prompts(path, *keys: str) -> dict:
     if missing:
         raise ValueError(f"Missing {missing} in prompt template: {path}")
     return {k: tpl[k] for k in keys}
+
+
+FENCE_RATIO = 0.15      # share of records answered as a ```jac block; the rest reply with bare code
+
+
+def chat_style(fp: str, prompts: dict, ratio: float = FENCE_RATIO):
+    """(system prompt, wrap) of one record, decided by `fp` so a sample always gets the same style.
+
+    A fenced record is a chat interface: its system prompt says so and the answer is a ```jac block.
+    Every other record has a plain system prompt (None when `prompts["system"]` is empty), no fence is
+    asked for anywhere, and the answer is the bare code. `prompts` needs "system" and "system_chat".
+    """
+    h      = int(hashlib.md5(str(fp).split("#part")[0].encode()).hexdigest(), 16)      # parts of one file share a style
+    fenced = h % 10_000 < ratio * 10_000
+    pool   = prompts["system_chat" if fenced else "system"]
+    system = pool[(h // 10_000) % len(pool)] if pool else None
+    return system, (lambda code: f"```jac\n{code}\n```") if fenced else (lambda code: code)
 
 
 def split_and_write(records: list[dict], out_dir, valid_size: float,

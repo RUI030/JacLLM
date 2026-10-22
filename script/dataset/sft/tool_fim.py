@@ -41,7 +41,7 @@ READ_FULL_LINES = 200                   # longer files are read as a window arou
 READ_PAD        = 30
 CTX_READ_LINES  = 60
 CHECK_TAIL      = 3                     # `jac check` warnings go to stderr and run long; agents tail it
-MAX_TOKENS      = 8192                  # chat-template tokens incl. system prompt + tool schemas
+MAX_TOKENS      = 16384                 # chat-template tokens incl. system prompt + tool schemas
 TOKENIZER       = "ornith-ai/Ornith-1.5-9B"
 CWD_ROOTS       = ["/home/dev", "/home/user/projects", "/workspace", "/home/alex/code", "/srv/app"]
 

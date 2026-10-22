@@ -4,7 +4,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 from utils.classifier    import classify_structural as classify
 from dataset.parser.repo import body_spans, iter_repo_files, iter_repos, strip_bodies
-from dataset.pipeline    import load_prompts, report, split_and_write
+from dataset.pipeline    import chat_style, load_prompts, report, split_and_write
 
 # Setting =================================================
 DS_FORMAT = "repo"
@@ -23,7 +23,7 @@ VALID_SIZE = 0.2
 SEED       = 3407
 MIN_CHARS  = 120                        # skip trivial files (tiny stubs)
 
-MAX_TOKENS  = None                      # None: one record per file, no length cap (--max-token)
+MAX_TOKENS  = 16384                     # chat-template tokens per record; longer files are split into parts (--max-token; None: no cap)
 ANSWER_MODE = "auto"                    # over-long files: full | decls | auto (full, then decls)
 TOKENIZER   = "ornith-ai/Ornith-1.5-9B" # counts tokens with its chat template
 PARTIAL_KEY = {"full": "scaffold2impl_partial_full", "decls": "scaffold2impl_partial_decls"}
@@ -32,12 +32,12 @@ PARTIAL_KEY = {"full": "scaffold2impl_partial_full", "decls": "scaffold2impl_par
 def build_record(fp: str, scaffold: str, impl: str,
                  prompts: dict, rng: random.Random) -> dict:
     instruction = f"{rng.choice(prompts[TASK_TYPE])}\n\n```jac\n{scaffold}\n```"
-    answer      = f"```jac\n{impl}\n```"
+    system, wrap = chat_style(fp, prompts)
     return {
         "messages": [
-            {"role": "system",    "content": rng.choice(prompts["system"])},
+            {"role": "system",    "content": system},
             {"role": "user",      "content": instruction},
-            {"role": "assistant", "content": answer},
+            {"role": "assistant", "content": wrap(impl)},
         ],
         "meta": {
             "source":    SOURCE,
@@ -72,7 +72,7 @@ def build_partial_record(fp: str, source: str, scaffold: str, spans: list, group
         answer = strip_bodies(source, keep=set(group)).strip()
     else:
         answer = "\n\n".join(declaration(source, spans[i]) for i in group)
-    return build_record(fp, scaffold, answer, {TASK_TYPE: [prefix], "system": [system]}, random.Random(0))
+    return build_record(fp, scaffold, answer, {TASK_TYPE: [prefix], "system": [system], "system_chat": [system]}, random.Random(0))
 
 def split_file(fp: str, source: str, scaffold: str, prompts: dict, rng: random.Random,
                n_tokens, max_tokens: int, answer_mode: str) -> tuple[list[dict], str | None]:
@@ -86,9 +86,9 @@ def split_file(fp: str, source: str, scaffold: str, prompts: dict, rng: random.R
         return [record], None
 
     spans  = body_spans(source)
-    system = rng.choice(prompts["system"])
+    system = chat_style(fp, prompts)[0]
     modes  = ["full", "decls"] if answer_mode == "auto" else [answer_mode]
-    bare   = n_tokens(build_record(fp, scaffold, "", {TASK_TYPE: [""], "system": [system]}, rng))
+    bare   = n_tokens(build_record(fp, scaffold, "", {TASK_TYPE: [""], "system": [system], "system_chat": [system]}, rng))
     if bare > max_tokens:
         return [], f"scaffold alone is {bare} tokens"
     reason = None
@@ -167,11 +167,11 @@ def repo2scaffold2impl(in_dir=IN_DIR, out_dir=OUT_DIR, format=OUT_FORMAT,
     rng = random.Random(SEED)
     rng.shuffle(samples)
     if max_tokens is None:
-        prompts = load_prompts(PROMPT, "system", TASK_TYPE)
+        prompts = load_prompts(PROMPT, "system", "system_chat", TASK_TYPE)
         records = [build_record(fp, sc, im, prompts, rng) for fp, sc, im in samples]
         rejected = []
     else:
-        prompts  = load_prompts(PROMPT, "system", TASK_TYPE, *PARTIAL_KEY.values())
+        prompts  = load_prompts(PROMPT, "system", "system_chat", TASK_TYPE, *PARTIAL_KEY.values())
         n_tokens = token_counter(TOKENIZER)
         records, rejected = [], []
         for fp, sc, im in samples:
