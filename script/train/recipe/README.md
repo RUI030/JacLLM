@@ -59,6 +59,12 @@ and the current step. The final `adapter/` directory contains model weights
 for inference or a fresh training stage; it is not a resumable Trainer
 checkpoint.
 
+Pick `save_steps` by how long a step takes, not by a fixed number: one step is `batch_size * grad_acc`
+sequences of up to `max_seq_length` tokens. A crash loses at most `save_steps` steps, so aim for
+about 1 to 2 hours between checkpoints (rank-64 on Ornith-9B: ~690MB each). Rule of thumb on the 5080:
+`max_seq_length` 4096 -> `save_steps` 200, 16384 -> 50 (one 16k step with `grad_acc` 10 is ~115 s). The
+setting is read at launch, so changing a recipe does not affect a run that is already going.
+
 Checkpoints are large (a rank-64 LoRA on Qwen3-Coder-30B-A3B is ~15GB each).
 Set `hyperparams.save_total_limit: N` to keep only the N newest
 `checkpoint-*/` directories; the default keeps all of them.

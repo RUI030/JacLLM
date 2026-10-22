@@ -27,7 +27,7 @@ hyperparams:
   scheduler: linear
   warmup_steps: 10
   weight_decay: 1.0e-3
-  save_steps: 100
+  save_steps: 50                  # a 16k step is ~115 s; see recipe/README.md (Resume an interrupted run)
   eval_steps: 0.1
   do_eval: false
   lora_rank: 64
