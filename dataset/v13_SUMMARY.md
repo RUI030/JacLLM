@@ -1,7 +1,7 @@
-# valid_training_data — JacCoder v1.3
+# valid_training_data — JacLLM v1.3
 
 Built by `scripts/gen/build_valid_training_data.py` (seed 3407, tokenizer ornith-ai/Ornith-1.5-9B).
-Plan: JacCoder v1.3 Dataset & Training Plan (Claude Docs). Tokens: CPT = text; SFT = full chat template.
+Plan: JacLLM v1.3 Dataset & Training Plan (Claude Docs). Tokens: CPT = text; SFT = full chat template.
 
 | dataset | rows | train | valid | tokens | avg | median | p95 | max | rejected | spot-check |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
