@@ -8,4 +8,4 @@ __pycache__
 archived
 draftlogs/
 push_model
-*.log
+*.logscript/dataset/trajectory/harness/jaccoder.*
