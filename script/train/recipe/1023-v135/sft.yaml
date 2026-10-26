@@ -1,0 +1,60 @@
+# v1.35 SFT on top of v1.35 CPT: v1.3-A SFT (0926-v13-compile-only-ablation/sft-A.yaml) on the rewritten SFT sets
+# (5529251: 14% chat-interface prompt + ```jac fenced reply, 86% plain prompt + bare reply; scaffold2impl rebuilt at 16384).
+# Changes vs sft-A: name, adapter, out_dir, max_seq_length 4096 -> 16384 (212 scaffold2impl rows are over 4096 and would
+# be cut mid-reply; every other set is under 4096, so this only affects those rows), save_steps 100 -> 200.
+recipe:
+  name: v135-sft-r64-seq
+  stage: sft
+  base_model: ornith-ai/Ornith-1.5-9B
+  adapter: output/adapter/1023-v135/cpt/adapter
+  out_dir: output/adapter/1023-v135/sft
+  seed: 3407
+  max_seq_length: 16384
+  load_in_4bit: true
+  text_only: true
+  chat_template: null
+
+hyperparams:
+  epochs: 1
+  batch_size: 1
+  grad_acc: 10
+  lr: 2.0e-4
+  embed_lr: 0
+  optimizer: adamw_8bit
+  scheduler: linear
+  warmup_steps: 10
+  weight_decay: 1.0e-3
+  save_steps: 200                # mostly short rows; see recipe/README.md (Resume an interrupted run)
+  eval_steps: 0.1
+  do_eval: false
+  lora_rank: 64
+  lora_alpha: 16
+  lora_dropout: 0
+  rslora: true
+  bias: none
+  grad_checkpt: unsloth
+  packing: true                 # per-conversation labels built before packing (sft.py)
+  target_module:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+  instruction_part: "<|im_start|>user\n"
+  response_part:    "<|im_start|>assistant\n"
+
+mixing:
+  strategy: sequential
+
+# Ordered basic -> advanced. Reorder here to change the curriculum.
+datasets:
+  - {task: code_completion, name: Nitin-composer-fn,  split: [train, valid]}
+  - {task: js2jac,          name: Nitin-js2jac,       split: [train, valid]}
+  - {task: farm,            name: Nitin-farm,         split: [train, valid]}
+  - {task: osp,             name: Nitin-osp-merged,   split: [train, valid]}
+  - {task: py2osp,          name: Nitin-osp-lift-gold, split: [train, valid]}
+  - {task: code_fix,        name: Nitin-osp-repair,   split: [train, valid]}
+  - {task: test_gen,        name: Nitin-osp-repair,   split: [train, valid]}
+  - {task: scaffold2impl,   name: Rui-jacapp-scaffold, split: [train, valid]}

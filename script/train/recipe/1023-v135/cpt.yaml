@@ -1,0 +1,54 @@
+# v1.35 CPT: v1.3-A CPT (0926-v13-compile-only-ablation/cpt-A.yaml) with the app repos rebuilt.
+# Changes vs cpt-A: name, out_dir, Rui-jacapp-4 -> Rui-jacapp-5 (28 of 35 raw/repo repos, 7 dropped whole by the
+# 2026-10-23 audit, see parser/repo.py EXCLUDED_REPOS; .jac/.md/.css/.html/.toml only; 4 repos 0.33M -> 28 repos 2.89M tokens).
+recipe:
+  name: v135-cpt-r64-seq
+  stage: cpt
+  base_model: ornith-ai/Ornith-1.5-9B
+  adapter: ""
+  out_dir: output/adapter/1023-v135/cpt
+  seed: 3407
+  max_seq_length: 4096
+  load_in_4bit: true
+  text_only: true
+
+hyperparams:
+  epochs: 1
+  batch_size: 1
+  grad_acc: 10
+  lr: 5.0e-5
+  embed_lr: 0
+  optimizer: adamw_8bit
+  scheduler: linear
+  warmup_steps: 5
+  weight_decay: 1.0e-3
+  save_steps: 100
+  do_eval: false
+  lora_rank: 64
+  lora_alpha: 32
+  lora_dropout: 0
+  rslora: true
+  bias: none
+  grad_checkpt: unsloth
+  packing: true
+  target_module:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+
+mixing:
+  strategy: sequential
+
+# Ordered basic -> advanced. Reorder here to change the curriculum.
+datasets:
+  - name: Ayush-JacDocs-26Sept
+  - name: Nitin-composer-fn
+  - name: Nitin-js2jac
+  - name: Nitin-farm
+  - name: Nitin-jachacks
+  - name: Nitin-osp
+  - name: Rui-jacapp-5
