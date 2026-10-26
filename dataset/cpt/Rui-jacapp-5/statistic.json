@@ -1,0 +1,119 @@
+{
+    "train": {
+        "count": 999,
+        "tokens_est": 2705551,
+        "length": {
+            "unit": "characters",
+            "avg": 10833.04,
+            "median": 11721,
+            "std": 3786.78,
+            "min": 322,
+            "max": 76638,
+            "total": 10822204
+        },
+        "histogram": {
+            "<=100": 0,
+            "101-200": 0,
+            "201-500": 2,
+            "501-1000": 3,
+            "1001-2000": 6,
+            "2001-5000": 59,
+            "5001-10000": 273,
+            ">10000": 656
+        },
+        "property": {
+            "format": {
+                "diff": 0,
+                "jac": 0,
+                "markdown": 0,
+                "repo": 999,
+                "session": 0
+            },
+            "class": {
+                "fullstack": 379,
+                "function": 508,
+                "graph": 42,
+                "osp": 70
+            },
+            "source": {
+                "agent": 0,
+                "article": 0,
+                "code": 999,
+                "docs": 0,
+                "other": 0
+            }
+        },
+        "combinations": [
+            {
+                "format": "repo",
+                "class": "fullstack",
+                "source": "code",
+                "count": 379
+            },
+            {
+                "format": "repo",
+                "class": "function",
+                "source": "code",
+                "count": 508
+            },
+            {
+                "format": "repo",
+                "class": "graph",
+                "source": "code",
+                "count": 42
+            },
+            {
+                "format": "repo",
+                "class": "osp",
+                "source": "code",
+                "count": 70
+            }
+        ]
+    },
+    "valid": {
+        "count": 0,
+        "tokens_est": 0,
+        "length": {
+            "unit": "characters",
+            "avg": 0,
+            "median": 0,
+            "std": 0,
+            "min": 0,
+            "max": 0,
+            "total": 0
+        },
+        "histogram": {
+            "<=100": 0,
+            "101-200": 0,
+            "201-500": 0,
+            "501-1000": 0,
+            "1001-2000": 0,
+            "2001-5000": 0,
+            "5001-10000": 0,
+            ">10000": 0
+        },
+        "property": {
+            "format": {
+                "diff": 0,
+                "jac": 0,
+                "markdown": 0,
+                "repo": 0,
+                "session": 0
+            },
+            "class": {
+                "fullstack": 0,
+                "function": 0,
+                "graph": 0,
+                "osp": 0
+            },
+            "source": {
+                "agent": 0,
+                "article": 0,
+                "code": 0,
+                "docs": 0,
+                "other": 0
+            }
+        },
+        "combinations": []
+    }
+}

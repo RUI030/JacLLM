@@ -53,7 +53,7 @@ def collect(in_dir=IN_DIR, out_path=OUT_PATH) -> dict:
     """Write `{repos: {group/name: stats}, total: stats-sums}` to `out_path` and print a table."""
     meta  = load_meta(Path(in_dir) / "meta.json")
     repos = {}
-    for key, root in iter_repos(Path(in_dir)):
+    for key, root in iter_repos(Path(in_dir), include_excluded=True):
         st = repo_stats(jac_sources(root, set(meta["exclude_files"].get(key, []))))
         st["whitelisted"] = meta["repos"].get(key, {}).get("whitelist", {}).get("ok")
         repos[key] = st

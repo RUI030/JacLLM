@@ -1,42 +1,44 @@
 {
     "train": {
-        "count": 347,
+        "count": 801,
+        "tokens_est": 2365149,
         "length": {
             "unit": "characters",
-            "avg": 8005.85,
-            "median": 7995,
-            "std": 5001.22,
-            "min": 430,
-            "max": 20507
+            "avg": 11810.98,
+            "median": 7968,
+            "std": 12115.82,
+            "min": 387,
+            "max": 71811,
+            "total": 9460597
         },
         "histogram": {
             "<=100": 0,
             "101-200": 0,
-            "201-500": 1,
-            "501-1000": 18,
-            "1001-2000": 32,
-            "2001-5000": 73,
-            "5001-10000": 85,
-            ">10000": 138
+            "201-500": 6,
+            "501-1000": 42,
+            "1001-2000": 70,
+            "2001-5000": 163,
+            "5001-10000": 182,
+            ">10000": 338
         },
         "property": {
             "format": {
                 "diff": 0,
                 "jac": 0,
                 "markdown": 0,
-                "repo": 347,
+                "repo": 801,
                 "session": 0
             },
             "class": {
-                "fullstack": 114,
-                "function": 197,
-                "graph": 9,
-                "osp": 27
+                "fullstack": 305,
+                "function": 420,
+                "graph": 28,
+                "osp": 48
             },
             "source": {
                 "agent": 0,
                 "article": 0,
-                "code": 347,
+                "code": 801,
                 "docs": 0,
                 "other": 0
             }
@@ -46,66 +48,68 @@
                 "format": "repo",
                 "class": "fullstack",
                 "source": "code",
-                "count": 114
+                "count": 305
             },
             {
                 "format": "repo",
                 "class": "function",
                 "source": "code",
-                "count": 197
+                "count": 420
             },
             {
                 "format": "repo",
                 "class": "graph",
                 "source": "code",
-                "count": 9
+                "count": 28
             },
             {
                 "format": "repo",
                 "class": "osp",
                 "source": "code",
-                "count": 27
+                "count": 48
             }
         ]
     },
     "valid": {
-        "count": 86,
+        "count": 200,
+        "tokens_est": 581414,
         "length": {
             "unit": "characters",
-            "avg": 7963.72,
-            "median": 7534.5,
-            "std": 5051.17,
-            "min": 483,
-            "max": 20529
+            "avg": 11628.29,
+            "median": 6874.0,
+            "std": 13713.07,
+            "min": 447,
+            "max": 93394,
+            "total": 2325658
         },
         "histogram": {
             "<=100": 0,
             "101-200": 0,
-            "201-500": 1,
-            "501-1000": 4,
-            "1001-2000": 9,
-            "2001-5000": 16,
-            "5001-10000": 22,
-            ">10000": 34
+            "201-500": 3,
+            "501-1000": 18,
+            "1001-2000": 14,
+            "2001-5000": 44,
+            "5001-10000": 52,
+            ">10000": 69
         },
         "property": {
             "format": {
                 "diff": 0,
                 "jac": 0,
                 "markdown": 0,
-                "repo": 86,
+                "repo": 200,
                 "session": 0
             },
             "class": {
-                "fullstack": 29,
-                "function": 50,
-                "graph": 0,
-                "osp": 7
+                "fullstack": 77,
+                "function": 111,
+                "graph": 7,
+                "osp": 5
             },
             "source": {
                 "agent": 0,
                 "article": 0,
-                "code": 86,
+                "code": 200,
                 "docs": 0,
                 "other": 0
             }
@@ -115,19 +119,25 @@
                 "format": "repo",
                 "class": "fullstack",
                 "source": "code",
-                "count": 29
+                "count": 77
             },
             {
                 "format": "repo",
                 "class": "function",
                 "source": "code",
-                "count": 50
+                "count": 111
+            },
+            {
+                "format": "repo",
+                "class": "graph",
+                "source": "code",
+                "count": 7
             },
             {
                 "format": "repo",
                 "class": "osp",
                 "source": "code",
-                "count": 7
+                "count": 5
             }
         ]
     }

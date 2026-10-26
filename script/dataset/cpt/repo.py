@@ -3,12 +3,12 @@ from pathlib import Path
 
 sys.path.append(str(Path(__file__).resolve().parent.parent.parent))
 from utils.classifier    import classify_structural as classify
-from dataset.parser.repo import iter_repo_files, iter_repos
+from dataset.parser.repo import NON_JAC_CODE, iter_repo_files, iter_repos
 from dataset.pipeline    import report, split_and_write
 
 # Setting =================================================
 DS_FORMAT    = "repo"
-DS_NAME      = "Rui-jacapp-cpt"
+DS_NAME      = "Rui-jacapp-5"
 SOURCE       = "code"
 TARGET_CHARS = 14000                    # ~4k tokens at ~3.5 chars/token
 
@@ -19,6 +19,7 @@ OUT_DIR = f"{DS_ROOT}/cpt/{DS_NAME}"
 OUT_FORMAT = "jsonl"
 VALID_SIZE = 0.0                        # CPT: no train/valid split
 SEED       = 3407
+DATA_EXTS  = {".json", ".yaml", ".yml", ".txt"}   # data / config dumps (package-lock, topojson fixtures)
 
 # Functions ===============================================
 TOP_DECL = re.compile(
@@ -44,7 +45,8 @@ def split_jac_by_decl(source: str, max_chars: int) -> list[str]:
             buf += seg
     if buf:
         parts.append(buf)
-    return [p for p in parts if p.strip()]
+    # one declaration longer than max_chars (a big client component) is cut at lines: CPT truncates at max_seq_length
+    return [q for p in parts if p.strip() for q in (hard_split(p, max_chars) if len(p) > max_chars else [p])]
 
 def hard_split(source: str, max_chars: int) -> list[str]:
     """Fallback line-boundary split for non-Jac or decl-less content."""
@@ -83,6 +85,8 @@ def build_repo_chunks(repo_root: Path, target_chars: int) -> list[dict]:
         body, files, size = [], [], 0
 
     for path in iter_repo_files(repo_root):
+        if path.suffix in NON_JAC_CODE or path.suffix in DATA_EXTS:     # CPT teaches Jac; css / html / md / toml stay
+            continue
         try:
             source = path.read_text(encoding="utf-8")
         except (UnicodeDecodeError, OSError):

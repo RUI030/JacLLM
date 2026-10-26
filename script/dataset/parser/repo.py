@@ -11,6 +11,7 @@ DROP_DIRS: frozenset[str] = frozenset({
     ".jac", ".git", "node_modules", "__pycache__",
     "dist", "build", ".next", ".venv", "venv",
     ".pytest_cache", ".mypy_cache", ".ruff_cache", ".turbo",
+    "vendor", "lovable-temp",            # third-party bundles, tool-generated UI
 })
 KEEP_EXTS: frozenset[str] = frozenset({
     ".jac", ".md", ".toml", ".json", ".py",
@@ -22,6 +23,22 @@ DROP_EXTS: frozenset[str] = frozenset({
 KEEP_NAMES: frozenset[str] = frozenset({
     "README", "LICENSE", "Makefile",
 })
+NON_JAC_CODE: frozenset[str] = frozenset({     # code in another language (css / html / md are fine)
+    ".py", ".js", ".ts", ".tsx", ".jsx", ".mjs", ".cjs",
+})
+
+# Repos dropped whole (2026-10-23 audit): a partial repo leaves imports of files the model never sees.
+# R1 non-Jac code (incl. ::py:: blocks) > 50% | R2 ::py:: > 10% of .jac lines
+# R3 .jac wraps repo-local .py holding the core logic | R4 < 200 own Jac lines outside templates
+EXCLUDED_REPOS: dict[str, str] = {
+    "JacHack2026/zero-abd__graphclaw":                   "R1 90% + R2 43% ::py:: + R3",
+    "JacHackSpring/legitHacker23__NeuroFlow":            "R1 93% (JS extension + Python server) + R4",
+    "JacHack2026/YugShah123__Bubbul":                    "R1 62% (Python server)",
+    "JacHack2026/guaijiacc__lit2lab":                    "R3 core in anthropic_helper.py",
+    "JacHackA2Tech/AgenticPortfolioX__POR-Jac-Enforced": "R1 59% (JS frontend, Python scripts)",
+    "JacHackA2Tech/mrsnider1984__revenue-leak-engine":   "R1 57% (JS frontend)",
+    "JacHackA2Tech/CosmonautJones__m-local":             "R1 61% (mostly Python tests/)",
+}
 
 
 def keep_path(path: Path, repo_root: Path) -> bool:
@@ -29,21 +46,23 @@ def keep_path(path: Path, repo_root: Path) -> bool:
     rel = path.relative_to(repo_root)
     if any(part in DROP_DIRS for part in rel.parts):
         return False
-    if path.suffix in DROP_EXTS:
+    if path.suffix in DROP_EXTS or path.name.endswith(".min.js"):
         return False
     if path.suffix in KEEP_EXTS:
         return True
     return path.stem in KEEP_NAMES and path.suffix == ""
 
 
-def iter_repos(raw_dir: Path) -> Iterator[tuple[str, Path]]:
-    """Yield `(group/name, repo_root)` for every repo under `raw_dir/<group>/<name>/`.
+def iter_repos(raw_dir: Path, include_excluded: bool = False) -> Iterator[tuple[str, Path]]:
+    """Yield `(group/name, repo_root)` for every repo under `raw_dir/<group>/<name>/`, minus EXCLUDED_REPOS.
 
     Groups: `golden` (founder projects), `Rui`, `jaseci`, `JacHack<edition>`.
     """
     for group in sorted(p for p in Path(raw_dir).iterdir() if p.is_dir()):
         for repo in sorted(p for p in group.iterdir() if p.is_dir()):
-            yield f"{group.name}/{repo.name}", repo
+            key = f"{group.name}/{repo.name}"
+            if include_excluded or key not in EXCLUDED_REPOS:
+                yield key, repo
 
 
 def iter_repo_files(repo_root: Path) -> Iterator[Path]:
