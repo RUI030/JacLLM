@@ -123,10 +123,17 @@ def tokenize_with_assistant_mask(msgs: list[dict], tools: list[dict] | None, tok
     for i, m in enumerate(msgs):
         if m["role"] != "assistant" or m.get("weight", 1) == 0:
             continue
-        start, end = len(render(msgs[:i], True)), len(render(msgs[: i + 1], False))
+        prompt = render(msgs[:i], True)
+        start, end = len(prompt), len(render(msgs[: i + 1], False))
         if not text.startswith(render(msgs[: i + 1], False)):
             raise ValueError("Chat template renders history differently from the full "
                              "conversation; per-turn assistant spans would be misaligned")
+        # Labels start where generation starts. If the turn does not begin with the generation prompt (e.g.
+        # reasoning_content under a template that forces an empty <think>), `start` would land inside it.
+        if not text.startswith(prompt):
+            raise ValueError("An assistant turn does not begin with the template's generation prompt "
+                             f"({prompt[-30:]!r}); reasoning_content under a non-thinking template? Use a "
+                             "thinking template or drop reasoning_content")
         spans.append((start, end))
 
     enc    = tokenizer(text, add_special_tokens=False, return_offsets_mapping=True)

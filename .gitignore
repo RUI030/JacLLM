@@ -10,3 +10,11 @@ draftlogs/
 push_model
 *.log
 script/dataset/trajectory/harness/jaccoder.*
+
+# API keys and secrets
+api_key
+*api_key*
+*.key
+.env
+.env.*
+.secrets
