@@ -3,44 +3,23 @@ usage: python script/dataset/trajectory/habits.py [trace dir]   (default dataset
 import gzip, json, glob, re, sys
 from collections import Counter
 
-files = sorted(glob.glob(f"{sys.argv[1] if len(sys.argv) > 1 else 'dataset/raw/prod'}/**/*.json.gz", recursive=True))
-READ_TOOLS = {"read_file", "list_files", "grep_search", "find_files", "preview_status", "load_jac_skill",
-              "browser_state", "analyze_project"}
-RO_CMD = re.compile(r"^\s*(jac check|cat |ls|grep|rg |tail|head|find |sed -n|wc |pwd|echo [^>]*$)")
-SHELL_WRITE = re.compile(r"(>\s*[\w./-]+\.(jac|toml|json|css)\b|\b(cp|mv)\s[^|;]*\.(jac|toml)|sed -i|rm -rf|\btee\b)")
-# calls the system prompt forbids in so many words (same rules as clean.py M7)
-UI_FILE = re.compile(r"(\.cl\.jac$|(^|/)(components|pages|styles)/|(^|/)main\.jac$|\.css$)")
-APP_PATH = re.compile(r"^/(walker|function|user|api|healthz|docs|openapi|sso|__)")
-PAGE_CURL = re.compile(r"\bcurl\b.*?https?://(?:localhost|127\.0\.0\.1)(?::\d+)?(/[^\s'\"]*)?")
-STATUS_ONLY = re.compile(r"-o\s*/dev/null|--head\b|\s-I\b|-sI\b")
-BROWSER_FAIL = re.compile(r"✗|\berror\b|failed|not found|timed? ?out|could not|no element|unable", re.I)
-LLM_DIRECT = re.compile(r"https?://api\.(openai|anthropic)\.com|import\s+(from\s+)?(openai|anthropic)\b")
+from clean import (READ_TOOLS, EDIT_TOOLS, RO_CMD, SHELL_WRITE, CACHE_RM, UI_FILE, APP_PATH, PAGE_CURL,
+                   STATUS_ONLY, BROWSER_FAIL, LLM_DIRECT, args, text)
+
+# Setting =================================================
+IN_DIR         = "dataset/raw/prod"
 LOOP_SAME_FILE = re.compile(r"LOOP DETECTED: \w+ called \d+ times on '([^']*)'")
 
 
-def args_of(tc):
-    try:
-        a = json.loads(tc["function"]["arguments"])
-        return a if isinstance(a, dict) else {}
-    except Exception:
-        return {}
-
-
-def read_only(name, a):
+# Functions ===============================================
+def read_only(name: str, a: dict) -> bool:
     if name in READ_TOOLS:
         return True
     return name == "run_command" and bool(RO_CMD.match(a.get("command", ""))) and not SHELL_WRITE.search(a.get("command", ""))
 
 
-def text(c):
-    return c if isinstance(c, str) else " ".join(p.get("text", "") for p in c or [] if isinstance(p, dict))
-
-
-T = Counter()     # turns showing the habit
-N = Counter()     # occurrences
-tot_calls = 0
-for f in files:
-    d = json.load(gzip.open(f))
+def turn_habits(d: dict) -> tuple[Counter, int]:
+    """One trace file (one turn) -> (occurrences per habit, number of main-agent tool calls)."""
     main = [c for c in d["calls"] if c["caller"] == "respond" and c["call_kind"] == "react_iteration"]
     seq, res = [], {}
     for k, c in enumerate(main):
@@ -49,10 +28,9 @@ for f in files:
                 if m.get("role") == "tool":
                     res[m.get("tool_call_id")] = text(m.get("content"))
         for tc in c["reply"].get("tool_calls") or []:
-            seq.append((tc["id"], tc["function"]["name"], args_of(tc)))
-    tot_calls += len(seq)
+            seq.append((tc["id"], tc["function"]["name"], args(tc)))
     hit = Counter()
-    seen, skills, last_status, written = {}, Counter(), None, set()
+    seen, skills, last_status = {}, Counter(), None
     ui_edited, last_do = False, None
     for i, (cid, name, a) in enumerate(seq):
         key = (name, json.dumps(a, sort_keys=True))
@@ -75,16 +53,15 @@ for f in files:
             prev = res.get(seq[i - 1][0], "")
             clean = prev.startswith("OK") and not re.search(r"ERRORS:", prev)
             hit["read_file right after a CLEAN write/edit of the same file" if clean else "read_file right after a write/edit of the same file that reported errors (justified)"] += 1
-        if name in ("write_code", "edit_code"):
-            written.add(a.get("file_path"))
         cmd = a.get("command", "")
         if name == "run_command" and SHELL_WRITE.search(cmd):
-            if re.search(r"rm -rf\s+\S*(\.jac/|node_modules|compiled|cache|dist|/tmp)", cmd) and not re.search(r"(>\s*[\w./-]+\.(jac|toml)|sed -i|\b(cp|mv)\s)", cmd):
+            if CACHE_RM.search(cmd) and not re.search(r"(>\s*[\w./-]+\.(jac|toml)|sed -i|\b(cp|mv)\s)", cmd):
                 hit["build cache deleted through the shell (rm -rf .jac/..., node_modules, ...)"] += 1
             else:
                 hit["project files changed through the shell (redirect, cp/mv, sed -i, rm -rf) instead of write/edit tools"] += 1
-        if name == "run_command" and re.search(r"\bsleep\s+\d", a.get("command", "")):
+        if name == "run_command" and re.search(r"\bsleep\s+\d", cmd):
             hit["sleep in a shell command"] += 1
+        # calls the system prompt forbids in so many words (clean.py M7)
         if "node_modules/@jac" in json.dumps(a):
             hit["@jac/* looked up under node_modules (a build alias, never there)"] += 1
         if any((u := PAGE_CURL.search(seg)) and not APP_PATH.match(u.group(1) or "/") and not STATUS_ONLY.search(seg)
@@ -96,9 +73,9 @@ for f in files:
             hit["browser_do/state before browser_validate after a UI edit"] += 1
         if name in ("browser_validate", "browser_open", "browser_do", "browser_state"):
             ui_edited = False
-        if name in ("write_code", "edit_code", "delete_code") and UI_FILE.search(str(a.get("file_path", ""))):
+        if name in EDIT_TOOLS and UI_FILE.search(str(a.get("file_path", ""))):
             ui_edited = True
-        if name in ("write_code", "edit_code", "delete_code", "preview_restart", "run_command"):
+        if name in EDIT_TOOLS or name in ("preview_restart", "run_command"):
             last_do = None
         if name == "browser_do":
             sig = json.dumps(a, sort_keys=True)
@@ -114,7 +91,7 @@ for f in files:
             m = LOOP_SAME_FILE.match(r)
             if m and not re.fullmatch(r"[\w.-]+\.\w{1,6}", m.group(1)):
                 hit["harness LOOP DETECTED 'same file' naming a fragment, not a file"] += 1
-    edits = [i for i, x in enumerate(seq) if x[1] in ("write_code", "edit_code", "delete_code")]
+    edits = [i for i, x in enumerate(seq) if x[1] in EDIT_TOOLS]
     if edits and not any(x[1] == "browser_validate" for x in seq[edits[-1] + 1:]):
         hit["turn changed code but never ran browser_validate after the last change"] += 1
     if len(main) >= 100:
@@ -123,10 +100,21 @@ for f in files:
     if last["call_kind"] != "final_answer_restream" and last["reply"].get("tool_calls") and not any(
             t["function"]["name"] == "finish_tool" for t in last["reply"]["tool_calls"]):
         hit["turn ends mid-work (last reply still calls tools)"] += 1
-    for k, v in hit.items():
-        T[k] += 1
-        N[k] += v
+    return hit, len(seq)
 
-print(f"turns {len(files)}, main-agent tool calls {tot_calls}")
-for k in sorted(T, key=lambda k: -T[k]):
-    print(f"  turns {T[k]:4d} ({100 * T[k] / len(files):4.1f}%)  occurrences {N[k]:5d}  {k}")
+
+# Run =====================================================
+if __name__ == "__main__":
+    files = sorted(glob.glob(f"{sys.argv[1] if len(sys.argv) > 1 else IN_DIR}/**/*.json.gz", recursive=True))
+    T = Counter()     # turns showing the habit
+    N = Counter()     # occurrences
+    tot_calls = 0
+    for f in files:
+        hit, n = turn_habits(json.load(gzip.open(f)))
+        tot_calls += n
+        for k, v in hit.items():
+            T[k] += 1
+            N[k] += v
+    print(f"turns {len(files)}, main-agent tool calls {tot_calls}")
+    for k in sorted(T, key=lambda k: -T[k]):
+        print(f"  turns {T[k]:4d} ({100 * T[k] / len(files):4.1f}%)  occurrences {N[k]:5d}  {k}")
