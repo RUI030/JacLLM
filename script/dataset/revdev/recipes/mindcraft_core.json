@@ -1,0 +1,67 @@
+{
+  "schema_version": "1",
+  "scope": "Single-user emotional check-in island with deterministic fallback, crisis interception, graph-backed entities, interactions, intentions and reset. Excludes optional live LLM classification and guidance.",
+  "workspace_kind": "empty",
+  "assumption": "The first build uses an empty Jac 0.34.27 workspace and does not require a model API key.",
+  "constraints": ["Build the app in Jac.", "The core check-in flow must work without an API key."],
+  "tasks": [
+    {
+      "task_id": "mindcraft_core_a",
+      "request": "Build a small reflective check-in app. A person can describe how they feel and see that feeling appear as an object on an island. They can place it, try a gentle interaction, choose one concrete next action, and reset the island. Keep the check-in history in a graph so the stages are connected. Show a direct crisis-support message for urgent language, and make the main flow work without an AI key.",
+      "acceptance": [
+        "A fresh visit shows an empty island and available interactions.",
+        "A check-in creates pending feelings that can be placed and interacted with.",
+        "An intention can be attached to a placed feeling and viewed as part of its path.",
+        "Crisis language does not create a feeling and shows support guidance.",
+        "Reset clears the island."
+      ]
+    }
+  ],
+  "features": [
+    {"name": "graph_island", "evidence": ["main.jac::MindIsland", "main.jac::EmotionalEntity", "main.jac::Contains", "main.jac::get_world"]},
+    {"name": "check_in", "evidence": ["main.jac::manifest_emotion", "main.jac::fallback_reading", "main.jac::is_crisis_language"]},
+    {"name": "interaction_and_intention", "evidence": ["main.jac::place_entity", "main.jac::apply_interaction", "main.jac::commit_value_action", "main.jac::get_act_path"]},
+    {"name": "reset_and_ui", "evidence": ["main.jac::reset_demo", "main.jac::app"]}
+  ],
+  "files": [
+    {
+      "path": "jac.toml", "layer": "config", "purpose": "Declare the Jac web app entry, runtime dependencies and local serve route.",
+      "exports": [], "imports_from_plan": [], "signature_evidence": [], "file_evidence": ["jac.toml"]
+    },
+    {
+      "path": "services/island.jac", "layer": "service", "purpose": "Define the island graph, deterministic check-in and crisis guard, plus public walkers for placing, interacting, committing an intention, viewing the path and resetting.",
+      "exports": ["MindIsland", "EmotionalEntity", "InteractionEvent", "ValueAction", "get_world", "manifest_emotion", "place_entity", "apply_interaction", "commit_value_action", "get_act_path", "reset_demo"],
+      "imports_from_plan": [],
+      "signature_evidence": ["main.jac::MindIsland", "main.jac::EmotionalEntity", "main.jac::InteractionEvent", "main.jac::ValueAction", "main.jac::get_world", "main.jac::manifest_emotion", "main.jac::place_entity", "main.jac::apply_interaction", "main.jac::commit_value_action", "main.jac::get_act_path", "main.jac::reset_demo", "main.jac::is_crisis_language", "main.jac::fallback_reading"],
+      "file_evidence": ["main.jac"]
+    },
+    {
+      "path": "styles.css", "layer": "asset", "purpose": "Style the island, feeling objects, interaction controls, intention area and crisis message.",
+      "exports": [], "imports_from_plan": [], "signature_evidence": [], "file_evidence": ["styles.css"]
+    },
+    {
+      "path": "components/MindcraftApp.jac", "layer": "page", "purpose": "Render the island and forms, call the public walkers and display their actual responses.",
+      "exports": ["MindcraftApp"],
+      "imports_from_plan": ["get_world", "manifest_emotion", "place_entity", "apply_interaction", "commit_value_action", "get_act_path", "reset_demo"],
+      "signature_evidence": ["main.jac::app", "main.jac::send_prompt", "main.jac::meet_selected", "main.jac::commit_intention", "main.jac::reset_island"],
+      "file_evidence": ["main.jac", "styles.css"]
+    },
+    {
+      "path": "main.jac", "layer": "shell", "purpose": "Expose the single-page Jac client entry and register the app's server endpoints.",
+      "exports": ["app"], "imports_from_plan": ["get_world", "manifest_emotion", "place_entity", "apply_interaction", "commit_value_action", "get_act_path", "reset_demo", "MindcraftApp"],
+      "signature_evidence": ["main.jac::app"], "file_evidence": ["main.jac"]
+    }
+  ],
+  "ui": {
+    "app_type": "wellness", "nav_pattern": "single_page",
+    "pages": [{"name": "MindcraftApp", "route": "/", "title": "Mindcraft", "purpose": "check_in"}],
+    "primitive_components": ["button", "input", "card"],
+    "style": "custom", "base_color": "neutral", "theme": "nature", "font": "system", "radius": "soft", "menu_accent": "none",
+    "design_rationale": "The island metaphor and clear stage controls make the check-in flow visible.",
+    "auth_required": false, "backend_required": true, "ai_required": false
+  },
+  "verify": {
+    "flow": "get_world", "route": "/",
+    "steps": "Open an empty island, enter a feeling, place a resulting entity, apply an interaction, commit an intention, verify the path, then reset. Also submit urgent language and confirm no entity is created."
+  }
+}

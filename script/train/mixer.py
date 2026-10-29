@@ -13,8 +13,10 @@ import importlib.util
 from pathlib import Path
 
 import yaml
+import pyarrow as pa
 from datasets import (
     Dataset,
+    Features,
     concatenate_datasets,
     interleave_datasets,
     load_dataset,
@@ -132,6 +134,19 @@ def entry_datasets(entry: dict, stage: str, kind: str, seed: int = 3407) -> list
 def mix(items: list[tuple[str, Dataset, float, int]], mixing: dict, seed: int) -> Dataset | None:
     if not items:
         return None
+    # Planning conversations lack tool fields; Arrow must align nested message
+    # structs before mixing them with tool-use conversations. Nulls are removed
+    # by sft.chat_inputs before rendering, preserving the original conversation.
+    features = Features.from_arrow_schema(pa.unify_schemas(
+        [ds.features.arrow_schema for _, ds, _, _ in items]
+    ))
+    aligned = []
+    for label, ds, weight, repeat in items:
+        for column in features:
+            if column not in ds.column_names:
+                ds = ds.add_column(column, [None] * len(ds))
+        aligned.append((label, ds.cast(features), weight, repeat))
+    items = aligned
     strategy = (mixing.get("strategy") or "concat").lower()
 
     if strategy == "concat":

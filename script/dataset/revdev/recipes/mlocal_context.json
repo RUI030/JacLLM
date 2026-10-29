@@ -1,0 +1,21 @@
+{
+  "name": "mlocal_context",
+  "repo": "dataset/raw/repo/JacHackA2Tech/CosmonautJones__m-local",
+  "source_globs": ["jac.toml", "services/*.jac"],
+  "targets": ["services/context_models.jac", "services/context.jac"],
+  "inspect": ["services/context.test.jac", "services/models.jac", "services/importer.jac"],
+  "dependencies": ["services/models.jac", "services/importer.jac"],
+  "target_dependencies": {
+    "services/context.jac": ["services/context_models.jac"]
+  },
+  "oracle_probe": "script/dataset/revdev/fixtures/mlocal_context_mixed.jac",
+  "source_fragments": {
+    "services/context_models.jac": ["return AccessLevel.READ;"]
+  },
+  "command": "jac test services/context.jac",
+  "pass_marker": "13 passed",
+  "request": "Complete the location access-context service in this existing Jac application. Store reviewed notices with their source, validity window, and affected location. Return only notices for the requested location, mark stale or out-of-window information as needing recheck, and never present a stale entrance instruction as current guidance. Keep the existing importer and public interfaces compatible, and satisfy the repository's original tests without changing them.",
+  "plan": "Inspect the original context tests, the existing location model, and the importer that creates notices. First create services/context_models.jac with ContextValidationError, ContextNotice, Affects, AccessNoticeView, and AccessContextView; keep the source's READ access level for ContextNotice and Affects. Then read the newly written model file and create services/context.jac with ACCESS_NOTICE_MAX_AGE_SECONDS, _notice_state, and get_access_context. Use actual Affects edges and source timestamps; preserve provenance for stale notices while blanking stale entrance instructions. Overall state is current if any notice is current, needs_recheck if notices exist but none is current, and none for no notices. Verify jac test services/context.jac, which discovers the 13 original context tests.",
+  "split": "train",
+  "validation_level": "behavior_tested"
+}

@@ -113,6 +113,7 @@ def execute(
     env: dict[str, str] | None = None,
     mem_limit_bytes: int | None = None,
     merge_stderr: bool = False,
+    jac: str | None = None,
 ) -> JacResult:
     """Run `jac <args>` in its own process group, with a timeout and an optional memory cap.
 
@@ -125,7 +126,7 @@ def execute(
     of one scope cannot take it down. `merge_stderr` interleaves stderr into stdout
     as a terminal shows it (`2>&1`); `stderr` is then empty.
     """
-    cmd, rss_cap = [JAC, *args], None
+    cmd, rss_cap = [jac or JAC, *args], None
     if mem_limit_bytes and scopes_available():
         cmd = ["systemd-run", "--user", "--scope", "--quiet", "--collect",
                "-p", f"MemoryMax={mem_limit_bytes}", "-p", "MemorySwapMax=0",

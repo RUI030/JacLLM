@@ -1,0 +1,4 @@
+[project]
+name = "revdev-import-graph-fixture"
+entry-point = "main.jac"
+jac-version = "==0.34.27"

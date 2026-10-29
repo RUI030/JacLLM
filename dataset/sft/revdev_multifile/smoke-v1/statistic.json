@@ -1,0 +1,110 @@
+{
+    "train": {
+        "count": 1,
+        "tokens_est": 6818,
+        "length": {
+            "unit": "characters",
+            "avg": 27275.0,
+            "median": 27275,
+            "std": 0.0,
+            "min": 27275,
+            "max": 27275,
+            "total": 27275
+        },
+        "histogram": {
+            "<=100": 0,
+            "101-200": 0,
+            "201-500": 0,
+            "501-1000": 0,
+            "1001-2000": 0,
+            "2001-5000": 0,
+            "5001-10000": 0,
+            ">10000": 1
+        },
+        "property": {
+            "format": {
+                "diff": 0,
+                "jac": 1,
+                "markdown": 0,
+                "repo": 0,
+                "session": 0
+            },
+            "class": {
+                "fullstack": 1,
+                "function": 0,
+                "graph": 0,
+                "osp": 0
+            },
+            "source": {
+                "agent": 0,
+                "agent-synth": 1,
+                "article": 0,
+                "code": 0,
+                "docs": 0,
+                "other": 0
+            }
+        },
+        "combinations": [
+            {
+                "format": "jac",
+                "class": "fullstack",
+                "source": "agent-synth",
+                "count": 1
+            }
+        ]
+    },
+    "valid": {
+        "count": 1,
+        "tokens_est": 2970,
+        "length": {
+            "unit": "characters",
+            "avg": 11881.0,
+            "median": 11881,
+            "std": 0.0,
+            "min": 11881,
+            "max": 11881,
+            "total": 11881
+        },
+        "histogram": {
+            "<=100": 0,
+            "101-200": 0,
+            "201-500": 0,
+            "501-1000": 0,
+            "1001-2000": 0,
+            "2001-5000": 0,
+            "5001-10000": 0,
+            ">10000": 1
+        },
+        "property": {
+            "format": {
+                "diff": 0,
+                "jac": 1,
+                "markdown": 0,
+                "repo": 0,
+                "session": 0
+            },
+            "class": {
+                "fullstack": 0,
+                "function": 1,
+                "graph": 0,
+                "osp": 0
+            },
+            "source": {
+                "agent": 0,
+                "agent-synth": 1,
+                "article": 0,
+                "code": 0,
+                "docs": 0,
+                "other": 0
+            }
+        },
+        "combinations": [
+            {
+                "format": "jac",
+                "class": "function",
+                "source": "agent-synth",
+                "count": 1
+            }
+        ]
+    }
+}

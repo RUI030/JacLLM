@@ -1,0 +1,64 @@
+{
+  "schema_version": "1",
+  "scope": "Account-based project and task manager MVP with root projects, nested projects, and tasks; excludes the reference app's LLM drafting and approval features.",
+  "tasks": [
+    {
+      "task_id": "rui_pm_core_a",
+      "request": "Build a project and task manager for individual accounts. Let people sign up and log in, create projects with a name and goal, open a project to add subprojects and tasks, and browse their projects and tasks.",
+      "acceptance": ["A person can sign up and log in.", "They can create a project and see it on the home page.", "They can open a project, add a subproject and a task, and see both in its detail view."]
+    },
+    {
+      "task_id": "rui_pm_core_b",
+      "request": "I need a personal workspace for organizing projects. Users should create an account, sign in, give each project a name and short goal, and break projects down into smaller projects and tasks. Provide a home list and a detail page for each project.",
+      "acceptance": ["A user can create an account and sign in.", "A new project appears in the home list.", "The project detail page shows newly added subprojects and tasks."]
+    }
+  ],
+  "features": [
+    {"name": "account_access", "evidence": ["components/LoginPage.jac::LoginPage", "main.jac::app"]},
+    {"name": "root_project", "evidence": ["models/Project.jac::create_root_project", "models/Project.jac::get_projects", "components/Project/Panel.jac::Panel"]},
+    {"name": "nested_project", "evidence": ["models/Project.jac::create_sub_project(parent_id: str, name: str, tldr: str)", "models/Project.jac::get_sub_projects", "components/Project/Page.jac::Page"]},
+    {"name": "project_tasks", "evidence": ["models/Project.jac::create_task(project_id: str, title: str)", "models/Project.jac::get_tasks", "components/Task/Panel.jac::Panel"]}
+  ],
+  "files": [
+    {
+      "path": "services/pm.jac", "layer": "service", "purpose": "Store each account's projects and tasks and expose the create and list operations used by the pages.",
+      "exports": ["Project", "Task", "create_root_project", "get_projects", "get_project", "create_sub_project", "get_sub_projects", "create_task", "get_tasks"],
+      "imports_from_plan": [],
+      "signature_evidence": ["models/Project.jac::Project", "models/Task.jac::Task", "models/Project.jac::create_root_project", "models/Project.jac::get_projects", "models/Project.jac::get_project", "models/Project.jac::create_sub_project(parent_id: str, name: str, tldr: str)", "models/Project.jac::get_sub_projects", "models/Project.jac::create_task(project_id: str, title: str)", "models/Project.jac::get_tasks"],
+      "file_evidence": ["models/Project.jac", "models/Task.jac"]
+    },
+    {
+      "path": "components/LoginPage.jac", "layer": "page", "purpose": "Let people create an account or sign in, then enter the protected workspace.",
+      "exports": ["LoginPage"], "imports_from_plan": [],
+      "signature_evidence": ["components/LoginPage.jac::LoginPage"], "file_evidence": ["components/LoginPage.jac"]
+    },
+    {
+      "path": "components/HomePage.jac", "layer": "page", "purpose": "List the signed-in person's root projects and provide a form to create another.",
+      "exports": ["HomePage"], "imports_from_plan": ["Project", "get_projects", "create_root_project"],
+      "signature_evidence": ["components/HomePage.jac::HomePage"], "file_evidence": ["components/HomePage.jac", "components/Project/Panel.jac"]
+    },
+    {
+      "path": "components/ProjectPage.jac", "layer": "page", "purpose": "Show a project's details, child projects, and tasks with forms to add each kind of child.",
+      "exports": ["ProjectPage"], "imports_from_plan": ["Project", "Task", "get_project", "get_sub_projects", "create_sub_project", "get_tasks", "create_task"],
+      "signature_evidence": ["components/Project/Page.jac::Page"], "file_evidence": ["components/Project/Page.jac", "components/Project/Panel.jac", "components/Task/Panel.jac"]
+    },
+    {
+      "path": "main.jac", "layer": "shell", "purpose": "Route login, home, and project detail screens and guard the signed-in pages.",
+      "exports": ["app"], "imports_from_plan": ["LoginPage", "HomePage", "ProjectPage"],
+      "signature_evidence": ["main.jac::app"], "file_evidence": ["main.jac"]
+    }
+  ],
+  "ui": {
+    "app_type": "saas", "nav_pattern": "topnav",
+    "pages": [
+      {"name": "LoginPage", "route": "/login", "title": "Sign in", "purpose": "capture"},
+      {"name": "HomePage", "route": "/", "title": "Projects", "purpose": "browse"},
+      {"name": "ProjectPage", "route": "/project/:id", "title": "Project details", "purpose": "workspace"}
+    ],
+    "primitive_components": ["button", "card", "field", "input", "label"],
+    "style": "nova", "base_color": "neutral", "theme": "teal", "font": "inter", "radius": "default", "menu_accent": "subtle",
+    "design_rationale": "A personal project workspace calls for a clear, calm interface with readable forms and project lists.",
+    "auth_required": true, "backend_required": true, "ai_required": false
+  },
+  "verify": {"flow": "create_root_project", "route": "/", "steps": "Sign up or log in, enter a project name and goal, submit, and confirm the new project appears in the home list."}
+}

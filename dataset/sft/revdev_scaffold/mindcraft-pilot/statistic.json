@@ -1,0 +1,6 @@
+{
+  "accepted": 1,
+  "eligible_16k": 0,
+  "rejected": [],
+  "split_note": "Single-repository pilot is train-only; no independent validation claim."
+}
