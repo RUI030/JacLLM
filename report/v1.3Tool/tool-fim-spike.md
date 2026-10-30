@@ -107,12 +107,20 @@ Metrics (`script/eval/tool_fim/run_eval.py`):
 | Metric | Meaning |
 |---|---|
 | Solved | the stub is gone and `jac check` passes on the file |
-| Stub left | `# TODO: implement` is still in the file |
-| Edited the file | the agent called `edit` or `write` on the task file |
-| Exact | the file is byte-identical to the original |
-| Similarity | difflib ratio between the filled function and the original one |
+| Stub left | `# TODO: implement` is still in the file when the run ends |
+| Stub replaced, check fails | the stub is gone but `jac check` fails on the file |
+| Edited the file | the agent called `edit` or `write` on the task file at least once, whether or not the edit applied |
+| Exact | the file at the end is byte-identical to the repo file before the body was stubbed: the model rewrote the original author's body character for character (whitespace and names included) and changed nothing else in the file. An equivalent body written differently is not exact. A run that never edits leaves the stub in place, so it is never exact. |
+| Similarity | difflib ratio (0 to 1) between the filled function (from the stub's head line to the next `}` at the head's indent) and the original one; 0 when the head line can no longer be found |
 
 "Solved" means the code compiles and type-checks. It does not run the code, so a solved task can still be wrong.
+
+How the rows relate:
+
+- **Solved + Stub left + Stub replaced, check fails = 100%.** Every run ends in exactly one of these three states. A stubbed file always passes `jac check`, so "stub left" needs no check split.
+- **Exact ⊂ Solved.** An exact file is the original file, which passes `jac check`. Every exact run has similarity 1.0. The reverse does not hold: one SFTv1.3 run filled the function exactly but changed something else in the file.
+- **Edited the file ⊇ (Solved + Stub replaced, check fails).** No run removed the stub without calling `edit`/`write`. The gap between the two is runs whose edits never applied (usually `oldText` did not match), so the stub stayed: 2 runs for SFTv1.3, 8 for the tool FIM model.
+- Mean similarity averages over all 144 tasks, so runs that left the stub pull it down (the stub scores low against the original body).
 
 ### Results (144 tasks)
 
@@ -120,8 +128,9 @@ Metrics (`script/eval/tool_fim/run_eval.py`):
 |---|---:|---:|
 | Solved | 43.1% | **71.5%** |
 | Stub left | 47.9% | 15.3% |
+| Stub replaced, check fails | 9.0% | 13.2% |
 | Edited the file | 53.5% | 90.3% |
-| Exact | 11.1% | 22.9% |
+| Exact (subset of Solved) | 11.1% | 22.9% |
 | Mean similarity | 0.476 | 0.629 |
 | Median tool calls | 6 | 4 |
 | Runs with 50 or more tool calls | 5 | 22 |

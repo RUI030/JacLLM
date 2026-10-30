@@ -1,6 +1,6 @@
 [ ] compare original ornith capability (any stack) with finetuned model with jac
-[ ] tool-use fim training 
-[ ] read AST report
+[x] tool-use fim training
+[x] read AST report
 [ ] Full stack app eval
 
 - [ ] Establish LLM-as-judge standard for semantic failure-mode categorization
