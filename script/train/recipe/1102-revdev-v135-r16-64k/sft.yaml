@@ -1,7 +1,7 @@
 recipe:
   name: revdev-v135-r16-64k
   stage: sft
-  base_model: output/model/JacLLM-SFT-Ornith-9B-v1.35-bf16
+  base_model: output/model/JacLLM-SFT-Ornith-9B-v1.35-bnb-4bit  # pre-quantized: the 48 GB box has little RAM
   adapter: ""
   out_dir: output/adapter/1102-revdev-v135-r16-64k/sft
   seed: 3407

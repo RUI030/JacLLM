@@ -43,7 +43,7 @@ def zero_overlap(rows: list[dict]) -> list[dict]:
                        "prefix_messages": n, "zeroed_turns": zeroed})
     return report
 
-# Main ====================================================
+# Run =====================================================
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("src", type=Path, help="dataset dir holding train.jsonl")

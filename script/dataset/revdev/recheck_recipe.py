@@ -61,7 +61,7 @@ def recheck(slug: str, preflight: Path) -> dict:
             "tests_ok": bool(ran) and "\nOK" in test and "FAILED" not in test,
             "fresh_dir": str(fresh)}
 
-# Main ====================================================
+# Run =====================================================
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("slugs", nargs="+")

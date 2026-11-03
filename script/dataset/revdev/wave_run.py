@@ -82,7 +82,7 @@ def export(slug: str, run: Path) -> str:
                "--name", slug, "--split-group", provenance["split_group"], "--split", "train"])
     return "exported" if ok else "export_failed"
 
-# Main ====================================================
+# Run =====================================================
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("slugs", nargs="+")
