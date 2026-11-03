@@ -25,15 +25,15 @@ user before this wave:
 | campussync_backend | CampusSync (Ann Arbor) | 0 | accepted | 22 | $5.21 |
 | unibank_backend | Uni-bank (JacHack 2026) | 0 | accepted | 16 | $2.86 |
 | flair_backend | Flair (JacHack Spring) | 1 | v1 tool crash, v2 accepted | 28 | $7.24 |
-| insuraagent_backend | fozagtx/insuraAgent | 5 | v1 and v2 rejected | 68 | $12.46 |
+| insuraagent_backend | fozagtx/insuraAgent | 5 | v1, v2 rejected; v3 accepted | 96 | $18.36 |
 
-Total 185 teacher calls, $35.31. Six of seven apps accepted. FutureOS has a
+Total 213 teacher calls, $41.21. All seven apps accepted (InsuraAgent on v3). FutureOS has a
 recipe but was not run: its backend is one module with no cross-file edge.
 
-Unified `accepted`: 72 -> 93 records. `accepted-dedup`: 93 records, 998,325
-context tokens, 21 source groups, audit passed
+Unified `accepted`: 72 -> 97 records. `accepted-dedup`: 97 records, 1,048,137
+context tokens, 22 source groups, audit passed
 (`output/eval/revdev/wave2-dedup-audit-20261102.json`). Mindcraft is now
-about 25% of the serialized message text.
+about 24% of the serialized message text.
 
 ## Failures and fixes
 
@@ -51,13 +51,12 @@ about 25% of the serialized message text.
   letter must be `f"{salutation}\n\n{body}\n\n{closing}"`. v1 dropped empty
   parts; v2 stored only the body. The plan states the format, but inside one
   long `purpose` sentence of the walker row, and both runs passed a context
-  checkpoint before writing the walker. Both runs stay rejected. A v3 would
-  first move the letter and `APL-` id contracts into a short `acceptance` line
-  in `task.json`, tests unchanged.
+  checkpoint before writing the walker. Both runs stay rejected. v3 moved the
+  letter and `APL-` id contracts into the `task.json` acceptance list (tests
+  unchanged, recipe rechecked) and was accepted in 28 steps.
 
 ## Next
 
-- Train from `accepted-dedup` (recipe dataset `name` still to change).
-- Optional: InsuraAgent v3 with the contract surfaced; FutureOS if single-file
-  `by llm` data is wanted.
+- `1102-revdev-v135-r16-64k/sft.yaml` now reads `accepted-dedup`.
+- FutureOS recipe kept, not run.
 - Keep GhostWatch held out for evaluation.

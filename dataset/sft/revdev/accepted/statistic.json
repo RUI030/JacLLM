@@ -1,13 +1,13 @@
 {
-  "records": 93,
-  "context_tokens": 998325,
+  "records": 97,
+  "context_tokens": 1048137,
   "stage_counts": {
-    "revdev_app": 17,
+    "revdev_app": 18,
     "revdev_function": 15,
     "revdev_multifile": 4,
-    "revdev_plan": 17,
-    "revdev_resume": 23,
-    "revdev_scaffold": 17
+    "revdev_plan": 18,
+    "revdev_resume": 24,
+    "revdev_scaffold": 18
   },
   "source_groups": {
     "a2tech360__a2-pulse": 6,
@@ -17,6 +17,7 @@
     "anbu-00001__civicmesh": 4,
     "async-avengers__repoghost": 3,
     "cosmonautjones__m-local": 1,
+    "fozagtx__insuraagent": 4,
     "joohyeon__umadeit": 3,
     "krishs09-123__jachacks-engagement-auditor": 4,
     "mindcraft": 13,
