@@ -6,6 +6,13 @@ proposals. See [REVDEV_M1.md](revdev/devlog/REVDEV_M1.md) for the measured pilot
 [REVDEV.md](REVDEV.md) for the five dataset examples and
 [REVDEV_IMPLEMENTATION_PLAN.md](REVDEV_IMPLEMENTATION_PLAN.md) for milestones.
 
+Current active SFT layout: `dataset/sft/revdev/accepted/train.jsonl`.
+The five example stages below are `meta.stage` values within that one dataset.
+Older `revdev_*` paths and train/valid references describe historical stage
+exports archived under `archived/revdev-stage-exports-20261102/`; the active
+collection trains on all accepted stages of each app and reserves separate
+unseen apps for evaluation.
+
 ## Layout and visibility
 
 ```text

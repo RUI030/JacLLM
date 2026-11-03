@@ -1,0 +1,18 @@
+{
+  "schema_version": "1",
+  "task_id": "umadeit_backend_v1",
+  "reference_id": "ref_joohyeon_umadeit_ai_helpers",
+  "request": "Build the AI helper layer of a headless first-week assistant for international students arriving in Ann Arbor. ai/models.jac decides whether a model can be called: AI can be switched off for the whole process with the UARRIVED_AI_OFF environment variable, a model slot set to None is off, a real Anthropic model needs an ANTHROPIC_API_KEY, and a test double is always usable. ai/guide.jac holds a swappable guide model and an LLM-backed answer_task_question that answers a student's follow-up question about one orientation task, plus guide_ready. ai/translate.jac holds a swappable translator model and LLM-backed translate, translate_post and translate_batch functions that return typed results, plus translator_ready. main.jac only imports the public names. Tests must swap the model globs for MockLLM and never call a real model.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "model_ready returns False for None, True for any non-Model test double such as MockLLM, and for a real Model only True when UARRIVED_AI_OFF is not \"1\" and ANTHROPIC_API_KEY is non-blank.",
+    "guide_ready and translator_ready report model_ready of their module glob (guide, translator), so assigning MockLLM makes them True and assigning None makes them False.",
+    "answer_task_question returns the GuideAnswer produced by the guide model unchanged.",
+    "translate, translate_post and translate_batch return the Translation, PostTranslations and TextList objects produced by the translator model, in call order."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a backend-only service; no JSX or browser UI; never call a real model (test any by llm function with MockLLM).",
+    "Keep the public names ai_switched_off, model_ready (ai/models.jac); module glob guide, guide_ready, GuideAnswer, answer_task_question (ai/guide.jac); module glob translator, translator_ready, Translation, PostText, PostTranslations, TextList, translate, translate_post, translate_batch (ai/translate.jac).",
+    "Model globs are typed any so tests can assign MockLLM or None to ai.guide.guide and ai.translate.translator."
+  ]
+}

@@ -1,0 +1,164 @@
+{
+  "schema_version": "1",
+  "ui": {
+    "app_type": "service",
+    "nav_pattern": "none",
+    "pages": [],
+    "auth_required": false,
+    "backend_required": true,
+    "ai_required": false
+  },
+  "files": [
+    {
+      "path": "jac.toml",
+      "layer": "config",
+      "purpose": "Configure Jac 0.36.1 [project] kind service and entry-point main.jac; this headless slice has no npm or AI dependencies.",
+      "exports": [],
+      "imports_from_plan": [],
+      "write_order": 1,
+      "status": "pending"
+    },
+    {
+      "path": "graph/nodes.jac",
+      "layer": "model",
+      "purpose": "Define graph nodes with default-valued fields and sem strings: PersonNode(user_id, language='en', location_zip, income_bracket, family_size:int=1, preferred_contact='phone', created_at); NeedNode(category, urgency='within_weeks', details, created_at); ResourceNode(agency_name, category, capacity='open', languages_supported:list[str]=[], contact_phone, contact_email, address, online_url, description); EligibilityRuleNode(rule_id, income_limit_annual:int=0, residency_requirement='none', min_family_size:int=0, citizenship_required:bool=False, age_min:int=0, age_max:int=0, exceptions, criteria_summary, prior_success_rate:float=0.5, prior_attempts:int=0, prior_approvals:int=0); SessionInsight(session_id, ts, walkers_fired:list[str]=[], llm_calls_est:int=0, escalated, pathfinder_used, navigation_used:bool=False, eligible_count:int=0, quality_score:int=50, headline, user_prompt_snippet); FormNode(form_id, form_name, url, required_documents:list[str]=[], deadline_type='rolling', submission_method='online', estimated_minutes:int=30); ApplicationNode(application_id, status='pending', resource_name, applied_at, updated_at, denial_reason, next_step_hint, notes). String fields default to empty string.",
+      "signatures": {
+        "PersonNode": "node PersonNode { has user_id: str = \"\", language: str = \"en\", location_zip: str = \"\", income_bracket: str = \"\", family_size: int = 1, preferred_contact: str = \"phone\", created_at: str = \"\"; }",
+        "NeedNode": "node NeedNode { has category: str = \"\", urgency: str = \"within_weeks\", details: str = \"\", created_at: str = \"\"; }",
+        "ResourceNode": "node ResourceNode { has agency_name: str = \"\", category: str = \"\", capacity: str = \"open\", languages_supported: list[str] = [], contact_phone: str = \"\", contact_email: str = \"\", address: str = \"\", online_url: str = \"\", description: str = \"\"; }",
+        "ApplicationNode": "node ApplicationNode { has application_id: str = \"\", status: str = \"pending\", resource_name: str = \"\", applied_at: str = \"\", updated_at: str = \"\", denial_reason: str = \"\", next_step_hint: str = \"\", notes: str = \"\"; }"
+      },
+      "exports": [
+        "PersonNode",
+        "NeedNode",
+        "ResourceNode",
+        "EligibilityRuleNode",
+        "SessionInsight",
+        "FormNode",
+        "ApplicationNode"
+      ],
+      "imports_from_plan": [],
+      "write_order": 2,
+      "status": "pending"
+    },
+    {
+      "path": "graph/edges.jac",
+      "layer": "model",
+      "purpose": "Define typed edges with sem strings: has_need (PersonNode->NeedNode), eligible_for (NeedNode->ResourceNode), governed_by (ResourceNode->EligibilityRuleNode), requires_form (EligibilityRuleNode->FormNode), applied_to (PersonNode->ApplicationNode), reflected_on (PersonNode->SessionInsight) as empty edges, and leads_to (ResourceNode->ResourceNode) carrying transition_reason:str='', typical_days:int=30, difficulty:str='moderate'.",
+      "signatures": {
+        "has_need": "edge has_need {}",
+        "applied_to": "edge applied_to {}",
+        "leads_to": "edge leads_to { has transition_reason: str = \"\", typical_days: int = 30, difficulty: str = \"moderate\"; }"
+      },
+      "exports": [
+        "has_need",
+        "eligible_for",
+        "governed_by",
+        "requires_form",
+        "applied_to",
+        "leads_to",
+        "reflected_on"
+      ],
+      "imports_from_plan": [],
+      "write_order": 3,
+      "status": "pending"
+    },
+    {
+      "path": "walkers/impact.jac",
+      "layer": "service",
+      "purpose": "Import PersonNode, NeedNode, ApplicationNode from graph/nodes.jac and applied_to, has_need from graph/edges.jac. ImpactWalker on Root entry collects [root --> [?:PersonNode]], counts languages (default 'en'), follows ->:has_need:-> NeedNodes to count categories, and follows ->:applied_to:-> ApplicationNodes whose status != 'archived' to count total_applications, app_status_counts (pending/applied/approved/denied/withdrawn preset to 0) and per resource_name counts. approval_rate = int((approved+applied)*100/(approved+denied+applied)) or 0. Reports and stores in summary one dict with total_users, total_applications, languages (list of {lang,count}), need_categories (list of {category,count}), app_status_counts, approval_rate and top_resources (up to 5 {name,count} sorted by count descending).",
+      "signatures": {
+        "ImpactWalker": "walker ImpactWalker { has summary: dict = {}; can run with Root entry; }"
+      },
+      "exports": [
+        "ImpactWalker"
+      ],
+      "imports_from_plan": [
+        "PersonNode",
+        "NeedNode",
+        "ApplicationNode",
+        "applied_to",
+        "has_need"
+      ],
+      "write_order": 4,
+      "status": "pending"
+    },
+    {
+      "path": "walkers/pathfinder.jac",
+      "layer": "service",
+      "purpose": "Import ResourceNode, EligibilityRuleNode from graph/nodes.jac and leads_to from graph/edges.jac. PathfinderWalker on Root entry gathers seed ResourceNodes on root named in seed_resource_names plus all ResourceNodes with category == start_category, then runs a queue BFS per seed over [node ->:leads_to:-> [?:ResourceNode]] up to max_hops, recording a path once it has two hops (start, end, hops list of {from,to,reason,days,difficulty}, hop_count, total_days via module helper _sum_days) and stopping at max_paths. Paths are sorted by (total_days, hop_count). Reports and stores in summary {ok: True, start_category, max_hops, path_count, paths}.",
+      "signatures": {
+        "PathfinderWalker": "walker PathfinderWalker { has start_category: str = \"\"; has max_hops: int = 3; has max_paths: int = 3; has seed_resource_names: list[str] = []; has summary: dict = {}; can search with Root entry; }",
+        "_sum_days": "def _sum_days(hops: list) -> int"
+      },
+      "exports": [
+        "PathfinderWalker"
+      ],
+      "imports_from_plan": [
+        "ResourceNode",
+        "EligibilityRuleNode",
+        "leads_to"
+      ],
+      "write_order": 5,
+      "status": "pending"
+    },
+    {
+      "path": "main.jac",
+      "layer": "service",
+      "purpose": "Thin entry module: import ImpactWalker from walkers/impact.jac and PathfinderWalker from walkers/pathfinder.jac so both walkers are registered and importable from main.",
+      "signatures": {
+        "ImpactWalker": "import from walkers.impact { ImpactWalker }",
+        "PathfinderWalker": "import from walkers.pathfinder { PathfinderWalker }"
+      },
+      "exports": [
+        "ImpactWalker",
+        "PathfinderWalker"
+      ],
+      "imports_from_plan": [
+        "ImpactWalker",
+        "PathfinderWalker"
+      ],
+      "write_order": 6,
+      "status": "pending"
+    }
+  ],
+  "write_order": [
+    "jac.toml",
+    "graph/nodes.jac",
+    "graph/edges.jac",
+    "walkers/impact.jac",
+    "walkers/pathfinder.jac",
+    "main.jac"
+  ],
+  "dependency_graph": {
+    "jac.toml": [],
+    "graph/nodes.jac": [],
+    "graph/edges.jac": [],
+    "walkers/impact.jac": [
+      "graph/nodes.jac",
+      "graph/edges.jac"
+    ],
+    "walkers/pathfinder.jac": [
+      "graph/nodes.jac",
+      "graph/edges.jac"
+    ],
+    "main.jac": [
+      "walkers/impact.jac",
+      "walkers/pathfinder.jac"
+    ]
+  },
+  "remove_from_template": [],
+  "verify": {
+    "flow": "seed people/needs/applications -> ImpactWalker; seed resources + leads_to chains -> PathfinderWalker",
+    "route": "API only",
+    "steps": "Run jac check main.jac and the Jac behavior tests in revdev_acceptance.jac."
+  },
+  "build_log": {
+    "overall_status": "pending",
+    "last_action": "",
+    "issues": [],
+    "learnings": []
+  },
+  "confidence": 0.85,
+  "assumption": "Backend slice of github.com/Anbu-00001/CivicMesh (civicmesh/ project root): graph/nodes.jac, graph/edges.jac, walkers/impact.jac and walkers/pathfinder.jac used verbatim; main.jac is a new thin re-export entry. LLM, seeding-from-file and UI modules are out of scope."
+}

@@ -1,0 +1,6 @@
+{
+  "source": "independent_browser_acceptance",
+  "status": "failed",
+  "observed": "The page renders six rows, but its summary uses Active and Maintenance instead of Active Now and In Maintenance, and its status filter uses buttons instead of the reference dropdown. The shared reference-grounded browser flow expects a select element with values all, active, maintenance, idle. No browser JavaScript error was observed before the mismatch.",
+  "required_repair": "Keep the six-row registry and counts. Change the filter to a single status dropdown with values all, active, maintenance, idle, and use the source labels Total Fleet, Active Now, In Maintenance, Idle. Match the selected status case-insensitively against vehicle data. Re-run jac check, jac test and jac build. Record the failed attempt; do not claim browser success because this adapter has no browser tool."
+}

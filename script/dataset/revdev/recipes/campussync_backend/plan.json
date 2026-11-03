@@ -1,0 +1,224 @@
+{
+  "schema_version": "1",
+  "ui": {
+    "app_type": "service",
+    "nav_pattern": "none",
+    "pages": [],
+    "auth_required": false,
+    "backend_required": true,
+    "ai_required": false
+  },
+  "files": [
+    {
+      "path": "jac.toml",
+      "layer": "config",
+      "purpose": "Configure Jac 0.36.1 [project] (name campussync, kind service) with entry-point main.jac; this headless slice has no npm or AI dependencies.",
+      "exports": [],
+      "imports_from_plan": [],
+      "write_order": 1,
+      "status": "pending"
+    },
+    {
+      "path": "server/config.jac",
+      "layer": "config",
+      "purpose": "Hard-rule constants enforced in code, declared as one glob statement: INTERNATIONAL_WEEKLY_CAP:int = 20, MAX_DAILY_HOURS:int = 8 (students), MAX_DAILY_HOURS_WORKER:int = 12, WORKER_WEEKLY_LIMIT:int = 60, MIN_REST_MINUTES:int = 30. No imports.",
+      "signatures": {
+        "constants": "glob INTERNATIONAL_WEEKLY_CAP: int = 20, MAX_DAILY_HOURS: int = 8, MAX_DAILY_HOURS_WORKER: int = 12, WORKER_WEEKLY_LIMIT: int = 60, MIN_REST_MINUTES: int = 30;"
+      },
+      "exports": [
+        "INTERNATIONAL_WEEKLY_CAP",
+        "MAX_DAILY_HOURS",
+        "MAX_DAILY_HOURS_WORKER",
+        "WORKER_WEEKLY_LIMIT",
+        "MIN_REST_MINUTES"
+      ],
+      "imports_from_plan": [],
+      "write_order": 2,
+      "status": "pending"
+    },
+    {
+      "path": "server/timeutil.jac",
+      "layer": "util",
+      "purpose": "Time helpers; times are minutes from midnight, days 0=Mon..6=Sun. Imports date, timedelta from datetime only. glob DAY_SHORT = [\"Mon\",\"Tue\",\"Wed\",\"Thu\",\"Fri\",\"Sat\",\"Sun\"] and DAY_LONG = full day names Monday..Sunday. hm(minutes) -> zero-padded \"HH:MM\". parse_hm(text) -> minutes from \"H:MM\" (strips text; missing/empty minute part counts as 0). slot_label(day,start,end) -> f\"{DAY_SHORT[day]} {hm(start)}–{hm(end)}\" (en dash). hours(start,end) -> (end-start)/60. overlaps(a_start,a_end,b_start,b_end) -> a_start < b_end and b_start < a_end (touching intervals do not overlap). monday_of(d) -> d minus d.weekday() days. week_key(d, dflt) -> dflt.isoformat() when d is empty, else the ISO Monday of date d. fmt_hours(h) -> integer text when h is whole, else one decimal. g(v) -> f\"{v:g}\". plural(n, word, many=\"\") -> word when n == 1 else (many or word + \"s\").",
+      "signatures": {
+        "hm": "def hm(minutes: int) -> str",
+        "parse_hm": "def parse_hm(text: str) -> int",
+        "slot_label": "def slot_label(day: int, start: int, end: int) -> str",
+        "hours": "def hours(start: int, end: int) -> float",
+        "overlaps": "def overlaps(a_start: int, a_end: int, b_start: int, b_end: int) -> bool",
+        "monday_of": "def monday_of(d: date) -> date",
+        "week_key": "def week_key(d: str, dflt: date) -> str",
+        "fmt_hours": "def fmt_hours(h: float) -> str",
+        "g": "def g(v: float) -> str",
+        "plural": "def plural(n: int | float, word: str, many: str = \"\") -> str"
+      },
+      "exports": [
+        "DAY_SHORT",
+        "DAY_LONG",
+        "hm",
+        "parse_hm",
+        "slot_label",
+        "hours",
+        "overlaps",
+        "monday_of",
+        "week_key",
+        "fmt_hours",
+        "g",
+        "plural"
+      ],
+      "imports_from_plan": [],
+      "write_order": 3,
+      "status": "pending"
+    },
+    {
+      "path": "server/models.jac",
+      "layer": "model",
+      "purpose": "Graph nodes; records reference each other by jid strings. Imports INTERNATIONAL_WEEKLY_CAP, MAX_DAILY_HOURS, MAX_DAILY_HOURS_WORKER from server.config. node Employer has name=\"\", type=\"department\", kind=\"business\", university=\"\", join_code=\"\", timezone=\"America/New_York\", default_pay_rate=15.0, default_weekly_hours=20, state_tax_pct=4.25, description=\"\", created=\"\", auto_generate=True, auto_recruit=True, auto_approve_swaps=False. node Employee has name=\"\", email=\"\", student_number=\"\", kind=\"student\" (or \"worker\"), school=\"\", status=\"domestic\" (or \"international\"), weekly_limit:int=20, desired_hours:int=12, preferences:list[str]=[], open_swap_days:list[int]=[], autopilot=True, note=\"\", calendar_source, calendar_url, google_refresh_token, google_email, google_calendar_id, shifts_signature, calendar_synced_at, calendar_error (all str \"\"), demo_events:list[dict[str, any]]=[], created=\"\"; methods: first_name() = first space-separated word of name; is_international() = kind == \"student\" and status == \"international\"; cap() = min(weekly_limit or INTERNATIONAL_WEEKLY_CAP, INTERNATIONAL_WEEKLY_CAP) when international, else weekly_limit (workers are never international); daily_max() = MAX_DAILY_HOURS for kind \"student\" else MAX_DAILY_HOURS_WORKER. node BusyBlock (weekly unavailability; week \"\" means every week) has day=0, start=0, end=0, title=\"Busy\", source=\"calendar\", week=\"\". node Employment has student=\"\", employer=\"\", hours:int=10, state=\"invited\" (\"active\" when working), positions:list[str]=[], pay_rate=15.0, created=\"\". node Shift has employer=\"\", week=\"\", day=0, start=0, end=0, student=\"\" (holder id), state=\"assigned\", status=\"published\", draft=\"\", reason=\"\", source=\"generated\", position=\"\", created=\"\", and hours() = (end-start)/60. employer_of/employee_of return None for an empty id, else jobj(id) when it is an instance of that node type, else None. held_shifts(s, wk, want) returns the Shift nodes linked from employee s with week == wk and status == want.",
+      "signatures": {
+        "Employer": "node Employer { has name: str = \"\", type: str = \"department\", kind: str = \"business\", university: str = \"\", join_code: str = \"\", timezone: str = \"America/New_York\", default_pay_rate: float = 15.0, default_weekly_hours: int = 20, state_tax_pct: float = 4.25, description: str = \"\", created: str = \"\", auto_generate: bool = True, auto_recruit: bool = True, auto_approve_swaps: bool = False; }",
+        "Employee": "node Employee { has name: str = \"\", ..., kind: str = \"student\", status: str = \"domestic\", weekly_limit: int = 20, ...; def first_name -> str; def is_international -> bool; def cap -> int; def daily_max -> int; }",
+        "BusyBlock": "node BusyBlock { has day: int = 0, start: int = 0, end: int = 0, title: str = \"Busy\", source: str = \"calendar\", week: str = \"\"; }",
+        "Employment": "node Employment { has student: str = \"\", employer: str = \"\", hours: int = 10, state: str = \"invited\", positions: list[str] = [], pay_rate: float = 15.0, created: str = \"\"; }",
+        "Shift": "node Shift { has employer: str = \"\", week: str = \"\", day: int = 0, start: int = 0, end: int = 0, student: str = \"\", state: str = \"assigned\", status: str = \"published\", draft: str = \"\", reason: str = \"\", source: str = \"generated\", position: str = \"\", created: str = \"\"; def hours -> float; }",
+        "employer_of": "def employer_of(id: str) -> Employer | None",
+        "employee_of": "def employee_of(id: str) -> Employee | None",
+        "held_shifts": "def held_shifts(s: Employee, wk: str, want: str = \"published\") -> list[Shift]"
+      },
+      "exports": [
+        "Employer",
+        "Employee",
+        "BusyBlock",
+        "Employment",
+        "Shift",
+        "employer_of",
+        "employee_of",
+        "held_shifts"
+      ],
+      "imports_from_plan": [
+        "INTERNATIONAL_WEEKLY_CAP",
+        "MAX_DAILY_HOURS",
+        "MAX_DAILY_HOURS_WORKER"
+      ],
+      "write_order": 4,
+      "status": "pending"
+    },
+    {
+      "path": "server/rules.jac",
+      "layer": "service",
+      "purpose": "Conflict agent and compliance checker, deterministic. Imports MIN_REST_MINUTES from server.config, overlaps from server.timeutil, and Employee, BusyBlock, Employment, Shift, employee_of from server.models. globs: CONFLICT=\"schedule_conflict\", HOUR_LIMIT=\"hour_limit\", NOT_ON_TEAM=\"not_on_team\", NOT_QUALIFIED=\"not_qualified\", _TIMING=[\"overlap\",\"rest\",\"daily_max\"], _HOURS=[\"weekly_cap\",\"dept_hours\"]. obj Held(shift_id, department_id, day, start, end) with hours()=(end-start)/60. obj Block(day, start, end, title=\"Busy\"). obj Verdict(ok, code=\"\", hours_left=0.0, cross_department=False): public_reason() is \"\" when ok, CONFLICT for _TIMING codes, HOUR_LIMIT for _HOURS codes, else the code; is_timing()/is_hours() test membership. obj Ledger(week:str) with private caches _students, _busy, _held, _allot, _has_allot, _roles (dicts keyed by sid or by key sid+\"|\"+did). student(sid) caches employee_of(sid) and raises ValueError(f\"Unknown employee {sid}\") when missing. busy(sid) caches Blocks from the employee's BusyBlock nodes whose week is \"\" or equals self.week. held(sid) caches Held(shift_id=jid(s), department_id=s.employer, day, start, end) for Shift nodes linked from the employee with week == self.week, status \"published\" and s.student == sid. allotment(sid,did) caches the first Employment linked from the employee with employer == did and state \"active\": hours as allotment and str(positions) as roles; returns None when none. set_allotment(sid,did,hours,roles) overrides it in memory (hours None removes it). roles(sid,did) ensures allotment loaded and returns the role list. qualified(sid,did,pid) = not pid or pid in roles. clone() returns a new Ledger with the same week, shared _students/_busy, copied _allot/_has_allot/_roles dicts and deep-copied Held lists. add(sid,h) appends to held(sid); remove(sid,shift_id) drops that shift. total_hours(sid), dept_hours(sid,did), day_hours(sid,day) sum Held hours. cap(sid) = student(sid).cap(); cap_left(sid) = max(0.0, cap - total). hours_left(sid,did) = 0.0 without allotment else max(0.0, min(cap - total_hours, allot - dept_hours)). conflict(sid,day,start,end,ignore,did): busy block same day overlapping -> Verdict(ok=False, code=\"overlap\", cross_department=False); held shift (not in ignore) same day overlapping -> Verdict(ok=False, code=\"overlap\", cross_department = its department_id != did); else Verdict(ok=True). compliance(sid,did,day,start,end,ignore): add=(end-start)/60 over held minus ignored; no allotment -> code \"not_on_team\"; left = max(0.0, min(cap-total, allot-dept)); then in order: total+add > cap -> \"weekly_cap\" (hours_left=left, cross_department = total-dept > 0); dept+add > allot -> \"dept_hours\" (hours_left=left); same-day hours + add > student daily_max -> \"daily_max\" (hours_left=left, cross_department if any same-day shift from another employer); any same-day shift whose gap (start - h.end if start >= h.end else h.start - end) satisfies 0 <= gap < MIN_REST_MINUTES -> \"rest\" (hours_left=left, cross_department = h.department_id != did); else Verdict(ok=True, hours_left=left). Comparisons use a 1e-9 tolerance. check(sid,did,day,start,end,ignore=None,pid=\"\"): no allotment -> \"not_on_team\"; not qualified -> NOT_QUALIFIED; failed conflict verdict gets hours_left = hours_left(sid,did) and is returned; otherwise compliance. violations(sid) returns a list built in this order: for each held shift i, append \"overlap\" for each overlapping busy block on its day, and for each later held shift on the same day append \"overlap\" if overlapping else \"rest\" if the gap < MIN_REST_MINUTES; then \"weekly_cap\" if total > cap; then for each department id in sorted order \"dept_hours\" if it has no allotment or its hours exceed it; then for each day in sorted order \"daily_max\" if day hours exceed daily_max.",
+      "signatures": {
+        "Held": "obj Held { has shift_id: str, department_id: str, day: int, start: int, end: int; def hours -> float; }",
+        "Block": "obj Block { has day: int, start: int, end: int, title: str = \"Busy\"; }",
+        "Verdict": "obj Verdict { has ok: bool, code: str = \"\", hours_left: float = 0.0, cross_department: bool = False; def public_reason -> str; def is_timing -> bool; def is_hours -> bool; }",
+        "Ledger": "obj Ledger { has week: str, _students: dict[str, Employee] = {}, _busy: dict[str, list[Block]] = {}, _held: dict[str, list[Held]] = {}, _allot: dict[str, int] = {}, _has_allot: dict[str, bool] = {}, _roles: dict[str, list[str]] = {}; }",
+        "Ledger.student": "def student(sid: str) -> Employee",
+        "Ledger.busy": "def busy(sid: str) -> list[Block]",
+        "Ledger.held": "def held(sid: str) -> list[Held]",
+        "Ledger._key": "def _key(sid: str, did: str) -> str",
+        "Ledger.allotment": "def allotment(sid: str, did: str) -> int | None",
+        "Ledger.set_allotment": "def set_allotment(sid: str, did: str, hours: int | None, roles: list[str])",
+        "Ledger.roles": "def roles(sid: str, did: str) -> list[str]",
+        "Ledger.qualified": "def qualified(sid: str, did: str, pid: str) -> bool",
+        "Ledger.clone": "def clone -> Ledger",
+        "Ledger.add": "def add(sid: str, h: Held)",
+        "Ledger.remove": "def remove(sid: str, shift_id: str)",
+        "Ledger.total_hours": "def total_hours(sid: str) -> float",
+        "Ledger.dept_hours": "def dept_hours(sid: str, did: str) -> float",
+        "Ledger.day_hours": "def day_hours(sid: str, day: int) -> float",
+        "Ledger.cap": "def cap(sid: str) -> int",
+        "Ledger.cap_left": "def cap_left(sid: str) -> float",
+        "Ledger.hours_left": "def hours_left(sid: str, did: str) -> float",
+        "Ledger.conflict": "def conflict(sid: str, day: int, start: int, end: int, ignore: list[str], did: str) -> Verdict",
+        "Ledger.compliance": "def compliance(sid: str, did: str, day: int, start: int, end: int, ignore: list[str]) -> Verdict",
+        "Ledger.check": "def check(sid: str, did: str, day: int, start: int, end: int, ignore: list[str] | None = None, pid: str = \"\") -> Verdict",
+        "Ledger.violations": "def violations(sid: str) -> list[str]"
+      },
+      "exports": [
+        "CONFLICT",
+        "HOUR_LIMIT",
+        "NOT_ON_TEAM",
+        "NOT_QUALIFIED",
+        "Held",
+        "Block",
+        "Verdict",
+        "Ledger"
+      ],
+      "imports_from_plan": [
+        "MIN_REST_MINUTES",
+        "overlaps",
+        "Employee",
+        "BusyBlock",
+        "Employment",
+        "Shift",
+        "employee_of"
+      ],
+      "write_order": 5,
+      "status": "pending"
+    },
+    {
+      "path": "main.jac",
+      "layer": "service",
+      "purpose": "Thin entry point: import Employer, Employee, BusyBlock, Employment, Shift, employer_of, employee_of, held_shifts from server.models and Held, Block, Verdict, Ledger, CONFLICT, HOUR_LIMIT, NOT_ON_TEAM, NOT_QUALIFIED from server.rules; no routes or UI.",
+      "exports": [],
+      "imports_from_plan": [
+        "Employer",
+        "Employee",
+        "BusyBlock",
+        "Employment",
+        "Shift",
+        "employer_of",
+        "employee_of",
+        "held_shifts",
+        "Held",
+        "Block",
+        "Verdict",
+        "Ledger",
+        "CONFLICT",
+        "HOUR_LIMIT",
+        "NOT_ON_TEAM",
+        "NOT_QUALIFIED"
+      ],
+      "write_order": 6,
+      "status": "pending"
+    }
+  ],
+  "write_order": [
+    "jac.toml",
+    "server/config.jac",
+    "server/timeutil.jac",
+    "server/models.jac",
+    "server/rules.jac",
+    "main.jac"
+  ],
+  "dependency_graph": {
+    "jac.toml": [],
+    "server/config.jac": [],
+    "server/timeutil.jac": [],
+    "server/models.jac": [
+      "server/config.jac"
+    ],
+    "server/rules.jac": [
+      "server/config.jac",
+      "server/timeutil.jac",
+      "server/models.jac"
+    ],
+    "main.jac": [
+      "server/models.jac",
+      "server/rules.jac"
+    ]
+  },
+  "remove_from_template": [],
+  "verify": {
+    "flow": "create employee/employment/shifts on root -> Ledger.check -> clone/add/remove -> violations",
+    "route": "API only",
+    "steps": "Run jac check main.jac and the Jac behavior tests for Employee caps, Ledger.check verdict codes, compliance rules, clone isolation and violations."
+  },
+  "build_log": {
+    "overall_status": "pending",
+    "last_action": "",
+    "issues": [],
+    "learnings": []
+  },
+  "confidence": 0.85,
+  "assumption": "Backend slice of Sahil0445/campussync: hard-rule config, time helpers, the employee/shift graph nodes and the deterministic Ledger rule checker. Notifications, scheduling, swaps, AI agents, API endpoints and the web client are out of scope; main.jac is a thin new re-export module."
+}

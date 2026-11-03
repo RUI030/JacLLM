@@ -1,0 +1,19 @@
+{
+  "schema_version": "1",
+  "task_id": "agewise_backend_v1",
+  "reference_id": "ref_anay162_agewise_document_intake",
+  "request": "Build a small headless Jac document-intake backend for an eldercare assistant. A Patient graph node is the hub, and incoming Document nodes hang off it. Define Patient in graph/nodes/patient.jac and Document in graph/nodes/document.jac. Put the AI abilities in abilities/llm_abilities.jac: a module-level model named llm plus two LLM-backed functions, classify_document (returns one document category name such as EOB, MEDICAL_BILL or WILL) and translate_to_plain_english (returns a plain-English summary for an elderly reader). Add two walkers that start at a Patient and visit its documents: DocumentClassify in graph/walkers/intake/document_classify.jac stores the category on documents still marked UNKNOWN, and PlainEnglishTranslator in graph/walkers/intake/plain_english_translator.jac stores a summary on documents that have content but no summary yet. Either walker stops its whole walk at the first document it should skip. A thin main.jac imports everything. Include tests that replace the model with MockLLM.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "Spawning DocumentClassify on a Patient sets each connected UNKNOWN Document's classification to the model's returned category, in connection order.",
+    "DocumentClassify stops the whole walk at the first Document whose classification is not UNKNOWN, leaving later documents UNKNOWN and making no model call.",
+    "Spawning PlainEnglishTranslator on a Patient stores the model's returned text in plain_english_summary of a Document that has raw_content and no summary.",
+    "PlainEnglishTranslator stops the whole walk at the first Document with empty raw_content or an existing summary, leaving later documents unsummarised.",
+    "Running DocumentClassify then PlainEnglishTranslator on the same Patient fills both classification and plain_english_summary from two consecutive model outputs."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a backend-only service; no JSX or browser UI; never call a real model (test any by llm function with MockLLM).",
+    "Keep these exact public names and paths: node Patient (graph/nodes/patient.jac), node Document (graph/nodes/document.jac), glob llm and functions classify_document and translate_to_plain_english (abilities/llm_abilities.jac), walker DocumentClassify (graph/walkers/intake/document_classify.jac), walker PlainEnglishTranslator (graph/walkers/intake/plain_english_translator.jac).",
+    "Tests swap the model by assigning abilities.llm_abilities.llm = MockLLM(...) from jaclang.byllm.lib; the abilities module must read its model from that module-level glob llm at call time."
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": "1",
+  "task_id": "traceforge_backend_v1",
+  "reference_id": "ref_dhravidk_traceforge_backend",
+  "request": "Build a headless Jac library that analyzes coding-agent trajectories and pinpoints where a failed run went wrong. In traceforge/parser.jac, model raw turns, parsed decision steps and parsed runs, pull turns out of a raw trajectory dict (messages, trajectory, history or turns), and segment them into steps that start at each assistant turn, tagging each step with a kind (EDIT, TEST, SUBMIT, COMMAND and so on), a phase, touched files and command/patch/test/error/submit evidence. In traceforge/features.jac, compute a run fingerprint from the parsed steps (step counts, first patch/test/error/submit indices, repetition ratios, top files and error keywords, and heuristic failure-class scores), pick the dominant failure label, write a one-paragraph run digest, and provide count helpers (bounded ratio, ranked token counts). In traceforge/critical.jac, use the parsed run and its fingerprint to score candidate steps and localize the critical step with a confidence and an evidence window, skipping runs whose status is resolved. A small main.jac imports the public operations. Include tests that parse an in-memory failing trajectory, fingerprint it, summarize it and localize its critical step.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "Segmenting a user/assistant/tool trajectory yields one step per assistant turn (plus a leading user step) with kinds OTHER, COMMAND, EDIT, TEST, SUBMIT and the touched file paths.",
+    "The fingerprint of a run with a patch followed by a SyntaxError and an early submit reports the patch/error/submit step indices and makes INVALID_PATCH the dominant failure label.",
+    "The run digest states the run id, task title, status, step/test/patch counts and the primary failure family.",
+    "Localizing the critical step of that failing run picks the patch step with confidence at least 0.45 and a three-step evidence window; a resolved run returns status resolved_run with index -1."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a backend-only service; no JSX, browser UI or external AI.",
+    "Keep the module paths traceforge/parser.jac, traceforge/features.jac and traceforge/critical.jac with package imports such as import from traceforge.parser { ... }.",
+    "Keep the public names RawTurn, ParsedStep, ParsedRun, extract_turns, segment_steps, step_text, truncate_text, unique_strings, extract_file_tokens, bounded_ratio, summarize_counts, compute_run_fingerprint, dominant_failure_label, build_run_digest and localize_critical_step.",
+    "Do not read files or the network in the tested behavior; trajectories are passed in as dicts.",
+    "Follow the CONTRACT rules in the plan exactly: detector keyword lists and kind/phase precedence, the fingerprint dict keys, the failure-class weights, the digest sentence templates and the critical-step signal weights."
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": "1",
+  "task_id": "careanchor_backend_v1",
+  "reference_id": "ref_push_to_production_careanchor_backend",
+  "request": "Build the headless backend core of AnchorCare, a care-coordination chat service. In models/codes.jac define a DiagnosisCode value object (ICD-10 code, description, category, confidence, source), and in models/provider.jac a ProviderOption value object (name, specialty, address, phone, accepted insurance, distance, rating, accepting new patients, telehealth, notes). In models/session.jac define the chat session: a ChatMessage object, the supporting care/diagnosis result objects, a UserSession graph node holding the transcript, symptoms, risk flags, assigned codes, provider options, agent path and patient details, plus helpers append_message, update_session_timestamp and session_to_dict, which serializes a session including an agent trace of the six care agents. In services/common.jac keep shared helpers and the APP_DISCLAIMER constant. In services/pdf_exporter.jac implement build_session_pdf_payload, which returns a PDF export payload (file name, mime type, generation time, session id, disclaimer) whose HTML content has sections for the clinical summary, session details, patient information, symptoms, matched conditions, provider recommendations, risk flags and the transcript, with all user text HTML-escaped. main.jac imports and re-exports the public operations.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "append_message adds ChatMessage entries to a UserSession transcript and update_session_timestamp changes only updated_at.",
+    "session_to_dict serializes codes, providers and transcript into plain dicts and sets agent_trace statuses from 'Agent Name:status' entries in agent_path, keeping defaults for the rest.",
+    "build_session_pdf_payload names the file anchorcare_session_<session_id>.pdf, uses mime type application/pdf and the shared APP_DISCLAIMER, and shows placeholder text for empty sections.",
+    "The PDF HTML follows the planned section templates: escaped symptoms, the top provisional code, provider names, risk flags and transcript headers (Patient or agent name · HH:MM), and an explicit summary_text replaces the generated summary."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a backend-only service; no JSX, browser UI or external AI.",
+    "Keep the public names DiagnosisCode, ProviderOption, ChatMessage, UserSession, append_message, update_session_timestamp, session_to_dict, APP_DISCLAIMER and build_session_pdf_payload in models/codes.jac, models/provider.jac, models/session.jac, services/common.jac and services/pdf_exporter.jac."
+  ]
+}

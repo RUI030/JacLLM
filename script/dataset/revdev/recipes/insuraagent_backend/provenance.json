@@ -1,0 +1,60 @@
+{
+  "source_repository": "fozagtx/insuraAgent",
+  "source_url": "https://github.com/fozagtx/insuraAgent",
+  "source_title": "InsuraAgent (JacHacks Spring)",
+  "source_commit": "f22c0a9407478258e6160d9247abc100dc9cf2f6",
+  "source_dataset": "/home/imrui/Documents/Jaseci/JacLLM/JacLLM/dataset/raw/repo/JacHackSpring/fozagtx__insuraAgent (upstream git checkout; repaired fallback /home/imrui/Documents/Jaseci/JacLLM/jac-data-gen/data/jachacks_repaired/fozagtx__insuraAgent, records jac-data-gen/data/jachacks_nonsf_jac_files_checked.jsonl dirname fozagtx__insuraAgent)",
+  "source_files_sha256": {
+    "models.jac": "6bfa01d017ded215cfd40369a5c87f72b316ea8312da4e784a8fb9042913f097",
+    "tools.jac": "46a48b0e3e796ec0fbdee82541f14cb0148a4cf0fe389374b8cbcd66e5a57789",
+    "walkers.jac": "16fbeb7545684425486b281c79af693f064005627738416e93ed458bf7e7281e"
+  },
+  "slice_files_sha256": {
+    "models.jac": "6bfa01d017ded215cfd40369a5c87f72b316ea8312da4e784a8fb9042913f097",
+    "tools.jac": "9a8fff73bd9f09072966c9cf321c5c222882a1d22ae8d1cde0d354a479b21c05",
+    "walkers.jac": "16fbeb7545684425486b281c79af693f064005627738416e93ed458bf7e7281e",
+    "main.jac": "2f25b3f9e32b09282abb93d92a4f4c4eb9a6b2cd61618257af0c5d1b01e32406"
+  },
+  "repaired_files": [],
+  "slice_import_edges": [
+    [
+      "tools.jac",
+      "models.jac"
+    ],
+    [
+      "walkers.jac",
+      "models.jac"
+    ],
+    [
+      "walkers.jac",
+      "tools.jac"
+    ],
+    [
+      "main.jac",
+      "walkers.jac"
+    ]
+  ],
+  "scope": "backend data model, the five by-llm appeal tools with their deterministic parsing, and the submit_claim/list_appeals walkers",
+  "target_jac_version": "0.36.1",
+  "source_jac_version": "unpinned (uses the standalone byllm package)",
+  "adaptation": "models.jac and walkers.jac are verbatim upstream. tools.jac is upstream with one line changed: `import from byllm.llm { Model }` -> `import from jaclang.byllm.llm { Model }` because the standalone byllm package does not exist in Jac 0.36.1 (ModuleNotFoundError at import); the jac-data-gen repaired copy of tools.jac is byte-identical to upstream, so no repaired file was available. Standalone `jac check tools.jac` still reports 6 type errors on the re.search/m.group lines (upstream and repaired alike); `jac check main.jac` passes. main.jac is new (one import line); upstream main.jac is a CLI demo reading sample files and is excluded. jac.toml is new ([project] name, kind service, entry-point main.jac).",
+  "excluded_modules": [
+    "main.jac (upstream CLI demo)",
+    "app.jac",
+    "frontend.cl.jac",
+    "orchestrator.jac (ReAct tools agent)",
+    "probe_featherless.jac",
+    "smoke_llm.jac",
+    "hello.jac"
+  ],
+  "independent_acceptance": "reference_acceptance.jac",
+  "independent_acceptance_sha256": "2ed571ac24cbe701ea384ce3ff4b2b2d1bb5adf7d92da09a9401075b95339e51",
+  "independent_acceptance_adaptation": "Newly written; the source has no tests. tools.jac selects its model at import and raises without an API key, so the test file sets OPENAI_API_KEY to a placeholder in a with-entry block before importing tools; each test then assigns tools.llm = MockLLM(...). No real model is called. Claim ids are unique per test (RVD-*) and list counts are lower-bounded.",
+  "reference_preflight": {
+    "jac_check_main": "passed",
+    "jac_test": "5 passed (JAC_TEST_NATIVE=1 JAC_TEST_JOBS=0, as revdev_acceptance.jac x3 and reference_acceptance.jac x1)",
+    "workspace": "/tmp/revdev-insuraagent_backend-preflight"
+  },
+  "split": "train",
+  "split_group": "fozagtx__insuraagent"
+}

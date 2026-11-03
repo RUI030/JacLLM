@@ -1,0 +1,19 @@
+{
+  "schema_version": "1",
+  "task_id": "rentora_backend_v1",
+  "reference_id": "ref_yousefalwahami_rent_jac_graph_crud",
+  "request": "Build the headless graph backend for Rentora, a small property-management service. In services/graph/models.jac define the graph: Property, Unit, Lease, Tenant, Ticket and Vendor nodes, the HasUnit, HasLease, HasTenant, HasTicket, Services and AssignedTo edges, and EventType and UrgencyLevel enums. In services/graph/localdb.jac keep a small local SQLite log store with a check_db_health function. In services/graph/crud.jac expose walkers that use those models: list_properties, list_units, list_tickets, list_vendors, register_tenant, db_health, list_tenants, add_property_node, delete_tenant_node, delete_property_node and match_tenant. In services/graph/actions.jac add approve_dispatch and resolve_ticket walkers that find a ticket by ticket_id under a property's units and mark it dispatched or resolved. main.jac only re-exports the crud and action walkers. An owner should be able to add a property with unit numbers, register a tenant into a unit (creating the unit and a lease if needed and refusing duplicate phones), list properties, units, tenants and tickets, match a tenant by phone, dispatch and resolve tickets, and delete properties.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "Adding a property with unit numbers reports its id and unit count, and list_properties shows it with the same unit_count.",
+    "Registering a tenant creates a lease under the matching unit; a second registration with the same phone reports already_registered; list_tenants, list_units and match_tenant show the tenant.",
+    "match_tenant with an unknown phone reports matched False.",
+    "approve_dispatch and resolve_ticket find a ticket by ticket_id and change its status to dispatched then resolved, visible in list_tickets.",
+    "delete_property_node removes a property by id and reports not_found for an unknown id."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a backend-only service; no JSX, browser UI or external AI.",
+    "Keep module paths services/graph/models.jac, services/graph/localdb.jac, services/graph/crud.jac, services/graph/actions.jac and main.jac, importing with dotted paths such as services.graph.models.",
+    "Keep public walker names list_properties, list_units, list_tickets, list_vendors, register_tenant, db_health, list_tenants, add_property_node, delete_tenant_node, delete_property_node, match_tenant, approve_dispatch, resolve_ticket, public function check_db_health, and model names Property, Unit, Lease, Tenant, Ticket, Vendor, HasUnit, HasLease, HasTenant, HasTicket, Services, AssignedTo, EventType, UrgencyLevel."
+  ]
+}

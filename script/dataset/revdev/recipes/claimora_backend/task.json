@@ -1,0 +1,18 @@
+{
+  "schema_version": "1",
+  "task_id": "claimora_backend_v1",
+  "reference_id": "ref_debssm_jac_2026_claimora_backend",
+  "request": "Build the headless graph backend for a False Claims Act case assistant. Define the case data as graph nodes in nodes/data_nodes.jac: uploaded documents, extracted evidence, a fraud timeline, the four legal elements (falsity, scienter, materiality, causation) with strength scores, and a final case memo. In walkers/ingest.jac, add a walker ingest_documents that takes a list of uploaded files (filename, content, doc_type) and attaches one document node per file to root, truncating content longer than 6000 characters. In main.jac, import the node types and the ingest walker and expose walkers get_scores (one report with the falsity, scienter, materiality and causation strength scores, defaulting to 0.0), get_evidence (one report per evidence node with type, description, source and confidence), get_timeline (one report per timeline with start, end, duration in months and events) and reset_case (deletes all case nodes from root and reports a confirmation message).",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "ingest_documents attaches one DocumentNode per uploaded file to root with its filename, content and doc_type, truncating content over 6000 characters to exactly 6000.",
+    "get_evidence reports each EvidenceNode as a dict with keys type, description, source and confidence; get_timeline reports each TimelineNode with fraud_start, fraud_end, total_duration_months and events.",
+    "get_scores reports a single dict with falsity, scienter, materiality and causation strength scores, using 0.0 for elements with no node.",
+    "reset_case removes all document, evidence, timeline, legal-element and memo nodes from root and reports \"Case reset complete\"."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a backend-only service; no JSX, browser UI or external AI.",
+    "Keep module paths nodes/data_nodes.jac, walkers/ingest.jac and main.jac.",
+    "Use the exact node names DocumentNode, EvidenceNode, TimelineNode, FalsityNode, ScientorNode, MaterialityNode, CausationNode and CaseMemoNode, and the exact walker names ingest_documents, get_scores, get_evidence, get_timeline and reset_case; main.jac must make ingest_documents importable."
+  ]
+}

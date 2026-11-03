@@ -1,0 +1,18 @@
+{
+  "schema_version": "1",
+  "task_id": "civicmesh_backend_v1",
+  "reference_id": "ref_anbu00001_civicmesh_backend",
+  "request": "Build the headless graph backend of CivicMesh, a civic-aid navigator. In graph/nodes.jac define the graph nodes for people seeking help, their needs, civic resources, eligibility rules, application forms, application records and session insights; in graph/edges.jac define the typed edges between them, including a resource-to-resource progression edge that carries a transition reason, typical days and difficulty. In walkers/impact.jac add ImpactWalker, which walks every person on root and reports dashboard totals: user count, languages with counts, need categories with counts, application status counts (ignoring archived applications), an approval rate and the top resources by application count. In walkers/pathfinder.jac add PathfinderWalker, which takes a start category and runs a bounded breadth-first search over progression edges from that category's resources to report up to a few two-hop escape paths. main.jac only imports both walkers. Include tests for both reports.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "ImpactWalker reports per-language and per-need-category counts gathered from people on root and their has_need edges.",
+    "ImpactWalker counts applications reached through applied_to by status, leaves out archived applications, and lists resources ranked by application count.",
+    "PathfinderWalker reports a two-hop path (start, end, hops, hop_count) along leads_to edges between resources of the requested category.",
+    "PathfinderWalker reports one path per independent chain, honours max_paths, and reports zero paths when resources have no outgoing transitions."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a backend-only service; no JSX, browser UI or external AI.",
+    "Keep the node names PersonNode, NeedNode, ResourceNode, EligibilityRuleNode, SessionInsight, FormNode, ApplicationNode and edge names has_need, eligible_for, governed_by, requires_form, applied_to, leads_to, reflected_on.",
+    "Keep the walker names ImpactWalker (field summary) and PathfinderWalker (fields start_category, max_hops, max_paths, seed_resource_names, summary), and re-export both from main.jac."
+  ]
+}

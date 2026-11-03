@@ -1,6 +1,6 @@
 # Reverse Development generator: implementation plan
 
-Status: M0–M4 retain the 8-record, five-type Mindcraft pilot. M5 module expansion has 21 accepted real-tool trajectories across 3 repos (14 train / 7 repo-heldout valid); rank16 continuation training and paired evaluation completed, with no measured behavioral improvement. Two different repos now meet the connected two-file behavior gate: A2-Pulse brief_dates → brief_editor (23 original tests, replay equal, 34,733-token valid record) and m-local context_models → context (13 original tests plus independent mixed-state oracle, 18 replayed tool calls, 24,456-token train record). Full-app expansion remains pending. See [scale-up log](revdev/devlog/REVDEV_SCALEUP.md), [A2-Pulse log](revdev/devlog/REVDEV_A2PULSE_TWOFILE.md) and [m-local log](revdev/devlog/REVDEV_MLOCAL_CONTEXT.md). Runtime remains pinned to Jac 0.34.27.
+Status (2026-11-02): Earlier pilots produced stage-specific exports and a rank-16 continuation with no measured behavioral improvement. A2-Pulse, pomodoro, Orbitron, JacProjectFactory, and ClaudeLogViewer have accepted source-grounded slices after independent checks and clean replay. The active output is now one `revdev/accepted` train dataset: 53 non-mirror records / 560,416 context tokens, with stage type in metadata. Its 64k rank-16 recipe has not been trained. Rui/pm remains pending. These slices do not claim reconstruction of each entire original product. See [current status](revdev/STATUS.md) for exact gates and limitations.
 The dataset contract and five preview examples are in [REVDEV.md](REVDEV.md).
 The proposed fields and visibility rules for every JSON artifact are in
 [REVDEV_ARTIFACTS.md](REVDEV_ARTIFACTS.md).
@@ -9,8 +9,8 @@ The proposed fields and visibility rules for every JSON artifact are in
 
 One command should take a pinned reference repo and produce a manifest,
 validated task/plan, a real JacCoder run from a clean workspace, replayable
-checkpoints, and five separate SFT exports (`revdev_plan`,
-`revdev_scaffold`, `revdev_function`, `revdev_app`, `revdev_resume`). Every
+checkpoints, and one SFT output (`revdev`) with stage metadata for planning,
+scaffolding, function work, app segments, and resume segments. Every
 exported record must fit the configured 64k training-token cap. The reference
 repo remains outside the student workspace and harness context.
 
@@ -43,7 +43,7 @@ Do not copy their regex symbol index into the authoritative extractor or use
 | `checkpoint.py` | Completed response/result boundary → restorable workspace + plan + hashes | Never cut inside a tool batch, edit or result. |
 | `segment.py` | Raw run + checkpoints → app prefix and executable resume jobs | Exact target tokenizer and chat template enforce 64k. |
 | `validate.py` | Reference, output workspace and raw trace → acceptance/rejection report | Baseline, dependency evidence, schema, replay and final checks. |
-| `export.py` | Accepted run → five SFT task types and provenance | Repo-level split; raw run remains available. |
+| `export.py` | Accepted run → stage projections and one active `revdev` collection | Historical stage exports and raw run remain available; all accepted stages of a source app train together. |
 
 These are proposed module contracts. A module can be combined or split after
 the pilot, while preserving the data contracts below.

@@ -1,0 +1,18 @@
+{
+  "schema_version": "1",
+  "task_id": "depgraph_backend_v1",
+  "reference_id": "ref_shaileshdev4_depgraph_backend",
+  "request": "Build the headless backend core of DepGraph, an npm dependency-vulnerability investigator. graph/nodes.jac defines the graph nodes InvestigationSession, Package, CVE, UsageContext and RemediationPlan. tools/risk_scorer.jac scores packages in memory with package_risk_score (depth, risky-name keywords, low major versions 0 to 2, direct dependency) and trims large dependency lists to the riskiest ones with filter_top_risk_packages, keeping only edges between kept packages. graph/snapshot_util.jac turns Package nodes plus the parsed package/edge lists into a canvas snapshot: pkg_node_id builds name@version ids, severity_from_cvss maps a CVSS score to a severity label, and build_graph_snapshot reports per-package risk score, CVE count and worst CVSS from attached CVE nodes, spawn-root flags and depends_on edges. walkers/remediation_walker.jac provides version_gte and a RemediationWalker that, on a Package with a CVE carrying a fixed version, reports a remediation plan upgrading to that version. main.jac imports and re-exports these. Include tests for scoring, snapshot building and remediation.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "package_risk_score is deterministic and filter_top_risk_packages keeps the highest-scoring packages and only the edges between them, or returns everything unchanged under the limit.",
+    "build_graph_snapshot reports one entry per Package with an id of name@version, the risk score from package_risk_score, the count and worst CVSS of attached CVE nodes, a severity label and the spawn-root flag, plus depends_on edges only between known keys.",
+    "RemediationWalker spawned on a Package whose CVE has a fixed version reports a validated remediation_plan from the current version to the fixed version.",
+    "RemediationWalker reports nothing for a Package with no CVE or with CVEs lacking a fixed version."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a backend-only service; no JSX, browser UI or external AI.",
+    "Keep module paths graph/nodes.jac, tools/risk_scorer.jac, graph/snapshot_util.jac, walkers/remediation_walker.jac and main.jac, with root-relative imports such as import from graph.nodes and import from tools.risk_scorer.",
+    "Use the source's public names InvestigationSession, Package, CVE, UsageContext, RemediationPlan, package_risk_score, filter_top_risk_packages, pkg_node_id, severity_from_cvss, build_graph_snapshot, version_gte and walker RemediationWalker."
+  ]
+}

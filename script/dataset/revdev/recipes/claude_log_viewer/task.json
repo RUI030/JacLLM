@@ -1,0 +1,16 @@
+{
+  "schema_version": "1",
+  "task_id": "claude_log_viewer_core_v1",
+  "reference_id": "ref_rui_claude_log_viewer_store_tree",
+  "request": "Build a small Jac library that helps inspect local Claude session transcripts. Given a Claude projects root, list project directories that contain JSONL sessions and show each project's decoded path, session count, and last activity. List the sessions in a project with their IDs and summary counts, skipping malformed JSONL records. A user message may be a string or a list of text blocks; record its first text. Count assistant tool-use blocks. Separately, look up a node recursively in a trajectory tree and find a subagent reference by node ID. Keep the data types and session parsing in logs/store.jac, the tree lookups in logs/treeUtils.jac, and an importing main.jac. Add tests using temporary local JSONL fixtures.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "Project discovery filters to directories with JSONL sessions, decodes dash-separated paths, counts sessions, and sorts by most recent activity.",
+    "Session summary reads valid records, tracks message and tool-call counts, title, first user text, timestamps, branch and file size while skipping malformed lines.",
+    "findNode recursively finds a descendant and returns None for missing IDs; subagentRefFor returns the mapped reference or None."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 with standard-library-only local files, no browser UI or AI service.",
+    "Preserve the public names and data fields from Rui/ClaudeLogViewer logs/store.jac and logs/treeUtils.jac; this is a scoped backend adaptation, not the entire viewer UI."
+  ]
+}

@@ -1,0 +1,234 @@
+{
+  "schema_version": "1",
+  "ui": {
+    "app_type": "service",
+    "nav_pattern": "none",
+    "pages": [],
+    "auth_required": false,
+    "backend_required": true,
+    "ai_required": false
+  },
+  "files": [
+    {
+      "path": "jac.toml",
+      "layer": "config",
+      "purpose": "Configure Jac 0.36.1 [project] name rentora-backend, kind service and entry-point main.jac; this headless slice has no npm or AI dependencies.",
+      "exports": [],
+      "imports_from_plan": [],
+      "write_order": 1,
+      "status": "pending"
+    },
+    {
+      "path": "services/graph/models.jac",
+      "layer": "model",
+      "purpose": "Define enums EventType {MAINTENANCE, PAYMENT, LEASE, COMPLAINT, INQUIRY} and UrgencyLevel {LOW, MEDIUM, HIGH, CRITICAL} with sem descriptions per member. Nodes with defaulted fields: Property(name, address, city, state, zip_code: str=\"\"); Unit(number:str=\"\", bedrooms:int=1, bathrooms:int=1, sq_ft:int=0, status:str=\"occupied\"); Lease(start_date, end_date: str=\"\", rent_amount:float=0.0, deposit:float=0.0, status:str=\"active\"); Tenant(name, phone, email: str=\"\", payment_status:str=\"current\", move_in_date:str=\"\"); Ticket(ticket_id, category, description: str=\"\", urgency:str=\"medium\", status:str=\"open\", ai_summary, ai_diagnosis, recommended_action, tenant_reply, owner_alert, created_at, resolved_at, vendor_name: str=\"\", estimated_cost:float=0.0); Vendor(name, category, phone, email: str=\"\", rating:float=0.0, avg_cost:float=0.0, available:bool=True). Edges HasUnit, HasLease, HasTenant, HasTicket, AssignedTo (no fields) and Services(jobs_completed:int=0, total_spent:float=0.0, last_service_date:str=\"\"). Graph shape: root -> Property -HasUnit-> Unit -HasLease-> Lease -HasTenant-> Tenant; Unit -HasTicket-> Ticket; Property -Services-> Vendor.",
+      "signatures": {
+        "EventType": "enum EventType { MAINTENANCE, PAYMENT, LEASE, COMPLAINT, INQUIRY }",
+        "UrgencyLevel": "enum UrgencyLevel { LOW, MEDIUM, HIGH, CRITICAL }",
+        "Property": "node Property { has name: str = \"\"; has address: str = \"\"; has city: str = \"\"; has state: str = \"\"; has zip_code: str = \"\"; }",
+        "Unit": "node Unit { has number: str = \"\"; has bedrooms: int = 1; has bathrooms: int = 1; has sq_ft: int = 0; has status: str = \"occupied\"; }",
+        "Lease": "node Lease { has start_date: str = \"\"; has end_date: str = \"\"; has rent_amount: float = 0.0; has deposit: float = 0.0; has status: str = \"active\"; }",
+        "Tenant": "node Tenant { has name: str = \"\"; has phone: str = \"\"; has email: str = \"\"; has payment_status: str = \"current\"; has move_in_date: str = \"\"; }",
+        "Ticket": "node Ticket { has ticket_id: str = \"\"; has category: str = \"\"; has description: str = \"\"; has urgency: str = \"medium\"; has status: str = \"open\"; has ai_summary: str = \"\"; has ai_diagnosis: str = \"\"; has recommended_action: str = \"\"; has tenant_reply: str = \"\"; has owner_alert: str = \"\"; has created_at: str = \"\"; has resolved_at: str = \"\"; has vendor_name: str = \"\"; has estimated_cost: float = 0.0; }",
+        "Vendor": "node Vendor { has name: str = \"\"; has category: str = \"\"; has phone: str = \"\"; has email: str = \"\"; has rating: float = 0.0; has avg_cost: float = 0.0; has available: bool = True; }",
+        "Services": "edge Services { has jobs_completed: int = 0; has total_spent: float = 0.0; has last_service_date: str = \"\"; }",
+        "HasUnit": "edge HasUnit {}",
+        "HasLease": "edge HasLease {}",
+        "HasTenant": "edge HasTenant {}",
+        "HasTicket": "edge HasTicket {}",
+        "AssignedTo": "edge AssignedTo {}"
+      },
+      "exports": [
+        "EventType",
+        "UrgencyLevel",
+        "Property",
+        "Unit",
+        "Lease",
+        "Tenant",
+        "Ticket",
+        "Vendor",
+        "HasUnit",
+        "HasLease",
+        "HasTenant",
+        "HasTicket",
+        "Services",
+        "AssignedTo"
+      ],
+      "imports_from_plan": [],
+      "write_order": 2,
+      "status": "pending"
+    },
+    {
+      "path": "services/graph/localdb.jac",
+      "layer": "util",
+      "purpose": "Local SQLite log store using Python stdlib only (os getcwd, os.path join, sqlite3 connect, json dumps/loads, datetime). glob _db_path = <cwd>/.jac/data/app.db and glob _tables_ready flag; private _ensure_tables() creates sms_messages, walker_logs and notifications tables once. Public helpers insert and query those tables, plus a generic db_insert/db_find keyed by collection; each catches exceptions and returns a failure dict or empty list. check_db_health() ensures tables and returns {ok:True, backend:\"sqlite\", path, tables:[names]} or {ok:False, backend:\"sqlite\", path} on error.",
+      "signatures": {
+        "log_sms": "def:pub log_sms(from_number: str, to_number: str, body: str, direction: str, sid: str = \"\", unit_id: str = \"\", tenant_name: str = \"\") -> dict",
+        "get_sms_history": "def:pub get_sms_history(phone: str = \"\", limit_count: int = 50) -> list",
+        "log_walker_run": "def:pub log_walker_run(walker_name: str, unit_id: str, input_data: dict, output_data: dict, duration_ms: int = 0) -> dict",
+        "create_notification": "def:pub create_notification(notification_type: str, payload: dict, ticket_id: str = \"\") -> dict",
+        "get_notifications": "def:pub get_notifications(unread_only: bool = True, limit_count: int = 20) -> list",
+        "db_insert": "def:pub db_insert(collection: str, doc: dict) -> dict",
+        "db_find": "def:pub db_find(collection: str, query: dict = {}, limit_count: int = 50) -> list",
+        "check_db_health": "def:pub check_db_health() -> dict"
+      },
+      "exports": [
+        "log_sms",
+        "get_sms_history",
+        "log_walker_run",
+        "create_notification",
+        "get_notifications",
+        "db_insert",
+        "db_find",
+        "check_db_health"
+      ],
+      "imports_from_plan": [],
+      "write_order": 3,
+      "status": "pending"
+    },
+    {
+      "path": "services/graph/crud.jac",
+      "layer": "service",
+      "purpose": "Import Property, Unit, Lease, Tenant, Ticket, Vendor, HasUnit, HasLease, HasTenant, HasTicket, Services from services.graph.models and check_db_health from services.graph.localdb. list_properties reports ONE list of dicts {id: jid(p), name, address, city, state, unit_count} for each Property on root. list_units visits each Property and reports one dict per HasUnit unit {id, unit, bedrooms, bathrooms, sq_ft, status, property, tenant, tenant_phone, payment_status, rent, lease_end, open_tickets, total_tickets} using the first lease/tenant if any. list_tickets visits Property -> HasUnit units and reports one dict per HasTicket ticket {id, ticket_id, unit, category, description, urgency, status, ai_summary, recommended_action, vendor_name, estimated_cost, tenant_reply, owner_alert, created_at, resolved_at}. list_vendors reports one dict per Services-linked Vendor. register_tenant skips properties whose name differs from a non-empty property_name, finds a unit by case-insensitive number or creates Unit(number=upper), reports {status:\"already_registered\", tenant, phone, unit, property, id} and disengages if a tenant with the same phone is under that unit's leases, otherwise creates Lease (deposit = rent) and Tenant via HasLease/HasTenant and reports {status:\"registered\", tenant, phone, unit, property, id} then disengages. db_health reports {database: check_db_health(), graph_store:\"ok\"}. list_tenants reports ONE list of {id, full_name, phone_number, unit_number, property_id, property_name, rent, lease_end}. add_property_node attaches Property(name, address) to root with one HasUnit Unit per unit number and reports {status:\"created\", id, property, units}. delete_tenant_node deletes the tenant whose jid matches and reports {status:\"deleted\"}, else on Root exit {status:\"not_found\", tenant_id}. delete_property_node deletes a root Property by jid and reports {status:\"deleted\"}, else {status:\"not_found\"}. match_tenant reports {matched:True, tenant_name, property_name, unit} for the first tenant with that phone, else on Root exit {matched:False}.",
+      "signatures": {
+        "list_properties": "walker list_properties { can list_all with Root entry; }",
+        "list_units": "walker list_units { can start with Root entry; can gather with Property entry; }",
+        "list_tickets": "walker list_tickets { can start with Root entry; can at_property with Property entry; can at_unit with Unit entry; }",
+        "list_vendors": "walker list_vendors { can start with Root entry; can at_property with Property entry; }",
+        "register_tenant": "walker register_tenant { has tenant_name: str = \"\"; has tenant_phone: str = \"\"; has tenant_email: str = \"\"; has unit_number: str = \"\"; has rent_amount: float = 0.0; has lease_start: str = \"\"; has lease_end: str = \"\"; has property_name: str = \"\"; can start with Root entry; can find_unit with Property entry; }",
+        "db_health": "walker db_health { can check with Root entry; }",
+        "list_tenants": "walker list_tenants { can list_all with Root entry; }",
+        "add_property_node": "walker add_property_node { has name: str = \"\"; has address: str = \"\"; has unit_numbers: list = []; can create with Root entry; }",
+        "delete_tenant_node": "walker delete_tenant_node { has tenant_id: str = \"\"; can start with Root entry; can at_property with Property entry; can not_found with Root exit; }",
+        "delete_property_node": "walker delete_property_node { has property_id: str = \"\"; can start with Root entry; }",
+        "match_tenant": "walker match_tenant { has phone: str = \"\"; can start with Root entry; can at_property with Property entry; can not_found with Root exit; }"
+      },
+      "exports": [
+        "list_properties",
+        "list_units",
+        "list_tickets",
+        "list_vendors",
+        "register_tenant",
+        "db_health",
+        "list_tenants",
+        "add_property_node",
+        "delete_tenant_node",
+        "delete_property_node",
+        "match_tenant"
+      ],
+      "imports_from_plan": [
+        "Property",
+        "Unit",
+        "Lease",
+        "Tenant",
+        "Ticket",
+        "Vendor",
+        "HasUnit",
+        "HasLease",
+        "HasTenant",
+        "HasTicket",
+        "Services",
+        "check_db_health"
+      ],
+      "write_order": 4,
+      "status": "pending"
+    },
+    {
+      "path": "services/graph/actions.jac",
+      "layer": "service",
+      "purpose": "Import datetime and Property, Unit, Ticket, HasUnit, HasTicket from services.graph.models. Both walkers visit root Properties, then HasUnit units, then scan HasTicket tickets for ticket_id == self.ticket_id. approve_dispatch sets status \"dispatched\" and reports {ticket_id, status:\"dispatched\", vendor_name, unit: here.number, tenant_reply, owner_alert, estimated_cost} then disengages. resolve_ticket sets status \"resolved\" and resolved_at = datetime.now().strftime(\"%Y-%m-%d %H:%M:%S\"), reports {ticket_id, status:\"resolved\", resolved_at} then disengages.",
+      "signatures": {
+        "approve_dispatch": "walker approve_dispatch { has ticket_id: str = \"\"; can start with Root entry; can at_property with Property entry; can at_unit with Unit entry; }",
+        "resolve_ticket": "walker resolve_ticket { has ticket_id: str = \"\"; can start with Root entry; can at_property with Property entry; can at_unit with Unit entry; }"
+      },
+      "exports": [
+        "approve_dispatch",
+        "resolve_ticket"
+      ],
+      "imports_from_plan": [
+        "Property",
+        "Unit",
+        "Ticket",
+        "HasUnit",
+        "HasTicket"
+      ],
+      "write_order": 5,
+      "status": "pending"
+    },
+    {
+      "path": "main.jac",
+      "layer": "service",
+      "purpose": "Entry point with a module docstring that only re-exports: import list_properties, list_units, list_tickets, list_vendors, register_tenant, db_health, list_tenants, add_property_node, delete_tenant_node, delete_property_node, match_tenant from services.graph.crud and approve_dispatch, resolve_ticket from services.graph.actions. No other code.",
+      "exports": [
+        "list_properties",
+        "list_units",
+        "list_tickets",
+        "list_vendors",
+        "register_tenant",
+        "db_health",
+        "list_tenants",
+        "add_property_node",
+        "delete_tenant_node",
+        "delete_property_node",
+        "match_tenant",
+        "approve_dispatch",
+        "resolve_ticket"
+      ],
+      "imports_from_plan": [
+        "list_properties",
+        "list_units",
+        "list_tickets",
+        "list_vendors",
+        "register_tenant",
+        "db_health",
+        "list_tenants",
+        "add_property_node",
+        "delete_tenant_node",
+        "delete_property_node",
+        "match_tenant",
+        "approve_dispatch",
+        "resolve_ticket"
+      ],
+      "write_order": 6,
+      "status": "pending"
+    }
+  ],
+  "write_order": [
+    "jac.toml",
+    "services/graph/models.jac",
+    "services/graph/localdb.jac",
+    "services/graph/crud.jac",
+    "services/graph/actions.jac",
+    "main.jac"
+  ],
+  "dependency_graph": {
+    "jac.toml": [],
+    "services/graph/models.jac": [],
+    "services/graph/localdb.jac": [],
+    "services/graph/crud.jac": [
+      "services/graph/models.jac",
+      "services/graph/localdb.jac"
+    ],
+    "services/graph/actions.jac": [
+      "services/graph/models.jac"
+    ],
+    "main.jac": [
+      "services/graph/crud.jac",
+      "services/graph/actions.jac"
+    ]
+  },
+  "remove_from_template": [],
+  "verify": {
+    "flow": "add property -> register tenant -> list/match -> attach ticket -> dispatch -> resolve -> delete property",
+    "route": "API only",
+    "steps": "Run jac check main.jac and Jac behavior tests importing the walkers from main and the node/edge types from services.graph.models."
+  },
+  "build_log": {
+    "overall_status": "pending",
+    "last_action": "",
+    "issues": [],
+    "learnings": []
+  },
+  "confidence": 0.85,
+  "assumption": "Backend slice of the JacHacks 2026 Rentora app (yousefalwahami/rent_jac): services/graph models, localdb, crud and actions taken verbatim from the repaired, checked dataset copy; main.jac is a new thin re-export module because the source main.jac also mounts the JSX client app and imports LLM, Twilio and network services."
+}

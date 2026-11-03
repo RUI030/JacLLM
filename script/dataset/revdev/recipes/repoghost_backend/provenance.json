@@ -1,0 +1,37 @@
+{
+  "source_repository": "Async-Avengers/repoGhost",
+  "source_url": "https://github.com/Async-Avengers/repoGhost",
+  "source_subproject": "JacHacks 2026 repoGhost (app/models, app/services/memory_store.jac)",
+  "source_dataset": "/home/imrui/Documents/Jaseci/JacLLM/jac-data-gen/data/jachacks_repaired/Async-Avengers__repoGhost (rows with dirname Async-Avengers__repoGhost in /home/imrui/Documents/Jaseci/JacLLM/jac-data-gen/data/jachacks_nonsf_jac_files_checked.jsonl)",
+  "source_files_sha256": {
+    "app/models/core.jac": "4b52c12cadc43b054eb8e6c029bd4bf4665779d2fa5cc0125e48fe644d7b566d",
+    "app/models/workflow.jac": "edae569ff64e022bddfa9c9ad08be46cdfebe842fcbdecc2207d14ec110781ea",
+    "app/models/outputs.jac": "415ef614976aac86087db7e4aa818ac3d5aca1426be0dcd31d9f5ae044585c14",
+    "app/services/memory_store.jac": "07aed72a90e7234720e713e61c4e81f0d072e887bc107b704d2c9ab84628e97a"
+  },
+  "repaired_files": [
+    {"path": "app/models/outputs.jac", "repaired_by": "subagent", "original_sha": "709ba881b18b"}
+  ],
+  "slice_import_edges": [
+    ["app/models/outputs.jac", "app/models/core.jac"],
+    ["app/models/outputs.jac", "app/models/workflow.jac"],
+    ["app/services/memory_store.jac", "app/models/workflow.jac"],
+    ["app/services/memory_store.jac", "app/models/outputs.jac"],
+    ["main.jac", "app/services/memory_store.jac"]
+  ],
+  "scope": "backend data models and in-memory session/project memory store",
+  "target_jac_version": "0.36.1",
+  "source_jac_version": "0.36.1",
+  "adaptation": "The four app modules are copied verbatim. The source main.jac (sweep-repaired) imports UI components, a CSS file, LLM runtime and git/subprocess-backed services, so it is replaced by a new thin main.jac (91e661505c3cf9be5563b4749674461176573365db4fc3e386d027c6ff87cf24) that only imports remember_session, recent_session_runs, update_project_memory and get_project_memory from app.services.memory_store. A minimal jac.toml ([project] name, kind service, entry-point main.jac, no version pin) was written. The source __init__.jac package markers were not needed.",
+  "independent_acceptance": "reference_acceptance.jac",
+  "independent_acceptance_sha256": "00b22869b10d5a205cd9f2ca0831025f2c48967a2f4a731b91e496b02be4f53a",
+  "independent_acceptance_adaptation": "Written for this recipe (the source has no tests). Module-level globs persist across tests, so each test uses a unique repository path and lower-bounds session counts.",
+  "reference_preflight": {
+    "jac_check_main": "passed",
+    "jac_test": "5 passed (JAC_TEST_NATIVE=1 JAC_TEST_JOBS=0; acceptance file compiled in the server codespace after a native-lowering note E5090)",
+    "workspace": "/tmp/revdev-repoghost_backend-preflight"
+  },
+  "split": "train",
+  "split_group": "async-avengers__repoghost",
+  "split_reason": "Assigned by the wave-1 brief."
+}

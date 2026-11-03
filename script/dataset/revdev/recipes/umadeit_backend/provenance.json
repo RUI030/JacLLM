@@ -1,0 +1,50 @@
+{
+  "source_repository": "joohyeon/UMadeIt",
+  "source_url": "https://github.com/joohyeon/UMadeIt",
+  "source_commit": "d7deb1dc9b6f7c68017a420811e816229d2dcfc1",
+  "source_subproject": "Ann Arbor hackathon UMadeIt (JacHackA2Tech): ai/models.jac, ai/guide.jac, ai/translate.jac",
+  "source_dataset": "/home/imrui/Documents/Jaseci/JacLLM/JacLLM/dataset/raw/repo/JacHackA2Tech/joohyeon__UMadeIt",
+  "source_files_sha256": {
+    "ai/models.jac": "fe0e4e64cb0c9f328569c60edc5d97d65345b1179493aeee5248f95b8b56e86e",
+    "ai/guide.jac": "2ad0a342a59b34948543d73911e333706211043706d8713d95b998ed6c28b94a",
+    "ai/translate.jac": "ca03827ff2a744cbbc093cc4174c73aa797345a25c60bfa3fb765c864a472a45"
+  },
+  "repaired_files": [],
+  "slice_import_edges": [
+    [
+      "ai/guide.jac",
+      "ai/models.jac"
+    ],
+    [
+      "ai/translate.jac",
+      "ai/models.jac"
+    ],
+    [
+      "main.jac",
+      "ai/models.jac"
+    ],
+    [
+      "main.jac",
+      "ai/guide.jac"
+    ],
+    [
+      "main.jac",
+      "ai/translate.jac"
+    ]
+  ],
+  "scope": "backend AI helper layer: model readiness switch, task-guide and translation by llm functions",
+  "target_jac_version": "0.36.1",
+  "source_jac_version": "0.37.23 (jac.toml pin ==0.37.23); the three slice files pass jac check on 0.36.1 unmodified (W1037 any-annotation warnings only)",
+  "adaptation": "ai/models.jac, ai/guide.jac and ai/translate.jac are copied verbatim (no edits). The source main.jac fails 0.36.1 check and pulls in UI screens, so it is replaced by a new thin import-only main.jac (sha256 0b1576fc3aac371e155b9a6b8d067e7da38f83647a623c5589d9e104b099d538). A minimal jac.toml ([project] name, version, description, kind service, entry-point main.jac, no version pin) replaces the source web-app config. No repo-local Python is used.",
+  "independent_acceptance": "reference_acceptance.jac",
+  "independent_acceptance_sha256": "bd555cbdf6432c58cf6ebb75e71c86ab081475e393e19e07d3717dbc04ac4f1c",
+  "independent_acceptance_adaptation": "Written for this recipe; the source has no tests for these modules (its tests reach them through failing market/journey modules). Model globs are swapped by assigning ai.guide.guide / ai.translate.translator; environment variables are restored in a finally block. No real model is called.",
+  "reference_preflight": {
+    "jac_check_main": "passed",
+    "jac_test": "4 passed (JAC_TEST_NATIVE=1 JAC_TEST_JOBS=0, as reference_acceptance.jac and as revdev_acceptance.jac); a mutated assertion was confirmed to fail",
+    "workspace": "/tmp/revdev-umadeit_backend-preflight"
+  },
+  "split": "train",
+  "split_group": "joohyeon__umadeit",
+  "split_reason": "Assigned by the wave-2 brief."
+}

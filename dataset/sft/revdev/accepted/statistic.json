@@ -1,0 +1,37 @@
+{
+  "records": 93,
+  "context_tokens": 998325,
+  "stage_counts": {
+    "revdev_app": 17,
+    "revdev_function": 15,
+    "revdev_multifile": 4,
+    "revdev_plan": 17,
+    "revdev_resume": 23,
+    "revdev_scaffold": 17
+  },
+  "source_groups": {
+    "a2tech360__a2-pulse": 6,
+    "aegis": 7,
+    "alongside": 9,
+    "anay162__agewise": 4,
+    "anbu-00001__civicmesh": 4,
+    "async-avengers__repoghost": 3,
+    "cosmonautjones__m-local": 1,
+    "joohyeon__umadeit": 3,
+    "krishs09-123__jachacks-engagement-auditor": 4,
+    "mindcraft": 13,
+    "nikhiljaiswal123__ghostboard": 1,
+    "orbitronsystems__ori-Jac-Demo": 6,
+    "pathakanshu__trace": 4,
+    "push-to-production__careanchor": 4,
+    "rui__claudelogviewer": 3,
+    "rui__jacprojectfactory": 3,
+    "rui__pomodoro": 4,
+    "sahil0445__campussync": 4,
+    "viktor-nedev__nourish": 3,
+    "wally-ahmed__jachacks2026": 3,
+    "yousefalwahami__rent_jac": 4
+  },
+  "split_policy": "All accepted source apps are train; evaluation uses a separate unseen app.",
+  "mirror_policy": "Exclude -16k duplicate exports."
+}

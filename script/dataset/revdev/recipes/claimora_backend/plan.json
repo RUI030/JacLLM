@@ -1,0 +1,84 @@
+{
+  "schema_version": "1",
+  "ui": {
+    "app_type": "service",
+    "nav_pattern": "none",
+    "pages": [],
+    "auth_required": false,
+    "backend_required": true,
+    "ai_required": false
+  },
+  "files": [
+    {
+      "path": "jac.toml",
+      "layer": "config",
+      "purpose": "Configure Jac 0.36.1 [project] kind service and entry-point main.jac; this headless slice has no npm or AI dependencies.",
+      "exports": [],
+      "imports_from_plan": [],
+      "write_order": 1,
+      "status": "pending"
+    },
+    {
+      "path": "nodes/data_nodes.jac",
+      "layer": "model",
+      "purpose": "Define the case graph nodes with defaulted fields: DocumentNode(filename:str, content:str, doc_type:str, all \"\"), EvidenceNode(evidence_type:str, description:str, source_doc:str, confidence:float 0.0), TimelineNode(events:list [], fraud_start:str, fraud_end:str, total_duration_months:int 0), FalsityNode(evidence_list:list, falsity_type:str, strength_score:float, summary:str), ScientorNode(evidence_list:list, knowledge_type:str, strength_score:float, summary:str), MaterialityNode(evidence_list:list, government_relied:bool False, strength_score:float, summary:str), CausationNode(evidence_list:list, causal_chain:str, strength_score:float, summary:str) and CaseMemoNode(case_summary:str, defendant:str, total_false_claims:int, base_damages:float, treble_damages:float, per_claim_penalty:float, total_exposure:float, gap_analysis:list, overall_strength:float).",
+      "signatures": {
+        "DocumentNode": "node DocumentNode { has filename: str = \"\"; has content: str = \"\"; has doc_type: str = \"\"; }",
+        "EvidenceNode": "node EvidenceNode { has evidence_type: str = \"\"; has description: str = \"\"; has source_doc: str = \"\"; has confidence: float = 0.0; }",
+        "TimelineNode": "node TimelineNode { has events: list = []; has fraud_start: str = \"\"; has fraud_end: str = \"\"; has total_duration_months: int = 0; }",
+        "FalsityNode": "node FalsityNode { has evidence_list: list = []; has falsity_type: str = \"\"; has strength_score: float = 0.0; has summary: str = \"\"; }",
+        "ScientorNode": "node ScientorNode { has evidence_list: list = []; has knowledge_type: str = \"\"; has strength_score: float = 0.0; has summary: str = \"\"; }",
+        "MaterialityNode": "node MaterialityNode { has evidence_list: list = []; has government_relied: bool = False; has strength_score: float = 0.0; has summary: str = \"\"; }",
+        "CausationNode": "node CausationNode { has evidence_list: list = []; has causal_chain: str = \"\"; has strength_score: float = 0.0; has summary: str = \"\"; }",
+        "CaseMemoNode": "node CaseMemoNode { has case_summary: str = \"\"; has defendant: str = \"\"; has total_false_claims: int = 0; has base_damages: float = 0.0; has treble_damages: float = 0.0; has per_claim_penalty: float = 0.0; has total_exposure: float = 0.0; has gap_analysis: list = []; has overall_strength: float = 0.0; }"
+      },
+      "exports": ["DocumentNode", "EvidenceNode", "TimelineNode", "FalsityNode", "ScientorNode", "MaterialityNode", "CausationNode", "CaseMemoNode"],
+      "imports_from_plan": [],
+      "write_order": 2,
+      "status": "pending"
+    },
+    {
+      "path": "walkers/ingest.jac",
+      "layer": "service",
+      "purpose": "Import DocumentNode from nodes/data_nodes.jac. Walker ingest_documents has files:list default []; on Root entry, for each file dict it creates a DocumentNode, sets filename and doc_type from the dict and content truncated to MAX_CHARS = 6000 when longer, attaches it to here, and prints a loaded message.",
+      "signatures": {
+        "ingest_documents": "walker ingest_documents { has files: list = []; can ingest with Root entry; }"
+      },
+      "exports": ["ingest_documents"],
+      "imports_from_plan": ["DocumentNode"],
+      "write_order": 3,
+      "status": "pending"
+    },
+    {
+      "path": "main.jac",
+      "layer": "service",
+      "purpose": "Import all eight node types from nodes/data_nodes.jac and ingest_documents from walkers/ingest.jac (re-exported for API registration). Walker get_scores reports one dict {falsity, scienter, materiality, causation} taken from strength_score of FalsityNode, ScientorNode, MaterialityNode and CausationNode on root, defaulting to 0.0. get_evidence reports {type, description, source, confidence} per EvidenceNode. get_timeline reports {fraud_start, fraud_end, total_duration_months, events} per TimelineNode. reset_case deletes every DocumentNode, EvidenceNode, TimelineNode, legal-element node and CaseMemoNode on root, then reports \"Case reset complete\".",
+      "signatures": {
+        "get_scores": "walker get_scores { can run with Root entry; }",
+        "get_evidence": "walker get_evidence { can run with Root entry; }",
+        "get_timeline": "walker get_timeline { can run with Root entry; }",
+        "reset_case": "walker reset_case { can run with Root entry; }"
+      },
+      "exports": ["get_scores", "get_evidence", "get_timeline", "reset_case", "ingest_documents"],
+      "imports_from_plan": ["DocumentNode", "EvidenceNode", "TimelineNode", "FalsityNode", "ScientorNode", "MaterialityNode", "CausationNode", "CaseMemoNode", "ingest_documents"],
+      "write_order": 4,
+      "status": "pending"
+    }
+  ],
+  "write_order": ["jac.toml", "nodes/data_nodes.jac", "walkers/ingest.jac", "main.jac"],
+  "dependency_graph": {
+    "jac.toml": [],
+    "nodes/data_nodes.jac": [],
+    "walkers/ingest.jac": ["nodes/data_nodes.jac"],
+    "main.jac": ["nodes/data_nodes.jac", "walkers/ingest.jac"]
+  },
+  "remove_from_template": [],
+  "verify": {
+    "flow": "ingest -> evidence/timeline -> scores -> reset",
+    "route": "API only",
+    "steps": "Run jac check main.jac and the Jac behavior tests: ingest attaches and truncates documents, evidence and timeline reports, score defaults, and reset clears the case graph."
+  },
+  "build_log": {"overall_status": "pending", "last_action": "", "issues": [], "learnings": []},
+  "confidence": 0.85,
+  "assumption": "Backend slice of the Claimora.AI JacHacks 2026 app (debssM/Jac_2026). The LLM agent modules and the analyze_case pipeline walker are out of scope; main.jac keeps only the non-AI API walkers."
+}

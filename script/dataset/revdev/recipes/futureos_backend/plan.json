@@ -1,0 +1,146 @@
+{
+  "schema_version": "1",
+  "ui": {
+    "app_type": "service",
+    "nav_pattern": "none",
+    "pages": [],
+    "auth_required": false,
+    "backend_required": true,
+    "ai_required": true
+  },
+  "files": [
+    {
+      "path": "jac.toml",
+      "layer": "config",
+      "purpose": "Configure Jac 0.36.1 [project] name, version, description, entry-point main.jac and kind service; no npm dependencies, no plugins and no version pin. The model is declared in services/appService.jac, not here.",
+      "exports": [],
+      "imports_from_plan": [],
+      "write_order": 1,
+      "status": "pending"
+    },
+    {
+      "path": "services/appService.jac",
+      "layer": "service",
+      "purpose": "Single service module. Import Model from jaclang.byllm.lib and declare glob llm: Model (tests replace svc.llm with MockLLM). Nodes (field order and defaults exact): Goal(title:str, description:str=\"\", timeline:str=\"3 months\", progress:int=0, status:str=\"active\", created_at:str=\"\"); Mission(title:str, difficulty:str=\"Medium\", xp:int=100, done:bool=False, tag:str=\"General\", goal_id:str=\"\"); MemoryEntry(summary:str, tags:str=\"\", focus_score:int=80, duration:str=\"1h\", created_at:str=\"\"); AgentLog(agent_name:str, action:str, detail:str=\"\", timestamp:str=\"\", status:str=\"completed\"). obj InsightReport(insights:list[str], coach_message:str, predicted_completion:str, risk_level:str) with the verbatim sem strings. async ai_generate_insights is a by llm(temperature=0.5, max_tokens=800) function with no body. All entities hang directly off root and are found with [root -->][?:Type]; ids are jid(node) strings; lists come back in insertion order. log_agent(agent_name, action, detail) connects AgentLog(agent_name, action, detail, timestamp=\"now\", status=\"completed\") to root. get_goals/get_missions/get_memories return all nodes of that type on root. update_goal_progress finds the Goal whose jid equals goal_id, sets progress, logs (\"Analytics\", \"Progress updated to \" + str(progress) + \"%\", goal title), then if progress >= 100 logs (\"Coach\", \"Goal completed! Celebrating achievement\", title) elif progress >= 75 logs (\"Coach\", \"75%+ reached — final push mode activated\", title); returns the Goal, or None if no match. delete_goal logs (\"Planner\", \"Goal removed from roadmap\", title), deletes the node and returns True; False if no match. toggle_mission flips done on the matching Mission. When it becomes done it logs, in order, (\"Execution\", \"Mission completed! +\" + str(xp) + \" XP earned\", title), (\"Memory\", \"Session logged — completed: \" + tag + \" task\", title), (\"Analytics\", \"Consistency streak updated\", \"+\" + str(xp) + \" XP\"), then connects MemoryEntry(summary=\"Completed: \" + title, tags=tag, focus_score=85, duration=\"1h\", created_at=\"now\") to root. When it becomes not done it only logs (\"Execution\", \"Mission marked incomplete\", title) and removes nothing. Returns the Mission, or None if no match. delete_mission logs (\"Planner\", \"Mission removed from plan\", title), deletes the node, returns True; False if no match. get_agent_logs returns all AgentLog nodes, or only the last 20 when there are more than 20. get_stats returns {\"total_goals\": #goals, \"total_missions\": #missions, \"done_missions\": #missions with done True, \"total_xp\": sum of xp of done missions, \"avg_progress\": sum of goal progress // #goals, or 0 with no goals}. get_agent_status returns a dict with keys planner, execution, memory, analytics, coach, research, each a dict {status, task, tasks_done}: planner = active/\"Managing \" + str(#goals) + \" active goals\" when #goals > 0 else idle/\"Waiting for first goal\", tasks_done #goals; execution = active/str(#missions - #done) + \" missions in queue\" when #missions > #done else idle/\"All missions complete\", tasks_done #done; memory = active/\"Indexed \" + str(#memories) + \" sessions\" when #memories > 0 else idle/\"No sessions logged yet\", tasks_done #memories; analytics = active if #done > 0 else idle, task \"Tracking \" + str(#done) + \" completed missions\", tasks_done #AgentLog nodes; coach = {\"status\": \"active\", \"task\": \"Monitoring consistency and motivation\", \"tasks_done\": #done}; research = {\"status\": \"idle\", \"task\": \"Ready to scan opportunities\", \"tasks_done\": 0}. agent_get_insights(goal_id) counts all missions and done missions on root, defaults goal_title=\"your goal\", timeline=\"3 months\", progress=0 and overrides them from the Goal whose jid matches, logs (\"Analytics\", \"Generating insights for\", goal_title), then tries await ai_generate_insights(goal_title, timeline, progress, #done, #missions, 7); on success logs (\"Coach\", \"AI insights delivered\", goal_title) and returns the model's InsightReport unchanged. On any exception: pct = #done * 100 // #missions (0 when no missions); risk_level \"High\" if pct < 30, elif pct < 60 \"Medium\", else \"Low\"; insights is exactly these four strings: \"You have completed \" + str(#done) + \" of \" + str(#missions) + \" missions (\" + str(pct) + \"% completion rate).\", \"Current goal progress is at \" + str(progress) + \"% — keep pushing forward.\", \"Consistency is key — try to complete at least 1 mission per day.\", \"Focus on high-XP missions first to maximize your learning velocity.\"; coach_message \"You're making progress on \" + goal_title + \". Stay consistent and trust the process!\"; predicted_completion \"On track for \" + timeline; it logs (\"Coach\", \"Rule-based insights generated\", goal_title) and returns that InsightReport. Goals, missions and memories are created by connecting nodes to root directly (no add_* operations in this slice).",
+      "signatures": {
+        "imports": "import from jaclang.byllm.lib { Model }",
+        "llm": "glob llm: Model = Model(model_name=\"gemini/gemini-2.5-flash\", api_key=\"REDACTED_GEMINI_API_KEY\");",
+        "Goal": "node Goal { has title: str; has description: str = \"\"; has timeline: str = \"3 months\"; has progress: int = 0; has status: str = \"active\"; has created_at: str = \"\"; }",
+        "Mission": "node Mission { has title: str; has difficulty: str = \"Medium\"; has xp: int = 100; has done: bool = False; has tag: str = \"General\"; has goal_id: str = \"\"; }",
+        "MemoryEntry": "node MemoryEntry { has summary: str; has tags: str = \"\"; has focus_score: int = 80; has duration: str = \"1h\"; has created_at: str = \"\"; }",
+        "AgentLog": "node AgentLog { has agent_name: str; has action: str; has detail: str = \"\"; has timestamp: str = \"\"; has status: str = \"completed\"; }",
+        "InsightReport": "obj InsightReport { has insights: list[str]; has coach_message: str; has predicted_completion: str; has risk_level: str; }",
+        "ai_generate_insights": "async def ai_generate_insights(goal_title: str, timeline: str, progress: int, done_missions: int, total_missions: int, days_active: int) -> InsightReport by llm(temperature=0.5, max_tokens=800);",
+        "sem strings (verbatim)": "sem InsightReport.insights = \"List of 4 specific AI insights about the user's progress. Each insight should be 1 sentence, specific and actionable. Include strengths, weaknesses, patterns, and predictions.\"; sem InsightReport.coach_message = \"A motivating, personalized coach message in 1-2 sentences based on the user's current progress.\"; sem InsightReport.predicted_completion = \"Predicted completion date or timeframe based on current progress rate. Be specific.\"; sem InsightReport.risk_level = \"Risk assessment: Low, Medium, or High based on current trajectory.\"; sem ai_generate_insights = \"You are the Analytics and Coach Agent in FutureOS. Analyze the user's progress data and generate personalized insights, predictions, and coaching advice.\"; sem ai_generate_insights.goal_title = \"The user's goal title\"; sem ai_generate_insights.timeline = \"The target timeline for the goal\"; sem ai_generate_insights.progress = \"Current progress percentage (0-100)\"; sem ai_generate_insights.done_missions = \"Number of missions completed\"; sem ai_generate_insights.total_missions = \"Total number of missions\"; sem ai_generate_insights.days_active = \"Number of days the user has been working on this goal\";",
+        "log_agent": "def log_agent(agent_name: str, action: str, detail: str) -> None",
+        "get_goals": "def:pub get_goals() -> list[Goal]",
+        "update_goal_progress": "def:pub update_goal_progress(goal_id: str, progress: int) -> Goal | None",
+        "delete_goal": "def:pub delete_goal(goal_id: str) -> bool",
+        "get_missions": "def:pub get_missions() -> list[Mission]",
+        "toggle_mission": "def:pub toggle_mission(mission_id: str) -> Mission | None",
+        "delete_mission": "def:pub delete_mission(mission_id: str) -> bool",
+        "get_memories": "def:pub get_memories() -> list[MemoryEntry]",
+        "get_agent_logs": "def:pub get_agent_logs() -> list[AgentLog]",
+        "get_agent_status": "def:pub get_agent_status() -> dict",
+        "get_stats": "def:pub get_stats() -> dict",
+        "agent_get_insights": "async def:pub agent_get_insights(goal_id: str) -> InsightReport"
+      },
+      "exports": [
+        "Goal",
+        "Mission",
+        "MemoryEntry",
+        "AgentLog",
+        "InsightReport",
+        "llm",
+        "ai_generate_insights",
+        "log_agent",
+        "get_goals",
+        "update_goal_progress",
+        "delete_goal",
+        "get_missions",
+        "toggle_mission",
+        "delete_mission",
+        "get_memories",
+        "get_agent_logs",
+        "get_agent_status",
+        "get_stats",
+        "agent_get_insights"
+      ],
+      "imports_from_plan": [],
+      "write_order": 2,
+      "status": "pending"
+    },
+    {
+      "path": "main.jac",
+      "layer": "service",
+      "purpose": "Thin entry module with the docstring \"FutureOS — Adaptive AI Life Operating System\" and a single import from services.appService of Goal, Mission, MemoryEntry, AgentLog, InsightReport, get_goals, update_goal_progress, delete_goal, get_missions, toggle_mission, delete_mission, get_memories, get_agent_logs, get_agent_status, get_stats and agent_get_insights. No declarations of its own; tests import these names from main.",
+      "signatures": {
+        "imports": "import from services.appService { Goal, Mission, MemoryEntry, AgentLog, InsightReport, get_goals, update_goal_progress, delete_goal, get_missions, toggle_mission, delete_mission, get_memories, get_agent_logs, get_agent_status, get_stats, agent_get_insights }"
+      },
+      "exports": [
+        "Goal",
+        "Mission",
+        "MemoryEntry",
+        "AgentLog",
+        "InsightReport",
+        "get_goals",
+        "update_goal_progress",
+        "delete_goal",
+        "get_missions",
+        "toggle_mission",
+        "delete_mission",
+        "get_memories",
+        "get_agent_logs",
+        "get_agent_status",
+        "get_stats",
+        "agent_get_insights"
+      ],
+      "imports_from_plan": [
+        "Goal",
+        "Mission",
+        "MemoryEntry",
+        "AgentLog",
+        "InsightReport",
+        "get_goals",
+        "update_goal_progress",
+        "delete_goal",
+        "get_missions",
+        "toggle_mission",
+        "delete_mission",
+        "get_memories",
+        "get_agent_logs",
+        "get_agent_status",
+        "get_stats",
+        "agent_get_insights"
+      ],
+      "write_order": 3,
+      "status": "pending"
+    }
+  ],
+  "write_order": [
+    "jac.toml",
+    "services/appService.jac",
+    "main.jac"
+  ],
+  "dependency_graph": {
+    "jac.toml": [],
+    "services/appService.jac": [],
+    "main.jac": [
+      "services/appService.jac"
+    ]
+  },
+  "remove_from_template": [],
+  "verify": {
+    "flow": "seed Goal/Mission nodes on root -> toggle/update/delete -> stats/status/logs -> insights with MockLLM answer and with a failing MockLLM",
+    "route": "API only",
+    "steps": "Run jac check main.jac and jac test with JAC_TEST_NATIVE=1 JAC_TEST_JOBS=0; replace services.appService.llm with MockLLM before calling agent_get_insights (asyncio.run); a MockLLM with no outputs raises, which exercises the rule-based fallback."
+  },
+  "build_log": {
+    "overall_status": "pending",
+    "last_action": "",
+    "issues": [],
+    "learnings": []
+  },
+  "confidence": 0.85,
+  "assumption": "Backend slice of FutureOS (kshitijkumrawat20/JacHacks2026): services/appService.jac trimmed to the goal/mission/memory/log/stats/insight operations, with main.jac reduced to its import statement. Graph root persists across tests, so tests use unique titles and deltas."
+}

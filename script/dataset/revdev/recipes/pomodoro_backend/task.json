@@ -1,0 +1,16 @@
+{
+  "schema_version": "1",
+  "task_id": "pomodoro_backend_v1",
+  "reference_id": "ref_rui_pomodoro_endpoints",
+  "request": "Build a small headless Jac API for one person's scheduled Pomodoro sessions. An event stores its date, title, work and break lengths, and number of work cycles. Starting a timer makes any earlier active session done. A session begins in work cycle zero; advancing it alternates work and break, then marks it done after its final work cycle. Let the user read and change a persistent idle message. Keep graph data and public functions in endpoints.jac, and register them from main.jac. Include tests for the session transitions and settings behavior.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "A new session retires the previous active one.",
+    "For an event with two work cycles, advance_phase produces break[0], work[1], then done.",
+    "get_settings and set_idle_text use one persistent Settings node."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and an API-only project; no JSX, browser UI, or external AI service.",
+    "Reconstruct the scoped behavior of Rui/pomodoro endpoints.jac; keep public function names and fields grounded in that source."
+  ]
+}

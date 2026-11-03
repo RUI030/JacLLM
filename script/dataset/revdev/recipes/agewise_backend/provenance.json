@@ -1,0 +1,91 @@
+{
+  "source_repository": "Anay162/agewise",
+  "source_url": "https://github.com/Anay162/agewise",
+  "source_commit": "141b89b67ada8be6bbdbaae2b22b1beba3e5a0b0",
+  "source_subproject": ".",
+  "source_dataset": "/home/imrui/Documents/Jaseci/JacLLM/JacLLM/dataset/raw/repo/JacHack2026/Anay162__agewise (upstream clone); abilities/llm_abilities.jac from /home/imrui/Documents/Jaseci/JacLLM/jac-data-gen/data/jachacks_repaired/Anay162__agewise per /home/imrui/Documents/Jaseci/JacLLM/jac-data-gen/data/jachacks_nonsf_jac_files_checked.jsonl",
+  "source_files_sha256": {
+    "graph/nodes/patient.jac": "04eb20f235aa7062704fc2a70f16503d08f7793da50790e42f9d0521c8dee9fb",
+    "graph/nodes/document.jac": "d2d910a42e660c66a2e47451e2d751070ff401a8ff0cc3e499fc5821ba1f0df0",
+    "abilities/llm_abilities.jac": "7857104f143c65f4d1f3648ab0034fc5560b4a577fffb59616c9703c7d7ad1c0",
+    "graph/walkers/intake/document_classify.jac": "2a9554c46dcea5e740bdc4346f9b71a5c51998ac1c612e1b1ddfcfc8980fa9de",
+    "graph/walkers/intake/plain_english_translator.jac": "a6fc2b601bd5ded4774b5757913b979bcf007c1e9539fea2d8bc477c6d3d8abd",
+    "main.jac": "b1e24acd5cd6241ef94b26e0c44d4a93fa460984a96791f9848caac774382790",
+    "jac.toml": "50e1e17a29892951f6d8458dc45387afe96bdc0afc7792faf59743ae05be306c"
+  },
+  "upstream_files_sha256": {
+    "abilities/llm_abilities.jac": "d2bbb9c57398155c4a5beb19a31da04d05367841de1b1d2e8ea216ea8761893b",
+    "abilities/llm_abilities.jac (repaired, before trim)": "6f69c66be3d2acde5d3dd27a8ec30673b7310a0a832f0b5af98f5eed3d470a7a"
+  },
+  "scope": "backend document intake: Patient/Document nodes, LLM classification and plain-English translation walkers",
+  "target_jac_version": "0.36.1",
+  "source_jac_version": "unpinned (byllm>=0.4.8)",
+  "repaired_files": [
+    {
+      "path": "abilities/llm_abilities.jac",
+      "repaired_by": "subagent",
+      "reason": "Upstream places the docstring between the signature and 'by llm(...)' which does not parse on 0.36.1 (96 errors); repaired copy uses 'by llm(model=llm);' plus 'sem <name> = \"\"\"...\"\"\"' and imports Model from jaclang.byllm.lib instead of byllm.llm. No relative-import rewrite was present."
+    }
+  ],
+  "adaptation": "Upstream verbatim: graph/nodes/patient.jac, graph/nodes/document.jac, graph/walkers/intake/document_classify.jac, graph/walkers/intake/plain_english_translator.jac. abilities/llm_abilities.jac is the repaired copy with 30 out-of-slice by-llm declarations (and their sem strings and section-banner comments) deleted, keeping module docstring, imports, glob llm, classify_document and translate_to_plain_english verbatim. Package barrel __init__.jac files were not copied (abilities/__init__.jac and graph/*/__init__.jac import out-of-slice names). New thin main.jac (imports only) and minimal jac.toml added.",
+  "source_edits": [
+    "abilities/llm_abilities.jac: deleted 30 out-of-slice def ... by llm declarations with their sem strings and section comments (extract_eob_data ... generate_negotiation_strategy)"
+  ],
+  "slice_import_edges": [
+    [
+      "graph/walkers/intake/document_classify.jac",
+      "graph/nodes/patient.jac"
+    ],
+    [
+      "graph/walkers/intake/document_classify.jac",
+      "graph/nodes/document.jac"
+    ],
+    [
+      "graph/walkers/intake/document_classify.jac",
+      "abilities/llm_abilities.jac"
+    ],
+    [
+      "graph/walkers/intake/plain_english_translator.jac",
+      "graph/nodes/patient.jac"
+    ],
+    [
+      "graph/walkers/intake/plain_english_translator.jac",
+      "graph/nodes/document.jac"
+    ],
+    [
+      "graph/walkers/intake/plain_english_translator.jac",
+      "abilities/llm_abilities.jac"
+    ],
+    [
+      "main.jac",
+      "graph/nodes/patient.jac"
+    ],
+    [
+      "main.jac",
+      "graph/nodes/document.jac"
+    ],
+    [
+      "main.jac",
+      "abilities/llm_abilities.jac"
+    ],
+    [
+      "main.jac",
+      "graph/walkers/intake/document_classify.jac"
+    ],
+    [
+      "main.jac",
+      "graph/walkers/intake/plain_english_translator.jac"
+    ]
+  ],
+  "independent_acceptance": "reference_acceptance.jac",
+  "independent_acceptance_sha256": "01ec4c4b1f58d50fabc9d9ebfaa141b6e6c4393eba6af0b02b1d4fd6d9de3d44",
+  "independent_acceptance_adaptation": "Written fresh for this slice; the upstream tests/ directory was not used. The model is replaced by assigning abilities.llm_abilities.llm = MockLLM(...) per test; Patients are not attached to root, and doc_ids are unique per test.",
+  "reference_preflight": {
+    "jac_check_main": "passed (main.jac ok, 1 passed)",
+    "acceptance_jac_test": "6 passed (Ran 6 tests, OK) with JAC_TEST_NATIVE=1 JAC_TEST_JOBS=0, both as reference_acceptance.jac and revdev_acceptance.jac",
+    "workspace": "/tmp/revdev-agewise_backend-preflight"
+  },
+  "split": "train",
+  "split_group": "anay162__agewise",
+  "split_reason": "Assigned wave-2 JacHacks 2026 repository; grouped by owner__repo."
+}

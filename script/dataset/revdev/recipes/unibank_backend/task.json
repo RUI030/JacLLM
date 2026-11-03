@@ -1,0 +1,20 @@
+{
+  "schema_version": "1",
+  "task_id": "unibank_backend_v1",
+  "reference_id": "ref_wallyahmed_jachacks2026_unibank_backend",
+  "request": "Build the headless platform-configuration backend of Uni-bank, a payments middle-man service. In nodes/IntegrationConfig.jac define the IntegrationConfig graph node that stores one provider's integration settings (keys, webhook secret, RPC URL, treasury wallet, USDC contract, chain id, enabled flag, mode, update timestamp), and in nodes/Platform.jac define the Platform node whose name, environment, default chain and default asset come from environment variables with fallbacks. In config.jac add env_or (read an environment variable with a fallback), ensure_config (create or update the single IntegrationConfig for a provider on root), seed_demo_config (seed the stripe, wallet_provider and rpc configs from environment variables) and list_configs. In app_platform.jac add get_platform_node (reuse or create the one Platform on root), bootstrap_platform (refresh the platform, seed the configs and report a summary with the environment-variable names) and get_platform_overview. main.jac only imports these operations. Include tests for config seeding and the platform summaries.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "env_or returns a non-empty environment variable and otherwise the fallback.",
+    "ensure_config keeps exactly one IntegrationConfig per provider on root, with config_id '<provider>_config', and overwrites it in place on later calls.",
+    "seed_demo_config returns the stripe, wallet_provider and rpc configs in that order, filled from environment variables or their fallbacks, without duplicating them on repeated calls.",
+    "bootstrap_platform reuses a single Platform node, reflects PLATFORM_NAME/APP_ENV, reports config_count 3 and the 15 environment-variable names.",
+    "get_platform_overview reports the same platform id and name plus merchant_count, the number of nodes directly under root."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a backend-only service; no JSX or browser UI; never call a real model (test any by llm function with MockLLM).",
+    "Keep the node names IntegrationConfig and Platform with their field names, and the function names env_or, ensure_config, seed_demo_config, list_configs (config.jac) and get_platform_node, bootstrap_platform, get_platform_overview (app_platform.jac).",
+    "Import modules by plain dotted names from the workspace root (nodes.IntegrationConfig, nodes.Platform, config, app_platform); no relative imports.",
+    "Read configuration only from os environment variables; no network, files or external services."
+  ]
+}

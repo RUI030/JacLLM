@@ -1,0 +1,72 @@
+{
+  "source_repository": "krishs09-123/jachacks-engagement-auditor",
+  "source_url": "https://github.com/krishs09-123/jachacks-engagement-auditor",
+  "source_title": "Flair (JacHacks Spring)",
+  "source_commit": "eb4546b5a63738fcf0df6d0a56415203b5501a61",
+  "source_checkout": "/home/imrui/Documents/Jaseci/JacLLM/JacLLM/dataset/raw/repo/JacHackSpring/krishs09-123__jachacks-engagement-auditor",
+  "source_dataset": "upstream git HEAD (services/*.sv.jac) for models and llm; /home/imrui/Documents/Jaseci/JacLLM/jac-data-gen/data/jachacks_repaired/krishs09-123__jachacks-engagement-auditor/services/audits.jac (row services/audits.jac in jachacks_nonsf_jac_files_checked.jsonl) for audits",
+  "source_paths": {
+    "services/models.jac": "services/models.sv.jac@HEAD",
+    "services/llm.jac": "services/llm.sv.jac@HEAD",
+    "services/audits.jac": "jachacks_repaired services/audits.jac (renamed_from services/audits.sv.jac)"
+  },
+  "source_files_sha256": {
+    "services/models.sv.jac@HEAD": "4b3d961795034becdb3e8e60a948d4bf27a168e8598801251f151bcea736db99",
+    "services/llm.sv.jac@HEAD": "b9a43cf4cf4c0cb8d43853163a6e549d7244903c0a38c20f09fbfd360e289151",
+    "services/audits.sv.jac@HEAD": "d4cc84f80857f8f961d437e19017a799c209ab20cd2704568648267a9df3fdf7",
+    "jachacks_repaired/services/audits.jac": "e0b53997b2fd5e42aff12a12ac1447fa7cf0c3fb7e06a6feb322b60f8fc54dc0"
+  },
+  "slice_files_sha256": {
+    "jac.toml": "1c09cda2f0058cc8adbf92f72ecee7da6a7f35c1eed0276a95f55749c44a15f3",
+    "main.jac": "dd76b45b1614324ed88490f0421479e1aff8b77af724b57c059ef776bc6a8052",
+    "services/models.jac": "c57a293e12665a36596059e347dcb7f2c9b93e495d02c3244eb6b93a23f87c98",
+    "services/llm.jac": "06fdb0d9b3bffbd2f76718563f9426622b4ef0fd4db4e07faa08a52b7cffac95",
+    "services/audits.jac": "ecdd64dcd6d13bbec8947c5feac55d82d3c431a3d39d5357e658da2b719a684b"
+  },
+  "repaired_files": [
+    {
+      "path": "services/audits.jac",
+      "repaired_by": "subagent",
+      "reason": "Upstream services/audits.sv.jac fails jac check on 0.36.1 (E1053 from the unresolved `Any` annotation in json_float); the repaired copy annotates with lowercase `any` (and adds casts in out-of-slice functions). In-slice difference from upstream is only Any->any on json_* helpers, parse_llm_findings and parse_llm_bundle."
+    }
+  ],
+  "slice_import_edges": [
+    [
+      "services/llm.jac",
+      "services/models.jac"
+    ],
+    [
+      "services/audits.jac",
+      "services/models.jac"
+    ],
+    [
+      "services/audits.jac",
+      "services/llm.jac"
+    ],
+    [
+      "main.jac",
+      "services/audits.jac"
+    ]
+  ],
+  "scope": "backend retention-audit scoring core: data objs, by-llm rubric evaluator, LLM JSON parsing/clamping, deterministic fallback bundle and weighted rubric score",
+  "target_jac_version": "0.36.1",
+  "source_jac_version": "unpinned",
+  "adaptation": "Files renamed from services/*.sv.jac to services/*.jac (as in the jac-data-gen sweep); the upstream checkout working tree is locally modified, so git HEAD was used as the source of truth. New thin main.jac (imports only) and minimal jac.toml replace the upstream main.jac/jac.toml (which wire frontend, npm and endpoints).",
+  "source_edits": [
+    "services/models.jac: kept only obj DeterministicSignal, LlmFindingDraft, LlmAuditBundle and their sem lines (upstream lines 220-260 and 275-357); deleted all node declarations, other objs, and the VisualSnapshot/InteractionStep sem lines.",
+    "services/llm.jac: deleted out-of-slice rubric_output_contract and evaluate_flair_recommendations with their sem lines.",
+    "services/llm.jac: changed `import from byllm.lib { Model }` to `import from jaclang.byllm.lib { Model }` because the standalone byllm package is not importable under the 0.36.1 runtime (jac check passes but jac test fails with ModuleNotFoundError: No module named 'byllm'). This is an import-path change, not a logic change.",
+    "services/audits.jac: deleted out-of-slice declarations build_evidence_pack, visual_signals, attach_visual_refs, contains_unsafe_dark_pattern, legalize_draft, draft_for_lane, ensure_rubric, create_engagement_finding, create_recommendation, start_audit, get_audit_run, list_engagement_findings, export_report; deleted the services.crawler and services.heuristics imports; reduced the services.models import list to DeterministicSignal, LlmFindingDraft, LlmAuditBundle."
+  ],
+  "independent_acceptance": "reference_acceptance.jac",
+  "independent_acceptance_sha256": "7419c45008a479265b138542418290b89bb3d207c31b5525d1a6ea7aaa1e2a61",
+  "independent_acceptance_adaptation": "Written for this slice (upstream test_flair_rubric.jac covers flair_rubric/flair, which are out of scope). Model swapped via services.llm.llm = MockLLM(...).",
+  "reference_preflight": {
+    "jac_check_main": "passed (main.jac ok; each services/*.jac also ok individually)",
+    "jac_test": "5 passed (JAC_TEST_NATIVE=1 JAC_TEST_JOBS=0)",
+    "workspace": "/tmp/revdev-flair_backend-preflight/slice"
+  },
+  "split": "train",
+  "split_group": "krishs09-123__jachacks-engagement-auditor",
+  "split_reason": "This source repository already appears in existing scaffold2impl and tool_fim training rows."
+}

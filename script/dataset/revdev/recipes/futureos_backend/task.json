@@ -1,0 +1,19 @@
+{
+  "schema_version": "1",
+  "task_id": "futureos_backend_v1",
+  "reference_id": "ref_kshitijkumrawat20_jachacks2026_futureos",
+  "request": "Build the headless backend of FutureOS, an AI life operating system that tracks long-term goals, daily missions, focus-session memories and a log of what its agents (Planner, Execution, Memory, Analytics, Coach, Research) did. Put the Goal, Mission, MemoryEntry and AgentLog graph nodes, the InsightReport result object, the AI insight function and all public operations in services/appService.jac, and make main.jac a thin entry module that only re-exports them. Public operations: list goals, update a goal's progress (with Coach milestone logs at 75% and 100%), delete a goal, list missions, toggle a mission done/undone (completing one logs XP and records an automatic memory entry), delete a mission, list memories, read the most recent 20 agent logs, a per-agent status dashboard, aggregate stats (goals, missions, completed missions, XP, average progress), and an async agent_get_insights(goal_id) that asks an LLM for an InsightReport and falls back to a rule-based report when the model call fails. Include tests that use a mock model.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "Toggling a mission to done writes three agent logs and a MemoryEntry summarising it; toggling again marks it incomplete; an unknown id returns None.",
+    "Updating goal progress logs the new percentage plus a Coach milestone at 75% and 100%; deleting a goal logs it and removes it, and a second delete returns False.",
+    "get_stats and get_agent_status aggregate goals, missions, completed missions, XP, memories and logs with the documented keys.",
+    "agent_get_insights returns the model's InsightReport when the model answers, and a rule-based InsightReport with the documented texts and risk level when the model call raises."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a backend-only service; no JSX or browser UI; never call a real model (test any by llm function with MockLLM).",
+    "Keep these public names: nodes Goal, Mission, MemoryEntry, AgentLog; obj InsightReport; module glob llm; functions ai_generate_insights, log_agent, get_goals, update_goal_progress, delete_goal, get_missions, toggle_mission, delete_mission, get_memories, get_agent_logs, get_agent_status, get_stats, agent_get_insights.",
+    "Keep the module paths services/appService.jac and main.jac; main.jac only imports and re-exports names from services.appService.",
+    "No network access, web search or wall-clock timestamps: every created_at and timestamp field is the literal string \"now\"."
+  ]
+}

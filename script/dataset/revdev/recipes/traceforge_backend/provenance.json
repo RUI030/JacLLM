@@ -1,0 +1,65 @@
+{
+  "source_repository": "https://github.com/Dhravidk/TraceForge",
+  "source_subproject": "Dhravidk__TraceForge (JacHacks 2026, Trace Forge)",
+  "source_dataset": "/home/imrui/Documents/Jaseci/JacLLM/jac-data-gen/data/jachacks_nonsf_jac_files_checked.jsonl (files read from /home/imrui/Documents/Jaseci/JacLLM/jac-data-gen/data/jachacks_repaired/Dhravidk__TraceForge/)",
+  "source_files_sha256": {
+    "traceforge/parser.jac": "d0c4b531861937b7b1c5a2c1341384a45c7001c61d41a2e464cc5bbe3ffd02b2",
+    "traceforge/features.jac": "942508b8eba6812fbb447221f4ac5676064780b69f9ed23e06cc9b434a8e802d",
+    "traceforge/critical.jac": "d4f85c471d5732799f26c9e53635bfcbf48a6f10b50698fda9be72491a2efe38"
+  },
+  "repaired_files": [
+    {
+      "path": "traceforge/features.jac",
+      "repaired_by": "subagent",
+      "original_sha": "1fcc7a6fcee5"
+    },
+    {
+      "path": "traceforge/critical.jac",
+      "repaired_by": "subagent",
+      "original_sha": "06b42d418604"
+    }
+  ],
+  "slice_import_edges": [
+    [
+      "traceforge/features.jac",
+      "traceforge/parser.jac"
+    ],
+    [
+      "traceforge/critical.jac",
+      "traceforge/parser.jac"
+    ],
+    [
+      "traceforge/critical.jac",
+      "traceforge/features.jac"
+    ],
+    [
+      "main.jac",
+      "traceforge/parser.jac"
+    ],
+    [
+      "main.jac",
+      "traceforge/features.jac"
+    ],
+    [
+      "main.jac",
+      "traceforge/critical.jac"
+    ]
+  ],
+  "scope": "backend trajectory parsing, run fingerprinting and critical-step localization (traceforge/parser.jac -> traceforge/features.jac -> traceforge/critical.jac)",
+  "target_jac_version": "0.36.1",
+  "source_jac_version": "0.36.1",
+  "adaptation": "traceforge/parser.jac, traceforge/features.jac and traceforge/critical.jac are used verbatim (the latter two are jac-data-gen repaired versions). The source main.jac imports every module including the JSX UI and by-llm llm_ops, so it was replaced by a new 3-line import-only main.jac (sha256 03154b8c0802f5096ee2caeacecfdceb6ee4fc08f099fad1f58af1db2564c9db). A new minimal jac.toml ([project] name traceforge-backend, kind service, entry-point main.jac, no version pin) was added. No traceforge/__init__.jac is needed.",
+  "independent_acceptance": "reference_acceptance.jac",
+  "independent_acceptance_sha256": "67dbeab971c7755917616d7204a07474f1084c79f710633dcc241f05ea0b8834",
+  "independent_acceptance_adaptation": "Written fresh for this slice (the source tests/smoke.jac depends on ingest/api/zip files outside the slice). Uses an in-memory trajectory dict; no files, graph state, randomness or clock.",
+  "reference_preflight": {
+    "jac_check_main": "passed (1 passed)",
+    "jac_check_slice_modules": "passed (3 passed)",
+    "jac_test": "6 passed (JAC_TEST_NATIVE=1 JAC_TEST_JOBS=0, revdev_acceptance.jac in a fresh v2 dir)",
+    "workspace": "/tmp/revdev-traceforge_backend-preflight-v2"
+  },
+  "split": "train",
+  "split_group": "dhravidk__traceforge",
+  "split_reason": "Assigned by the wave-1 brief.",
+  "revision": "v2: added output contracts asserted by tests (exact parser detector keyword lists and kind/phase precedence, extract_turns content format, fingerprint key list and computation, failure-class weights, digest sentence templates, critical-step candidate/signal/selection rules), all derived from the original source modules; tests unchanged."
+}

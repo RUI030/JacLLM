@@ -1,0 +1,219 @@
+{
+  "schema_version": "1",
+  "ui": {
+    "app_type": "service",
+    "nav_pattern": "none",
+    "pages": [],
+    "auth_required": false,
+    "backend_required": true,
+    "ai_required": false
+  },
+  "files": [
+    {
+      "path": "jac.toml",
+      "layer": "config",
+      "purpose": "Configure Jac 0.36.1 [project] kind service and entry-point main.jac; this headless slice has no npm or AI dependencies.",
+      "exports": [],
+      "imports_from_plan": [],
+      "write_order": 1,
+      "status": "pending"
+    },
+    {
+      "path": "graph/nodes.jac",
+      "layer": "model",
+      "purpose": "Define the Trace graph records with no local imports. Incident(name:str, description, start_time, region:str=\"\"); Person(name:str, age:int=0, notes, external_id:str=\"\") with no status field; Claim(claim_type:str, value, timestamp, notes:str=\"\", seen_by_watch:bool=False, incident_id, ingested_at, original_content, source_reference, extraction_method, ingestion_key, payload_hash, external_id:str=\"\"); Organization; Source(name:str, source_type, url, external_id:str=\"\"); Media; Location; VerificationSignal; Subscription(subscriber_name:str, subscriber_contact, external_id:str=\"\"); Alert(message:str, created_at:str=\"\", severity:str=\"info\", claim_id:str=\"\"); obj IdentityReviewEntry; IdentityDecision; IdentityProposal; ActivityEntry(walker_name:str, message:str, created_at:str=\"\", incident_id:str=\"\", target_ids:list[str]=[]); InvestigationRun(person_id:str, fingerprint:str, result_json:str, created_at:str=\"\", mode:str=\"\"); MediaMetadata, MediaComment, MediaAssertion. Ids come from jid(), not stored fields; timestamps are ISO strings.",
+      "signatures": {
+        "Incident": "node Incident { has name: str, description: str = \"\", start_time: str = \"\", region: str = \"\"; }",
+        "Person": "node Person { has name: str, age: int = 0, notes: str = \"\", external_id: str = \"\"; }",
+        "Claim": "node Claim { has claim_type: str, value: str = \"\", timestamp: str = \"\", notes: str = \"\", seen_by_watch: bool = False, incident_id: str = \"\", ingested_at: str = \"\", original_content: str = \"\", source_reference: str = \"\", extraction_method: str = \"\", ingestion_key: str = \"\", payload_hash: str = \"\", external_id: str = \"\"; }",
+        "Source": "node Source { has name: str, source_type: str = \"\", url: str = \"\", external_id: str = \"\"; }",
+        "Subscription": "node Subscription { has subscriber_name: str, subscriber_contact: str = \"\", external_id: str = \"\"; }",
+        "Alert": "node Alert { has message: str, created_at: str = \"\", severity: str = \"info\", claim_id: str = \"\"; }",
+        "ActivityEntry": "node ActivityEntry { has walker_name: str, message: str, created_at: str = \"\", incident_id: str = \"\", target_ids: list[str] = []; }",
+        "InvestigationRun": "node InvestigationRun { has person_id: str, fingerprint: str, result_json: str, created_at: str = \"\", mode: str = \"\"; }"
+      },
+      "exports": [
+        "Incident",
+        "Person",
+        "Claim",
+        "Organization",
+        "Source",
+        "Media",
+        "Location",
+        "VerificationSignal",
+        "Subscription",
+        "Alert",
+        "IdentityReviewEntry",
+        "IdentityDecision",
+        "IdentityProposal",
+        "ActivityEntry",
+        "InvestigationRun",
+        "MediaMetadata",
+        "MediaComment",
+        "MediaAssertion"
+      ],
+      "imports_from_plan": [],
+      "write_order": 2,
+      "status": "pending"
+    },
+    {
+      "path": "graph/edges.jac",
+      "layer": "model",
+      "purpose": "Import the node types from graph/nodes.jac and declare typed edges: Involves Incident->Person, Contains Incident->Media, Asserts Source->Claim, About Claim->Person, SupportedBy Claim->Media, Depicts Media->Person, LocatedAt Media->Location, HasSignal Media->VerificationSignal, HasSubscription Person->Subscription, Receives Subscription->Alert, HasOrganization Incident->Organization, Publishes Organization->Source, HasInvestigation Incident->InvestigationRun, Triggered Claim->Alert (walker_name:str=\"WatchWalker\", created_at:str=\"\"), Reviews IdentityDecision->Person, ExactCopyOf Media->Media (hash_algo:str=\"sha256\", detected_by, detected_at), ReportedAt Claim->Location, HasSource Incident->Source.",
+      "signatures": {
+        "Involves": "edge Involves: Incident --> Person {}",
+        "Asserts": "edge Asserts: Source --> Claim {}",
+        "About": "edge About: Claim --> Person {}",
+        "HasSubscription": "edge HasSubscription: Person --> Subscription {}",
+        "Receives": "edge Receives: Subscription --> Alert {}",
+        "HasInvestigation": "edge HasInvestigation: Incident --> InvestigationRun {}"
+      },
+      "exports": [
+        "Involves",
+        "Contains",
+        "Asserts",
+        "About",
+        "SupportedBy",
+        "Depicts",
+        "LocatedAt",
+        "HasSignal",
+        "HasSubscription",
+        "Receives",
+        "HasOrganization",
+        "Publishes",
+        "HasInvestigation",
+        "Triggered",
+        "Reviews",
+        "ExactCopyOf",
+        "ReportedAt",
+        "HasSource"
+      ],
+      "imports_from_plan": [
+        "Incident",
+        "Person",
+        "Claim",
+        "Source",
+        "Media",
+        "Location",
+        "VerificationSignal",
+        "Subscription",
+        "Alert",
+        "Organization",
+        "IdentityDecision",
+        "InvestigationRun"
+      ],
+      "write_order": 3,
+      "status": "pending"
+    },
+    {
+      "path": "graph/activity.jac",
+      "layer": "util",
+      "purpose": "Import ActivityEntry from graph/nodes.jac. now_iso returns the current UTC time as an ISO string with seconds precision. glob PLAIN_STATUS maps MISSING, FOUND_SAFE, INJURED, DECEASED, SEEN_AT_LOCATION to plain phrases (\"reported missing\", \"reported safe\", ...); plain_status falls back to the lowercased code with underscores replaced by spaces. log_activity connects a new ActivityEntry(walker_name, message, created_at=now_iso(), incident_id) to root.",
+      "signatures": {
+        "now_iso": "def now_iso() -> str",
+        "plain_status": "def plain_status(claim_type: str) -> str",
+        "log_activity": "def log_activity(walker_name: str, message: str, incident_id: str = \"\") -> None"
+      },
+      "exports": [
+        "now_iso",
+        "PLAIN_STATUS",
+        "plain_status",
+        "log_activity"
+      ],
+      "imports_from_plan": [
+        "ActivityEntry"
+      ],
+      "write_order": 4,
+      "status": "pending"
+    },
+    {
+      "path": "services/timeline.jac",
+      "layer": "service",
+      "purpose": "Import Incident, Person, Claim, Alert, InvestigationRun from graph/nodes.jac and Involves, About, Asserts, HasSubscription, Receives, HasInvestigation from graph/edges.jac. obj TimelineEntry carries id, kind (claim/alert/investigation), person_id, claim_id, source_name (sources joined by \"; \"), source_ids, claim_type, reported_at, ingested_at, source_reference, recorded_at, text, status, mode, subscriber_names, status_changed, previous_claim_id, previous_claim_type, total_entries. person_timeline finds the Incident on root by jid and the Person it Involves; gathers claims About the person (skipping claims whose incident_id names another incident) sorted by parsed reported time then ingested time, source and kind rank, marking status_changed/previous_claim_* against the prior claim; adds alerts received through the person's HasSubscription->Receives edges (deduped, citing claim_id when it is one of the person's claims, collecting subscriber names); adds InvestigationRuns on the incident for this person, reading status, mode, run_at, message and the first citation's claim_id from result_json. Sorts all rows, keeps the latest 50 and sets total_entries on each. Unknown incident or person returns [].",
+      "signatures": {
+        "TimelineEntry": "obj TimelineEntry { has id: str, kind: str, person_id: str, claim_id: str = \"\", source_name: str = \"\", source_ids: list[str] = [], claim_type: str = \"\", reported_at: str = \"\", ingested_at: str = \"\", source_reference: str = \"\", recorded_at: str = \"\", text: str = \"\", status: str = \"\", mode: str = \"\", subscriber_names: list[str] = [], status_changed: bool = False, previous_claim_id: str = \"\", previous_claim_type: str = \"\", total_entries: int = 0; }",
+        "person_timeline": "def:pub person_timeline(incident_id: str, person_id: str) -> list[TimelineEntry]"
+      },
+      "exports": [
+        "TimelineEntry",
+        "person_timeline"
+      ],
+      "imports_from_plan": [
+        "Incident",
+        "Person",
+        "Claim",
+        "Alert",
+        "InvestigationRun",
+        "Involves",
+        "About",
+        "Asserts",
+        "HasSubscription",
+        "Receives",
+        "HasInvestigation"
+      ],
+      "write_order": 5,
+      "status": "pending"
+    },
+    {
+      "path": "main.jac",
+      "layer": "service",
+      "purpose": "Entry point that registers the timeline endpoint and re-exports the activity helpers: import TimelineEntry, person_timeline from services/timeline.jac and now_iso, plain_status, log_activity from graph/activity.jac. No other code.",
+      "exports": [
+        "TimelineEntry",
+        "person_timeline",
+        "now_iso",
+        "plain_status",
+        "log_activity"
+      ],
+      "imports_from_plan": [
+        "TimelineEntry",
+        "person_timeline",
+        "now_iso",
+        "plain_status",
+        "log_activity"
+      ],
+      "write_order": 6,
+      "status": "pending"
+    }
+  ],
+  "write_order": [
+    "jac.toml",
+    "graph/nodes.jac",
+    "graph/edges.jac",
+    "graph/activity.jac",
+    "services/timeline.jac",
+    "main.jac"
+  ],
+  "dependency_graph": {
+    "jac.toml": [],
+    "graph/nodes.jac": [],
+    "graph/edges.jac": [
+      "graph/nodes.jac"
+    ],
+    "graph/activity.jac": [
+      "graph/nodes.jac"
+    ],
+    "services/timeline.jac": [
+      "graph/nodes.jac",
+      "graph/edges.jac"
+    ],
+    "main.jac": [
+      "services/timeline.jac",
+      "graph/activity.jac"
+    ]
+  },
+  "remove_from_template": [],
+  "verify": {
+    "flow": "seed incident/person/source/claims on root -> person_timeline -> alerts and runs -> activity log",
+    "route": "API only",
+    "steps": "Run jac check main.jac and Jac behavior tests for timeline ordering, linked alerts and runs, incident scoping, plain status and activity logging."
+  },
+  "build_log": {
+    "overall_status": "pending",
+    "last_action": "",
+    "issues": [],
+    "learnings": []
+  },
+  "confidence": 0.85,
+  "assumption": "Backend slice from the Trace hackathon app (pathakanshu/trace). graph/nodes.jac, graph/edges.jac, graph/activity.jac and services/timeline.jac are verbatim; the source main.jac is a fullstack entry with JSX and failing imports, so a thin service main.jac re-exports the slice."
+}

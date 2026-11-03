@@ -1,0 +1,153 @@
+{
+  "schema_version": "1",
+  "ui": {
+    "app_type": "service",
+    "nav_pattern": "none",
+    "pages": [],
+    "auth_required": false,
+    "backend_required": true,
+    "ai_required": true
+  },
+  "files": [
+    {
+      "path": "jac.toml",
+      "layer": "config",
+      "purpose": "Configure Jac 0.36.1 [project] name, version, description, kind service and entry-point main.jac; no npm dependencies and no version pin. Models are declared in the ai modules, not here.",
+      "exports": [],
+      "imports_from_plan": [],
+      "write_order": 1,
+      "status": "pending"
+    },
+    {
+      "path": "ai/models.jac",
+      "layer": "util",
+      "purpose": "Import os and Model from jaclang.byllm.lib. ai_switched_off() returns True exactly when os.environ.get(\"UARRIVED_AI_OFF\", \"\") == \"1\". model_ready(model) returns False when model is None; True when model is not an instance of Model (any test double such as MockLLM is always ready); otherwise (a real Model) returns not ai_switched_off() and bool(os.environ.get(\"ANTHROPIC_API_KEY\", \"\").strip()), so a blank or whitespace-only key means not ready. No other local imports.",
+      "signatures": {
+        "ai_switched_off": "def ai_switched_off -> bool",
+        "model_ready": "def model_ready(model: any) -> bool"
+      },
+      "exports": [
+        "ai_switched_off",
+        "model_ready"
+      ],
+      "imports_from_plan": [],
+      "write_order": 2,
+      "status": "pending"
+    },
+    {
+      "path": "ai/guide.jac",
+      "layer": "service",
+      "purpose": "Import Model from jaclang.byllm.lib and model_ready from ai/models.jac. Declare module glob guide: any holding a real Model (tests replace it with MockLLM or None). guide_ready() returns model_ready(guide). obj GuideAnswer has one field text:str. answer_task_question(task_info, transcript, question, language) is a by llm function using the guide glob that returns a GuideAnswer; it has no body and adds no post-processing. Keep the sem strings exactly as listed.",
+      "signatures": {
+        "guide": "glob guide: any = Model(model_name=\"claude-haiku-4-5-20251001\", call_params={\"timeout\": 20.0, \"num_retries\": 1});",
+        "guide_ready": "def guide_ready -> bool",
+        "GuideAnswer": "obj GuideAnswer { has text: str; }",
+        "answer_task_question": "def answer_task_question(task_info: str, transcript: str, question: str, language: str) -> GuideAnswer by guide();",
+        "sem strings (verbatim)": "sem GuideAnswer.text = \"The answer only: plain text, 2-6 short sentences or a short list, no markdown.\"; sem answer_task_question = \"You are a friendly orientation guide for newly arrived students at the University of Michigan, Ann Arbor. Answer the student's question about the task described in task_info. Ground the answer in task_info first; add general, widely known guidance only when it helps, and say when something should be confirmed with the International Center or the official page listed. Never invent phone numbers, prices, deadlines or office hours that are not in task_info. Use plain, simple wording suitable for non-native speakers.\"; sem answer_task_question.task_info = \"The task's official details: title, places, addresses, hours, cost, what to bring, steps, notes and official links.\"; sem answer_task_question.transcript = \"Earlier messages in this chat, oldest first. May be empty.\"; sem answer_task_question.question = \"The student's new question.\"; sem answer_task_question.language = \"Language code to answer in, for example 'en', 'zh', 'ko'.\";"
+      },
+      "exports": [
+        "guide",
+        "guide_ready",
+        "GuideAnswer",
+        "answer_task_question"
+      ],
+      "imports_from_plan": [
+        "model_ready"
+      ],
+      "write_order": 3,
+      "status": "pending"
+    },
+    {
+      "path": "ai/translate.jac",
+      "layer": "service",
+      "purpose": "Import Model from jaclang.byllm.lib and model_ready from ai/models.jac. Declare module glob translator: any holding a real Model (tests replace it). translator_ready() returns model_ready(translator). Typed result objs: Translation(text:str), PostText(language:str, title:str, description:str), PostTranslations(items:list[PostText]=[]), TextList(texts:list[str]=[]). translate, translate_post and translate_batch are by llm functions using the translator glob returning Translation, PostTranslations and TextList respectively, with no post-processing. Keep the sem strings exactly as listed.",
+      "signatures": {
+        "translator": "glob translator: any = Model(model_name=\"claude-haiku-4-5-20251001\", call_params={\"timeout\": 20.0, \"num_retries\": 1});",
+        "translator_ready": "def translator_ready -> bool",
+        "Translation": "obj Translation { has text: str; }",
+        "PostText": "obj PostText { has language: str, title: str, description: str; }",
+        "PostTranslations": "obj PostTranslations { has items: list[PostText] = []; }",
+        "TextList": "obj TextList { has texts: list[str] = []; }",
+        "translate": "def translate(text: str, source: str, target: str) -> Translation by translator();",
+        "translate_post": "def translate_post(title: str, description: str, source: str, targets: list[str]) -> PostTranslations by translator();",
+        "translate_batch": "def translate_batch(texts: list[str], source: str, target: str) -> TextList by translator();",
+        "sem strings (verbatim)": "sem Translation.text = \"The translated text only, with no notes, quotes or explanations.\"; sem PostText.language = \"The target language code this entry is written in, exactly as given in targets.\"; sem PostText.title = \"The post title translated into that language.\"; sem PostText.description = \"The post description translated into that language.\"; sem PostTranslations.items = \"One entry per target language, in the order of targets.\"; sem translate = \"Translate a student's marketplace or chat text faithfully. Keep every numeral as digits exactly as written (never spell numbers out or convert them), keep currency symbols, prices, times and dates exactly as written, keep proper nouns, place names and addresses unchanged, and do not add, remove or soften any information.\"; sem translate.text = \"The text to translate, exactly as the student wrote it.\"; sem translate.source = \"Language code of the text, for example 'ko', 'zh', 'en'.\"; sem translate.target = \"Language code to translate into.\"; sem translate_post = \"Translate a student's marketplace post title and description into each target language. Keep every numeral as digits exactly as written (never spell numbers out or convert them), keep currency symbols, prices, times and dates exactly as written, keep proper nouns, place names and addresses unchanged, and do not add, remove or soften any information.\"; sem translate_post.title = \"The post title, exactly as the student wrote it.\"; sem translate_post.description = \"The post description, exactly as the student wrote it.\"; sem translate_post.source = \"Language code of the title and description.\"; sem translate_post.targets = \"Language codes to translate into; return one entry for each.\"; sem TextList.texts = \"The translations, exactly one per input text, in the same order as the input.\"; sem translate_batch = \"Translate each of several short texts faithfully, independently of the others. Keep every numeral as digits exactly as written (never spell numbers out or convert them), keep currency symbols, prices, times and dates exactly as written, keep proper nouns, place names and addresses unchanged, and do not add, remove or soften any information.\"; sem translate_batch.texts = \"The texts to translate, in order.\"; sem translate_batch.source = \"Language code of the texts, for example 'ko', 'zh', 'en'.\"; sem translate_batch.target = \"Language code to translate into.\";"
+      },
+      "exports": [
+        "translator",
+        "translator_ready",
+        "Translation",
+        "PostText",
+        "PostTranslations",
+        "TextList",
+        "translate",
+        "translate_post",
+        "translate_batch"
+      ],
+      "imports_from_plan": [
+        "model_ready"
+      ],
+      "write_order": 4,
+      "status": "pending"
+    },
+    {
+      "path": "main.jac",
+      "layer": "service",
+      "purpose": "Thin entry point holding only imports: ai_switched_off and model_ready from ai.models; guide_ready, answer_task_question and GuideAnswer from ai.guide; translator_ready, translate, translate_post, translate_batch, Translation, PostText, PostTranslations and TextList from ai.translate. No UI and no other code.",
+      "exports": [],
+      "imports_from_plan": [
+        "ai_switched_off",
+        "model_ready",
+        "guide_ready",
+        "answer_task_question",
+        "GuideAnswer",
+        "translator_ready",
+        "translate",
+        "translate_post",
+        "translate_batch",
+        "Translation",
+        "PostText",
+        "PostTranslations",
+        "TextList"
+      ],
+      "write_order": 5,
+      "status": "pending"
+    }
+  ],
+  "write_order": [
+    "jac.toml",
+    "ai/models.jac",
+    "ai/guide.jac",
+    "ai/translate.jac",
+    "main.jac"
+  ],
+  "dependency_graph": {
+    "jac.toml": [],
+    "ai/models.jac": [],
+    "ai/guide.jac": [
+      "ai/models.jac"
+    ],
+    "ai/translate.jac": [
+      "ai/models.jac"
+    ],
+    "main.jac": [
+      "ai/models.jac",
+      "ai/guide.jac",
+      "ai/translate.jac"
+    ]
+  },
+  "remove_from_template": [],
+  "verify": {
+    "flow": "model_ready -> guide_ready/translator_ready -> by llm calls with MockLLM",
+    "route": "API only",
+    "steps": "Run jac check main.jac. Run Jac tests that set ai.guide.guide and ai.translate.translator to MockLLM(model_name=\"mockllm\", config={\"outputs\": [...]}) or None, and toggle UARRIVED_AI_OFF/ANTHROPIC_API_KEY around a real Model without calling it."
+  },
+  "build_log": {
+    "overall_status": "pending",
+    "last_action": "",
+    "issues": [],
+    "learnings": []
+  },
+  "confidence": 0.85,
+  "assumption": "Backend AI-helper slice of joohyeon/UMadeIt (ai/models.jac, ai/guide.jac, ai/translate.jac copied verbatim). The marketplace, journey and UI modules are out of scope; main.jac is a new thin import-only module."
+}

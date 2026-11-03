@@ -1,0 +1,53 @@
+{
+  "source_repository": "Viktor-Nedev/Nourish",
+  "source_url": "https://github.com/Viktor-Nedev/Nourish",
+  "source_commit": "c492fbc7d14b4ca71b8f8468f36f579f48a71f1d",
+  "source_dataset": "/home/imrui/Documents/Jaseci/JacLLM/JacLLM/dataset/raw/repo/JacHackSpring/Viktor-Nedev__Nourish (upstream git checkout; repaired copies in /home/imrui/Documents/Jaseci/JacLLM/jac-data-gen/data/jachacks_repaired/Viktor-Nedev__Nourish not used)",
+  "source_paths": [
+    "services/nourish_model.jac",
+    "services/supply_agent.jac"
+  ],
+  "source_files_sha256": {
+    "services/nourish_model.jac": "eec51de5270a815bcd609b6d6a398a8699a9fc5dd2d25ac2d71e509007a0ff20",
+    "services/supply_agent.jac": "45a5f91abf353765446201bda9c88c47ce1be1bbea69d29030929fd18f6c2281"
+  },
+  "repaired_files": [],
+  "slice_import_edges": [
+    [
+      "services/supply_agent.jac",
+      "services/nourish_model.jac"
+    ],
+    [
+      "main.jac",
+      "services/nourish_model.jac"
+    ],
+    [
+      "main.jac",
+      "services/supply_agent.jac"
+    ]
+  ],
+  "scope": "backend graph model and supply_manager walker; no REST dashboard, dispatcher demo script, UI or LLM",
+  "target_jac_version": "0.36.1",
+  "source_jac_version": "unknown (JacHacks Spring submission; upstream slice files pass 0.36.1 check)",
+  "adaptation": "services/nourish_model.jac and services/supply_agent.jac copied verbatim from upstream (supply_agent.jac passes check with one W1051 warning on 'biz: Any = here', so the repaired copy was not used). main.jac is new: a thin import-only module (the upstream main.jac imports services.nourish_api and mounts a JSX ClientApp). jac.toml is new and minimal.",
+  "source_edits": [
+    {
+      "path": "main.jac",
+      "change": "new thin import-only module"
+    },
+    {
+      "path": "jac.toml",
+      "change": "new minimal [project] config"
+    }
+  ],
+  "independent_acceptance": "reference_acceptance.jac",
+  "independent_acceptance_sha256": "0399708e7a99685e9c33c1b4f5784154bc694354e990362c72b372afe2e3f6f1",
+  "reference_preflight": {
+    "jac_check_main": "passed (main.jac ok, 1 passed)",
+    "jac_test": "5 passed with JAC_TEST_NATIVE=1 JAC_TEST_JOBS=0 as revdev_acceptance.jac (run twice on persisted root, both OK)",
+    "workspace": "/tmp/revdev-nourish_backend-preflight"
+  },
+  "split": "train",
+  "split_group": "viktor-nedev__nourish",
+  "split_reason": "Wave-2 revdev recipe from a JacHacks Spring repository."
+}

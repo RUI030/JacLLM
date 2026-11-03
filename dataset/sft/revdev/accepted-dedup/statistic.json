@@ -1,0 +1,193 @@
+{
+  "records": 93,
+  "context_tokens": 998325,
+  "stage_counts": {
+    "revdev_app": 17,
+    "revdev_function": 15,
+    "revdev_multifile": 4,
+    "revdev_plan": 17,
+    "revdev_resume": 23,
+    "revdev_scaffold": 17
+  },
+  "source_groups": {
+    "a2tech360__a2-pulse": 6,
+    "aegis": 7,
+    "alongside": 9,
+    "anay162__agewise": 4,
+    "anbu-00001__civicmesh": 4,
+    "async-avengers__repoghost": 3,
+    "cosmonautjones__m-local": 1,
+    "joohyeon__umadeit": 3,
+    "krishs09-123__jachacks-engagement-auditor": 4,
+    "mindcraft": 13,
+    "nikhiljaiswal123__ghostboard": 1,
+    "orbitronsystems__ori-Jac-Demo": 6,
+    "pathakanshu__trace": 4,
+    "push-to-production__careanchor": 4,
+    "rui__claudelogviewer": 3,
+    "rui__jacprojectfactory": 3,
+    "rui__pomodoro": 4,
+    "sahil0445__campussync": 4,
+    "viktor-nedev__nourish": 3,
+    "wally-ahmed__jachacks2026": 3,
+    "yousefalwahami__rent_jac": 4
+  },
+  "split_policy": "All accepted source apps are train; evaluation uses a separate unseen app.",
+  "mirror_policy": "Exclude -16k duplicate exports.",
+  "overlap_policy": "Assistant turns in an exact same-source prefix of another row are weight 0.",
+  "weight0_prefix_rows": [
+    {
+      "row": 0,
+      "stage": "revdev_app",
+      "group": "a2tech360__a2-pulse",
+      "prefix_row": 76,
+      "prefix_stage": "revdev_scaffold",
+      "prefix_messages": 20,
+      "zeroed_turns": 9
+    },
+    {
+      "row": 1,
+      "stage": "revdev_app",
+      "group": "rui__claudelogviewer",
+      "prefix_row": 77,
+      "prefix_stage": "revdev_scaffold",
+      "prefix_messages": 12,
+      "zeroed_turns": 5
+    },
+    {
+      "row": 2,
+      "stage": "revdev_app",
+      "group": "rui__jacprojectfactory",
+      "prefix_row": 78,
+      "prefix_stage": "revdev_scaffold",
+      "prefix_messages": 10,
+      "zeroed_turns": 4
+    },
+    {
+      "row": 3,
+      "stage": "revdev_app",
+      "group": "mindcraft",
+      "prefix_row": 79,
+      "prefix_stage": "revdev_scaffold",
+      "prefix_messages": 28,
+      "zeroed_turns": 12
+    },
+    {
+      "row": 4,
+      "stage": "revdev_app",
+      "group": "orbitronsystems__ori-Jac-Demo",
+      "prefix_row": 80,
+      "prefix_stage": "revdev_scaffold",
+      "prefix_messages": 14,
+      "zeroed_turns": 6
+    },
+    {
+      "row": 5,
+      "stage": "revdev_app",
+      "group": "rui__pomodoro",
+      "prefix_row": 81,
+      "prefix_stage": "revdev_scaffold",
+      "prefix_messages": 14,
+      "zeroed_turns": 6
+    },
+    {
+      "row": 6,
+      "stage": "revdev_app",
+      "group": "push-to-production__careanchor",
+      "prefix_row": 82,
+      "prefix_stage": "revdev_scaffold",
+      "prefix_messages": 20,
+      "zeroed_turns": 9
+    },
+    {
+      "row": 7,
+      "stage": "revdev_app",
+      "group": "anbu-00001__civicmesh",
+      "prefix_row": 83,
+      "prefix_stage": "revdev_scaffold",
+      "prefix_messages": 20,
+      "zeroed_turns": 9
+    },
+    {
+      "row": 8,
+      "stage": "revdev_app",
+      "group": "yousefalwahami__rent_jac",
+      "prefix_row": 84,
+      "prefix_stage": "revdev_scaffold",
+      "prefix_messages": 20,
+      "zeroed_turns": 9
+    },
+    {
+      "row": 9,
+      "stage": "revdev_app",
+      "group": "async-avengers__repoghost",
+      "prefix_row": 85,
+      "prefix_stage": "revdev_scaffold",
+      "prefix_messages": 22,
+      "zeroed_turns": 10
+    },
+    {
+      "row": 10,
+      "stage": "revdev_app",
+      "group": "pathakanshu__trace",
+      "prefix_row": 86,
+      "prefix_stage": "revdev_scaffold",
+      "prefix_messages": 22,
+      "zeroed_turns": 10
+    },
+    {
+      "row": 11,
+      "stage": "revdev_app",
+      "group": "anay162__agewise",
+      "prefix_row": 87,
+      "prefix_stage": "revdev_scaffold",
+      "prefix_messages": 18,
+      "zeroed_turns": 8
+    },
+    {
+      "row": 12,
+      "stage": "revdev_app",
+      "group": "sahil0445__campussync",
+      "prefix_row": 88,
+      "prefix_stage": "revdev_scaffold",
+      "prefix_messages": 18,
+      "zeroed_turns": 8
+    },
+    {
+      "row": 13,
+      "stage": "revdev_app",
+      "group": "krishs09-123__jachacks-engagement-auditor",
+      "prefix_row": 89,
+      "prefix_stage": "revdev_scaffold",
+      "prefix_messages": 16,
+      "zeroed_turns": 7
+    },
+    {
+      "row": 14,
+      "stage": "revdev_app",
+      "group": "viktor-nedev__nourish",
+      "prefix_row": 90,
+      "prefix_stage": "revdev_scaffold",
+      "prefix_messages": 12,
+      "zeroed_turns": 5
+    },
+    {
+      "row": 15,
+      "stage": "revdev_app",
+      "group": "joohyeon__umadeit",
+      "prefix_row": 91,
+      "prefix_stage": "revdev_scaffold",
+      "prefix_messages": 16,
+      "zeroed_turns": 7
+    },
+    {
+      "row": 16,
+      "stage": "revdev_app",
+      "group": "wally-ahmed__jachacks2026",
+      "prefix_row": 92,
+      "prefix_stage": "revdev_scaffold",
+      "prefix_messages": 16,
+      "zeroed_turns": 7
+    }
+  ]
+}

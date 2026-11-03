@@ -1,0 +1,105 @@
+{
+  "schema_version": "1",
+  "ui": {
+    "app_type": "service",
+    "nav_pattern": "none",
+    "pages": [],
+    "auth_required": false,
+    "backend_required": true,
+    "ai_required": false
+  },
+  "files": [
+    {
+      "path": "jac.toml",
+      "layer": "config",
+      "purpose": "Configure Jac 0.36.1 [project] kind service and entry-point main.jac; this headless slice has no npm or AI dependencies.",
+      "exports": [],
+      "imports_from_plan": [],
+      "write_order": 1,
+      "status": "pending"
+    },
+    {
+      "path": "app/models/core.jac",
+      "layer": "model",
+      "purpose": "Define plain obj records with string/float/list defaults: RepoSelection(repo_path, repo_name, branch=\"main\", is_valid=False), ChatMessage(role=\"user\", content, created_at), DecisionItem(title, detail, confidence:float=0.0, source), BlockerItem(title, detail, severity=\"medium\", owner_hint), FileMatch(path, score:float=0.0, rationale, kind=\"file\"), OwnershipGuess(area, owner, confidence:float=0.0, rationale) and MeetingSummary(summary, action_items:list[str], decisions:list[DecisionItem], blockers:list[BlockerItem], people, systems, deadlines, uncertainty:list[str]). No imports.",
+      "signatures": {
+        "DecisionItem": "obj DecisionItem { has title: str = \"\"; has detail: str = \"\"; has confidence: float = 0.0; has source: str = \"\"; }",
+        "BlockerItem": "obj BlockerItem { has title: str = \"\"; has detail: str = \"\"; has severity: str = \"medium\"; has owner_hint: str = \"\"; }"
+      },
+      "exports": ["RepoSelection", "ChatMessage", "DecisionItem", "BlockerItem", "FileMatch", "OwnershipGuess", "MeetingSummary"],
+      "imports_from_plan": [],
+      "write_order": 2,
+      "status": "pending"
+    },
+    {
+      "path": "app/models/workflow.jac",
+      "layer": "model",
+      "purpose": "Define obj records WorkflowMode(key=\"feature_plan\", label, description), WorkflowTraceStep(stage, agent, status, started_at, finished_at, detail, execution_mode=\"deterministic\", model_name, fallback_reason), WorkflowRequest(repo_path, meeting_text, prompt, mode=\"feature_plan\", user_api_key, user_model), WorkflowRunState(run_id, mode, kind=\"full_run\", status=\"idle\", summary, execution_mode=\"fallback\", model_name, fallback_reason), PlanningInsight(title, detail, severity=\"medium\", category=\"context\") and ExecutionPlanningContext(resolved_areas, impacts, test_gaps, blocker_titles:list[str], resolved_mappings, blocker_insights, impact_insights, test_gap_insights:list[PlanningInsight]). No imports.",
+      "signatures": {
+        "WorkflowRequest": "obj WorkflowRequest { has repo_path: str = \"\"; has meeting_text: str = \"\"; has prompt: str = \"\"; has mode: str = \"feature_plan\"; has user_api_key: str = \"\"; has user_model: str = \"\"; }"
+      },
+      "exports": ["WorkflowMode", "WorkflowTraceStep", "WorkflowRequest", "WorkflowRunState", "PlanningInsight", "ExecutionPlanningContext"],
+      "imports_from_plan": [],
+      "write_order": 3,
+      "status": "pending"
+    },
+    {
+      "path": "app/models/outputs.jac",
+      "layer": "model",
+      "purpose": "Import FileMatch, MeetingSummary, DecisionItem, BlockerItem, OwnershipGuess from app.models.core and WorkflowTraceStep, WorkflowRunState, ExecutionPlanningContext, PlanningInsight from app.models.workflow. Define obj records RepoSummary, TaskItem, ActionPlan(headline, first_task, next_task, phases), GeneratedTicket(title, summary, priority=\"medium\", acceptance_criteria, likely_files, blockers, dependencies), HandoffNoteData, StandupUpdateData, ReviewScopeData, GraphNodeView, GraphEdgeView, ProjectContextGraph, DocsSyncResult(files:list[FileMatch], decisions:list[DecisionItem]), QueryArtifactAnswer, WorkflowResultBundle (every result section with default instances: repo_summary, meeting_summary, relevant_files, ownership, decisions:list[DecisionItem], blockers:list[BlockerItem], planning, action_plan:ActionPlan, tasks, tickets:list[GeneratedTicket], handoff, standup, review, trace, context_graph, run_state) and RepoGhostViewState (UI state record holding a bundle, graph views, planning insights and optional callbacks). Also define helpers docs_sync_files and docs_sync_decisions.",
+      "signatures": {
+        "ActionPlan": "obj ActionPlan { has headline: str = \"\"; has first_task: str = \"\"; has next_task: str = \"\"; has phases: list[str] = []; }",
+        "GeneratedTicket": "obj GeneratedTicket { has title: str = \"\"; has summary: str = \"\"; has priority: str = \"medium\"; has acceptance_criteria: list[str] = []; has likely_files: list[str] = []; has blockers: list[str] = []; has dependencies: list[str] = []; }",
+        "WorkflowResultBundle": "obj WorkflowResultBundle { has repo_summary: RepoSummary = RepoSummary(); has meeting_summary: MeetingSummary = MeetingSummary(); has relevant_files: list[FileMatch] = []; has ownership: list[OwnershipGuess] = []; has decisions: list[DecisionItem] = []; has blockers: list[BlockerItem] = []; has planning: ExecutionPlanningContext = ExecutionPlanningContext(); has action_plan: ActionPlan = ActionPlan(); has tasks: list[TaskItem] = []; has tickets: list[GeneratedTicket] = []; has handoff: HandoffNoteData = HandoffNoteData(); has standup: StandupUpdateData = StandupUpdateData(); has review: ReviewScopeData = ReviewScopeData(); has trace: list[WorkflowTraceStep] = []; has context_graph: ProjectContextGraph = ProjectContextGraph(); has run_state: WorkflowRunState = WorkflowRunState(); }",
+        "docs_sync_files": "def docs_sync_files(result: DocsSyncResult) -> list[FileMatch]",
+        "docs_sync_decisions": "def docs_sync_decisions(result: DocsSyncResult) -> list[DecisionItem]"
+      },
+      "exports": ["RepoSummary", "TaskItem", "ActionPlan", "GeneratedTicket", "HandoffNoteData", "StandupUpdateData", "ReviewScopeData", "GraphNodeView", "GraphEdgeView", "ProjectContextGraph", "DocsSyncResult", "QueryArtifactAnswer", "WorkflowResultBundle", "RepoGhostViewState", "docs_sync_files", "docs_sync_decisions"],
+      "imports_from_plan": ["FileMatch", "MeetingSummary", "DecisionItem", "BlockerItem", "OwnershipGuess", "WorkflowTraceStep", "WorkflowRunState", "ExecutionPlanningContext", "PlanningInsight"],
+      "write_order": 4,
+      "status": "pending"
+    },
+    {
+      "path": "app/services/memory_store.jac",
+      "layer": "service",
+      "purpose": "Import datetime, WorkflowRequest from app.models.workflow and WorkflowResultBundle from app.models.outputs. Keep glob SESSION_RUNS: list[dict] and glob PROJECT_MEMORY: dict[str, dict]. remember_session appends and returns {repo_path, mode, prompt, saved_at (str of datetime.now()), headline from bundle.action_plan.headline}. recent_session_runs returns SESSION_RUNS. update_project_memory stores under key repo_path or \"default\" a dict of decision titles, blocker titles, ticket titles and updated_at, and returns it. get_project_memory returns the stored dict or {decisions:[], blockers:[], tickets:[], updated_at:\"\"}.",
+      "signatures": {
+        "remember_session": "def:pub remember_session(request: WorkflowRequest, bundle: WorkflowResultBundle) -> dict",
+        "recent_session_runs": "def:pub recent_session_runs() -> list[dict]",
+        "update_project_memory": "def:pub update_project_memory(repo_path: str, bundle: WorkflowResultBundle) -> dict",
+        "get_project_memory": "def:pub get_project_memory(repo_path: str) -> dict"
+      },
+      "exports": ["remember_session", "recent_session_runs", "update_project_memory", "get_project_memory"],
+      "imports_from_plan": ["WorkflowRequest", "WorkflowResultBundle"],
+      "write_order": 5,
+      "status": "pending"
+    },
+    {
+      "path": "main.jac",
+      "layer": "service",
+      "purpose": "Import remember_session, recent_session_runs, update_project_memory and get_project_memory from app.services.memory_store so the service registers them at startup; no browser client or JSX.",
+      "exports": [],
+      "imports_from_plan": ["remember_session", "recent_session_runs", "update_project_memory", "get_project_memory"],
+      "write_order": 6,
+      "status": "pending"
+    }
+  ],
+  "write_order": ["jac.toml", "app/models/core.jac", "app/models/workflow.jac", "app/models/outputs.jac", "app/services/memory_store.jac", "main.jac"],
+  "dependency_graph": {
+    "jac.toml": [],
+    "app/models/core.jac": [],
+    "app/models/workflow.jac": [],
+    "app/models/outputs.jac": ["app/models/core.jac", "app/models/workflow.jac"],
+    "app/services/memory_store.jac": ["app/models/workflow.jac", "app/models/outputs.jac"],
+    "main.jac": ["app/services/memory_store.jac"]
+  },
+  "remove_from_template": [],
+  "verify": {
+    "flow": "remember_session -> recent_session_runs; update_project_memory -> get_project_memory",
+    "route": "API only",
+    "steps": "Run jac check main.jac and Jac behavior tests that build WorkflowRequest and WorkflowResultBundle objects from the model modules and pass them through the memory_store functions, using unique repository paths because module state persists across tests."
+  },
+  "build_log": {"overall_status": "pending", "last_action": "", "issues": [], "learnings": []},
+  "confidence": 0.85,
+  "assumption": "Backend slice of Async-Avengers/repoGhost (JacHacks 2026). The four app modules are taken verbatim from the checked source; app/models/outputs.jac is a sweep-repaired file. The source main.jac imports UI, LLM and git-backed services, so a thin main.jac that imports only the memory operations replaces it."
+}

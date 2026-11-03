@@ -1,0 +1,166 @@
+{
+  "schema_version": "1",
+  "ui": {
+    "app_type": "service",
+    "nav_pattern": "none",
+    "pages": [],
+    "auth_required": false,
+    "backend_required": true,
+    "ai_required": true
+  },
+  "files": [
+    {
+      "path": "jac.toml",
+      "layer": "config",
+      "purpose": "Configure Jac 0.36.1 [project] with name agewise_backend, kind service and entry-point main.jac; this headless slice has no npm dependencies and no extra dependency tables (byllm ships with jaclang).",
+      "exports": [],
+      "imports_from_plan": [],
+      "write_order": 1,
+      "status": "pending"
+    },
+    {
+      "path": "graph/nodes/patient.jac",
+      "layer": "model",
+      "purpose": "Define node Patient, the hub of the graph, with required name:str and str fields defaulting to \"\": dob, medicare_id, medicaid_id, address, city, state, zip_code, phone, email, emergency_contact_name, emergency_contact_phone, created_at, updated_at, plus primary_language:str default \"English\". No abilities.",
+      "signatures": {
+        "Patient": "node Patient { has name: str, dob: str = \"\", medicare_id: str = \"\", medicaid_id: str = \"\", address: str = \"\", city: str = \"\", state: str = \"\", zip_code: str = \"\", phone: str = \"\", email: str = \"\", emergency_contact_name: str = \"\", emergency_contact_phone: str = \"\", primary_language: str = \"English\", created_at: str = \"\", updated_at: str = \"\"; }"
+      },
+      "exports": [
+        "Patient"
+      ],
+      "imports_from_plan": [],
+      "write_order": 2,
+      "status": "pending"
+    },
+    {
+      "path": "graph/nodes/document.jac",
+      "layer": "model",
+      "purpose": "Define node Document for a raw incoming document. Every field has a default so Document(...) can be built with keywords only: doc_id, doc_type, title, raw_content, raw_text, source, original_filename, mime_type, ingested_at, plain_english_summary, embedding_id, content_hash are str default \"\"; source_channel:str default \"email\"; classification:str default \"UNKNOWN\" (the sentinel for not yet classified); processed:bool default False. No abilities.",
+      "signatures": {
+        "Document": "node Document { has doc_id: str = \"\", doc_type: str = \"\", title: str = \"\", raw_content: str = \"\", raw_text: str = \"\", source: str = \"\", source_channel: str = \"email\", classification: str = \"UNKNOWN\", original_filename: str = \"\", mime_type: str = \"\", ingested_at: str = \"\", processed: bool = False, plain_english_summary: str = \"\", embedding_id: str = \"\", content_hash: str = \"\"; }"
+      },
+      "exports": [
+        "Document"
+      ],
+      "imports_from_plan": [],
+      "write_order": 3,
+      "status": "pending"
+    },
+    {
+      "path": "abilities/llm_abilities.jac",
+      "layer": "service",
+      "purpose": "Import environ from os and Model from jaclang.byllm.lib. Declare glob llm = Model(model_name=\"openrouter/anthropic/claude-4.6-sonnet\", api_key=environ.get(\"OPENROUTER_API_KEY\", \"\")). Declare two body-less LLM functions delegated with by llm(model=llm) and described by sem strings: classify_document returns ONLY one category name from EOB, MSN_PART_A, MSN_PART_B, MEDICAL_BILL, CMS1500_CLAIM, UB04_CLAIM, INSURANCE_NOTICE, POLICY_CHANGE, HIPAA_AUTH, POWER_OF_ATTORNEY, WILL, TRUST, BENEFICIARY_FORM, LEGAL_NOTICE, FINANCIAL_STATEMENT, APPOINTMENT_CONFIRMATION, PRESCRIPTION_NOTICE, SCAM_COMMUNICATION, UNKNOWN; translate_to_plain_english rewrites technical medical billing or legal content at about a 6th-grade reading level for a 75-year-old reader, ending with a one-sentence 'Bottom line:' summary. The module-level name must be exactly llm so tests can replace it with MockLLM; the returned string is used as-is by callers.",
+      "signatures": {
+        "llm": "glob llm = Model(model_name=\"openrouter/anthropic/claude-4.6-sonnet\", api_key=environ.get(\"OPENROUTER_API_KEY\", \"\"));",
+        "classify_document": "def classify_document(raw_text: str, source_metadata: dict) -> str by llm(model=llm);",
+        "translate_to_plain_english": "def translate_to_plain_english(technical_content: str, content_type: str, reading_level: int = 6) -> str by llm(model=llm);"
+      },
+      "exports": [
+        "llm",
+        "classify_document",
+        "translate_to_plain_english"
+      ],
+      "imports_from_plan": [],
+      "write_order": 4,
+      "status": "pending"
+    },
+    {
+      "path": "graph/walkers/intake/document_classify.jac",
+      "layer": "service",
+      "purpose": "Import Patient from graph.nodes.patient, Document from graph.nodes.document and classify_document from abilities.llm_abilities (absolute imports). walker DocumentClassify has no fields. On Patient entry it visits all outgoing neighbours ([-->]), in connection order. On Document entry: if here.classification != \"UNKNOWN\" it executes disengage, which ends the ENTIRE walk (later documents are not visited and no model call is made). Otherwise it builds source_meta = {\"source\": here.source, \"filename\": here.original_filename, \"mime_type\": here.mime_type}, calls classify_document(raw_text=here.raw_content, source_metadata=source_meta), assigns the returned string unchanged to here.classification, and prints \"[DocumentClassify] Document <doc_id> classified as: <category>\". It reports nothing.",
+      "signatures": {
+        "DocumentClassify": "walker DocumentClassify { can start with Patient entry; can classify with Document entry; }"
+      },
+      "exports": [
+        "DocumentClassify"
+      ],
+      "imports_from_plan": [
+        "Patient",
+        "Document",
+        "classify_document"
+      ],
+      "write_order": 5,
+      "status": "pending"
+    },
+    {
+      "path": "graph/walkers/intake/plain_english_translator.jac",
+      "layer": "service",
+      "purpose": "Import Patient from graph.nodes.patient, Document from graph.nodes.document and translate_to_plain_english from abilities.llm_abilities (absolute imports). walker PlainEnglishTranslator has no fields. On Patient entry it visits [-->] in connection order. On Document entry: if here.plain_english_summary != \"\" or here.raw_content == \"\" it executes disengage, ending the ENTIRE walk (later documents keep their summary unchanged and no model call is made). Otherwise it calls translate_to_plain_english(technical_content=here.raw_content[:4000], content_type=here.classification, reading_level=6), stores the returned string unchanged in here.plain_english_summary (classification is not modified), and prints \"[PlainEnglishTranslator] Translated doc <doc_id> (<classification>)\". It reports nothing.",
+      "signatures": {
+        "PlainEnglishTranslator": "walker PlainEnglishTranslator { can start with Patient entry; can translate with Document entry; }"
+      },
+      "exports": [
+        "PlainEnglishTranslator"
+      ],
+      "imports_from_plan": [
+        "Patient",
+        "Document",
+        "translate_to_plain_english"
+      ],
+      "write_order": 6,
+      "status": "pending"
+    },
+    {
+      "path": "main.jac",
+      "layer": "service",
+      "purpose": "Thin entry module holding only imports: Patient, Document, classify_document, translate_to_plain_english, DocumentClassify and PlainEnglishTranslator from their modules (graph.nodes.patient, graph.nodes.document, abilities.llm_abilities, graph.walkers.intake.document_classify, graph.walkers.intake.plain_english_translator). No other code.",
+      "exports": [],
+      "imports_from_plan": [
+        "Patient",
+        "Document",
+        "classify_document",
+        "translate_to_plain_english",
+        "DocumentClassify",
+        "PlainEnglishTranslator"
+      ],
+      "write_order": 7,
+      "status": "pending"
+    }
+  ],
+  "write_order": [
+    "jac.toml",
+    "graph/nodes/patient.jac",
+    "graph/nodes/document.jac",
+    "abilities/llm_abilities.jac",
+    "graph/walkers/intake/document_classify.jac",
+    "graph/walkers/intake/plain_english_translator.jac",
+    "main.jac"
+  ],
+  "dependency_graph": {
+    "jac.toml": [],
+    "graph/nodes/patient.jac": [],
+    "graph/nodes/document.jac": [],
+    "abilities/llm_abilities.jac": [],
+    "graph/walkers/intake/document_classify.jac": [
+      "graph/nodes/patient.jac",
+      "graph/nodes/document.jac",
+      "abilities/llm_abilities.jac"
+    ],
+    "graph/walkers/intake/plain_english_translator.jac": [
+      "graph/nodes/patient.jac",
+      "graph/nodes/document.jac",
+      "abilities/llm_abilities.jac"
+    ],
+    "main.jac": [
+      "graph/nodes/patient.jac",
+      "graph/nodes/document.jac",
+      "abilities/llm_abilities.jac",
+      "graph/walkers/intake/document_classify.jac",
+      "graph/walkers/intake/plain_english_translator.jac"
+    ]
+  },
+  "remove_from_template": [],
+  "verify": {
+    "flow": "Patient ++> Document -> spawn DocumentClassify -> spawn PlainEnglishTranslator -> read node fields",
+    "route": "API only",
+    "steps": "Run jac check main.jac. In tests, import abilities.llm_abilities as a module and assign its llm to MockLLM(model_name=\"mockllm\", config={\"outputs\": [...]}) from jaclang.byllm.lib before spawning; outputs are consumed one per by-llm call in order across both walkers. Assert classification/plain_english_summary values and the disengage-stops-walk behavior."
+  },
+  "build_log": {
+    "overall_status": "pending",
+    "last_action": "",
+    "issues": [],
+    "learnings": []
+  },
+  "confidence": 0.9,
+  "assumption": "Backend document-intake slice of Anay162/agewise. abilities/llm_abilities.jac comes from the repaired copy (the upstream docstring-after-signature form does not parse) and is trimmed to the two LLM functions this slice uses; the other four modules are upstream verbatim."
+}

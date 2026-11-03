@@ -1,0 +1,16 @@
+{
+  "schema_version": "1",
+  "task_id": "a2pulse_week",
+  "reference_id": "ref_a2pulse_week_9c57f06a",
+  "request": "Build a small Jac web app for planning a spoken local weekly brief. Show the Monday that anchors the current brief week and a readable week label. Let a visitor choose a date to preview its brief week and day index. Weekdays belong to their current Monday; weekend dates belong to the upcoming Monday. Keep the date logic in a reusable service and make the page usable without an AI key.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "The date service exposes brief_monday, brief_day_index, and brief_week_label with the planned signatures.",
+    "Weekdays use their current Monday; weekends use the upcoming Monday and have negative day indices relative to it.",
+    "The home page renders and a visitor can select a date to see its week label and day index."
+  ],
+  "constraints": [
+    "Use Jac 0.34.27 and a fullstack Jac app.",
+    "Keep the date logic deterministic and independent of external APIs."
+  ]
+}

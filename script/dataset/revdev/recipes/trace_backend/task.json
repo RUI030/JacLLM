@@ -1,0 +1,18 @@
+{
+  "schema_version": "1",
+  "task_id": "trace_backend_v1",
+  "reference_id": "ref_pathakanshu_trace_timeline",
+  "request": "Build the headless backend of Trace, a disaster-response incident graph where every status about a person comes from a cited source. In graph/nodes.jac define the graph records: Incident, Person, Claim (a sourced statement such as MISSING or FOUND_SAFE with reported and ingested times), Source, Organization, Media, Location, VerificationSignal, Subscription, Alert, ActivityEntry, InvestigationRun, plus identity-review records. In graph/edges.jac define the typed relationships between them (an incident involves people, a source asserts claims, a claim is about a person, a person has subscriptions that receive alerts, an incident has investigation runs, and so on). In graph/activity.jac provide helpers for the current ISO time, turning claim codes into plain words, and logging an agent activity entry onto root. In services/timeline.jac expose person_timeline(incident_id, person_id), a read-only cited history for one person in one incident: their claims in source-reported order with status-change markers, the alerts their subscriptions received, and investigation runs about them, each row carrying its sources and the total entry count. main.jac imports the timeline endpoint and activity helpers. Include tests for timeline ordering, linked alerts and runs, incident scoping, plain status wording and activity logging.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "person_timeline returns a person's claims in source-reported order, citing source names, source ids and references, and marks a later claim of a different type as a status change pointing at the previous claim.",
+    "Alerts received through the person's subscriptions and investigation runs on the incident appear as timeline rows linked to the cited claim, with subscriber names, mode, status and text.",
+    "Claims from another incident are excluded, and an unknown incident or person id yields an empty list; every returned row carries the total entry count.",
+    "plain_status turns claim codes into plain words, and log_activity attaches an ActivityEntry with walker name, message, incident id and timestamp to root."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a backend-only service; no JSX, browser UI or external AI.",
+    "Keep module paths graph/nodes.jac, graph/edges.jac, graph/activity.jac, services/timeline.jac and main.jac.",
+    "Keep the public names Incident, Person, Claim, Source, Subscription, Alert, ActivityEntry, InvestigationRun, Involves, Asserts, About, HasSubscription, Receives, HasInvestigation, TimelineEntry, person_timeline, now_iso, plain_status and log_activity."
+  ]
+}

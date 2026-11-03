@@ -1,0 +1,103 @@
+{
+  "schema_version": "1",
+  "ui": {
+    "app_type": "service",
+    "nav_pattern": "none",
+    "pages": [],
+    "auth_required": false,
+    "backend_required": true,
+    "ai_required": false
+  },
+  "files": [
+    {
+      "path": "jac.toml",
+      "layer": "config",
+      "purpose": "Configure Jac 0.36.1 [project] kind service and entry-point main.jac; this headless slice has no npm, network or AI dependencies.",
+      "exports": [],
+      "imports_from_plan": [],
+      "write_order": 1,
+      "status": "pending"
+    },
+    {
+      "path": "graph/nodes.jac",
+      "layer": "model",
+      "purpose": "Define OSP nodes. InvestigationSession has repo_url:str, ecosystem:str='npm', status:str='pending', started_at:str='', package_count:int=0. Package has name:str, version:str, ecosystem:str='npm', is_direct:bool=False, depth:int=0, cvss_score:float=0.0, has_critical_cve:bool=False, analysis_status:str='pending'. CVE has cve_id:str, cvss_score:float=0.0, severity:str='UNKNOWN', description:str='', fixed_version:str=''. UsageContext has called_from_modules:list[str]=[], risk_surface:str='unknown', is_reachable_in_prod:bool=True, call_chain:list[str]=[]. RemediationPlan has package_name:str, current_version:str, target_version:str, breaking_changes:list[str]=[], confidence:float=0.0, status:str='proposed'.",
+      "signatures": {
+        "InvestigationSession": "node InvestigationSession { has repo_url: str; has ecosystem: str = \"npm\"; has status: str = \"pending\"; has started_at: str = \"\"; has package_count: int = 0; }",
+        "Package": "node Package { has name: str; has version: str; has ecosystem: str = \"npm\"; has is_direct: bool = False; has depth: int = 0; has cvss_score: float = 0.0; has has_critical_cve: bool = False; has analysis_status: str = \"pending\"; }",
+        "CVE": "node CVE { has cve_id: str; has cvss_score: float = 0.0; has severity: str = \"UNKNOWN\"; has description: str = \"\"; has fixed_version: str = \"\"; }"
+      },
+      "exports": ["InvestigationSession", "Package", "CVE", "UsageContext", "RemediationPlan"],
+      "imports_from_plan": [],
+      "write_order": 2,
+      "status": "pending"
+    },
+    {
+      "path": "tools/risk_scorer.jac",
+      "layer": "service",
+      "purpose": "In-memory risk scoring with no API calls. glob HIGH_RISK_KEYWORDS lists risky name fragments (jwt, auth, crypto, token, express, http, ...). package_risk_score adds 100 for depth 0, 80 for depth 1, else (10-depth)*10 when positive; +50 if the lowercased name contains a keyword; +40/+20/+10 for major version 0/1/2; +15 if direct. filter_top_risk_packages returns packages/edges unchanged with truncated False and method 'none' when within max_packages; otherwise greedily selects the max_packages highest-scoring packages (by key, first-seen wins ties), keeps only edges whose from_key and to_key are both selected, and reports truncated True, original_package_count and method 'risk_score'.",
+      "signatures": {
+        "package_risk_score": "def package_risk_score(name: str, version: str, depth: int, is_direct: bool) -> int",
+        "filter_top_risk_packages": "def filter_top_risk_packages(packages: list[dict], edges: list[dict], max_packages: int = 200) -> dict"
+      },
+      "exports": ["HIGH_RISK_KEYWORDS", "package_risk_score", "filter_top_risk_packages"],
+      "imports_from_plan": [],
+      "write_order": 3,
+      "status": "pending"
+    },
+    {
+      "path": "graph/snapshot_util.jac",
+      "layer": "service",
+      "purpose": "Import Package and CVE from graph.nodes and package_risk_score from tools.risk_scorer. pkg_node_id returns 'name@version'. severity_from_cvss maps >=9 CRITICAL, >=7 HIGH, >=4 MEDIUM, >0 LOW, else CLEAN. build_graph_snapshot maps parsed['packages'] keys to node ids, then for each Package node emits a dict with id, name, version, depth, is_direct, risk_score (package_risk_score of the node), cvss_score (max of the node's cvss and its outgoing CVE nodes), cve_count, is_spawn_root (id in spawn_root_ids) and severity; edges are emitted as {source, target, type:'depends_on'} only when both from_key and to_key are known. Returns {nodes, edges}.",
+      "signatures": {
+        "pkg_node_id": "def pkg_node_id(name: str, version: str) -> str",
+        "severity_from_cvss": "def severity_from_cvss(cvss: float) -> str",
+        "build_graph_snapshot": "def build_graph_snapshot(session_packages: list[Package], parsed: dict, spawn_root_ids: list[str]) -> dict"
+      },
+      "exports": ["pkg_node_id", "severity_from_cvss", "build_graph_snapshot"],
+      "imports_from_plan": ["Package", "CVE", "package_risk_score"],
+      "write_order": 4,
+      "status": "pending"
+    },
+    {
+      "path": "walkers/remediation_walker.jac",
+      "layer": "service",
+      "purpose": "Import Package and CVE from graph.nodes. version_gte compares dot-separated versions numerically (non-numeric parts count as 0), returning True when equal-prefix and the candidate has at least as many parts. Walker RemediationWalker has max_attempts:int=3 and plans:list[dict]=[]; on Package entry it collects outgoing CVE nodes, disengages if none or if none has a fixed_version, otherwise takes the first fixed_version, validates it with version_gte (status 'validated', confidence 0.9), appends and reports a dict {event:'remediation_plan', package, from, to, breaking_changes:[], confidence, status}, then disengages.",
+      "signatures": {
+        "version_gte": "def version_gte(candidate: str, minimum: str) -> bool",
+        "RemediationWalker": "walker RemediationWalker { has max_attempts: int = 3; has plans: list[dict] = []; can remediate with Package entry; }"
+      },
+      "exports": ["version_gte", "RemediationWalker"],
+      "imports_from_plan": ["Package", "CVE"],
+      "write_order": 5,
+      "status": "pending"
+    },
+    {
+      "path": "main.jac",
+      "layer": "service",
+      "purpose": "Thin entry point that imports and re-exports the backend slice: InvestigationSession, Package, CVE from graph.nodes; pkg_node_id, severity_from_cvss, build_graph_snapshot from graph.snapshot_util; package_risk_score, filter_top_risk_packages from tools.risk_scorer; RemediationWalker, version_gte from walkers.remediation_walker.",
+      "exports": ["InvestigationSession", "Package", "CVE", "pkg_node_id", "severity_from_cvss", "build_graph_snapshot", "package_risk_score", "filter_top_risk_packages", "RemediationWalker", "version_gte"],
+      "imports_from_plan": ["InvestigationSession", "Package", "CVE", "pkg_node_id", "severity_from_cvss", "build_graph_snapshot", "package_risk_score", "filter_top_risk_packages", "RemediationWalker", "version_gte"],
+      "write_order": 6,
+      "status": "pending"
+    }
+  ],
+  "write_order": ["jac.toml", "graph/nodes.jac", "tools/risk_scorer.jac", "graph/snapshot_util.jac", "walkers/remediation_walker.jac", "main.jac"],
+  "dependency_graph": {
+    "jac.toml": [],
+    "graph/nodes.jac": [],
+    "tools/risk_scorer.jac": [],
+    "graph/snapshot_util.jac": ["graph/nodes.jac", "tools/risk_scorer.jac"],
+    "walkers/remediation_walker.jac": ["graph/nodes.jac"],
+    "main.jac": ["graph/nodes.jac", "graph/snapshot_util.jac", "tools/risk_scorer.jac", "walkers/remediation_walker.jac"]
+  },
+  "remove_from_template": [],
+  "verify": {
+    "flow": "score -> filter -> snapshot -> remediate",
+    "route": "API only",
+    "steps": "Run jac check main.jac and the Jac behavior tests for risk scoring, snapshot building and RemediationWalker."
+  },
+  "build_log": {"overall_status": "pending", "last_action": "", "issues": [], "learnings": []},
+  "confidence": 0.85,
+  "assumption": "Backend slice of shaileshdev4/depgraph (JacHacks Spring). The repo-local Python helper as_list is replaced by list() in snapshot_util and dropped from risk_scorer, and imports use root-relative module paths; network, LLM and UI modules are out of scope."
+}
