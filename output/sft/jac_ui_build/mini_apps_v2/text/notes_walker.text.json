@@ -1,0 +1,70 @@
+{
+ "request": "can you make me a quick notes page? a box to type a note, an add button, and my notes listed underneath with the newest at the bottom. keep them saved so they're still there after a reload",
+ "app_type": "tool",
+ "nav_pattern": "none",
+ "design_rationale": "Quick notes is a capture tool: one narrow column with the Note box on top and a plain stacked list below, neutral base with an amber accent for the one action, Inter for easy reading, nova's clean density.",
+ "verify": {
+  "flow": "notes_walker",
+  "route": "/",
+  "steps": "Open the page, see Nothing written yet, add Buy stamps and then Call Sam with the Add note button, see both notes, reload and see both still there."
+ },
+ "titles": {
+  "/": "Quick notes"
+ },
+ "screen_kind": {
+  "/": "capture"
+ },
+ "why": {
+  "services/jottings.jac": "Jotting node with the note text; load_notes (a walker that visits the notes on root and reports each) and add_note (a walker that takes the text, creates a note under root and reports it).",
+  "lib/utils.jac": "cn() helper.",
+  "components/NotesBoard.jac": "The whole screen: Quick notes heading, Note box and Add note button, the list of notes, loading, empty and error states.",
+  "main.jac": "Registers the note walkers, loads global.css and renders the notes board."
+ },
+ "write_reasoning": {
+  "services/jottings.jac": "Backend first: both endpoints are walkers in services/, so the client spawns them and reads .reports. add_note takes the text as a has field and reports the node it creates, so the client never reads the list again.",
+  "lib/utils.jac": "The cn() helper.",
+  "components/NotesBoard.jac": "The component owns all state and spawns load_notes in async can with entry. save_note is async, spawns add_note(text=...) and appends the reported note to the state instead of refetching.",
+  "main.jac": "Last, main.jac: it imports services.jottings with no leading dot so load_notes and add_note are registered, and returns the notes board; one screen needs no router."
+ },
+ "plan_call_reasoning": "Plan the build: one screen with saved notes, so a single component and a small walker server.",
+ "plan_reasoning": "One screen: a Note box, an Add note button and the notes in the order written. Notes are nodes under root, read through one walker and added through another walker that takes the text and reports the new note. main.jac last.",
+ "plan_summary": "Build plan written to .jaccoder/build_plan.json: a single-screen capture tool, 3 files leaf-first, notes on the server behind two walkers, nova/neutral/amber/inter.",
+ "journal": "# Agent journal\n\n## Issues\n- Endpoints are walkers so they must live in services/ and be named in main.jac's import, or root spawn gives 405.\n\n## Learnings\n- add_note takes its argument as a has field, so the client spawns it with a keyword: root spawn add_note(text=value).\n- The form's onSubmit handler calls preventDefault, ignores an empty note, starts the async save and clears the box.\n- add_note reports the new node, so the list grows from result.reports[0] without a second read.\n\n## Last Action\nBuilt Quick notes: a Note box with an Add note button and a list of notes that loads on open. The preview renders and adding Buy stamps and Call Sam lists them in that order, and both survive a reload.\n",
+ "final": "Quick notes is running: type a note, press Add note and it joins the list at the bottom, and the notes are still there after a reload. I added Buy stamps and Call Sam and they show in that order.\n\n**Next steps**\n- Delete a note\n- Edit a note in place\n- Show when each note was written",
+ "browser": [
+  {
+   "open": "/",
+   "why": "The coverage block names the core flow: open the page and exercise add_note twice."
+  },
+  {
+   "do": [
+    {
+     "fill": "^Note",
+     "value": "Buy stamps"
+    },
+    {
+     "click": "^Add note",
+     "roles": [
+      "button"
+     ]
+    }
+   ],
+   "why": "Type the first note and add it."
+  },
+  {
+   "do": [
+    {
+     "fill": "^Note",
+     "value": "Call Sam"
+    },
+    {
+     "click": "^Add note",
+     "roles": [
+      "button"
+     ]
+    }
+   ],
+   "why": "Add a second note and check it lands below the first."
+  }
+ ]
+}

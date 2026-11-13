@@ -1,0 +1,78 @@
+{
+ "request": "can you make me a little converter from kilometres to miles? type a distance, press Convert, and it should say how many miles that is, to two decimals",
+ "app_type": "tool",
+ "nav_pattern": "none",
+ "design_rationale": "A converter is a quick one-shot task, so it is one compact card: a heading, a single labelled box, a full-width Convert button and the result in larger type underneath.",
+ "verify": {
+  "flow": "unit_convert",
+  "route": "/",
+  "steps": "Open the page and see Enter a distance, convert 10 and see 10 km is 6.21 miles, then convert abc and see That is not a number."
+ },
+ "titles": {
+  "/": "Kilometres to miles"
+ },
+ "screen_kind": {
+  "/": "capture"
+ },
+ "why": {
+  "lib/utils.jac": "cn() helper.",
+  "components/KmPanel.jac": "The whole screen: heading, the Kilometres box, the Convert button and the result line, with its state and handlers.",
+  "main.jac": "Loads global.css and renders the converter."
+ },
+ "write_reasoning": {
+  "lib/utils.jac": "The cn() helper.",
+  "components/KmPanel.jac": "State is has fields (the box text and the result line) and the handler is a plain def, because nothing is awaited. The text is turned into a number with float() inside try/except in a helper that returns in both branches, so no local is declared inside a block.",
+  "main.jac": "This app is client-only, so there is no services/ folder and main.jac has no services import. It only loads global.css and returns the panel, and one screen needs no router."
+ },
+ "plan_call_reasoning": "Plan the build: one screen with no saved data, so a single component and no server.",
+ "plan_reasoning": "One screen: heading, a Kilometres text box, a Convert button and a result line. All state lives in the component as has fields; nothing is saved, so there is no server module. main.jac last.",
+ "plan_summary": "Build plan: a single-screen client-only tool, 2 files leaf-first, no server.",
+ "journal": "# Agent journal\n\n## Issues\n- None so far: the app is client-only, so there are no endpoints to register or await.\n\n## Learnings\n- The box text is parsed with float() inside try/except; any failure shows That is not a number.\n- Numbers are shown the way the calculator shows them: whole values without a decimal, others with round(n, 2).\n\n## Last Action\nBuilt the converter: a Kilometres box, a Convert button and a result line that starts as Enter a distance.\n",
+ "final": "The converter is running: type a distance in Kilometres and press Convert to see the miles to two decimals; text that is not a number says so.\n\n**Next steps**\n- Add a miles to kilometres switch\n- Convert on Enter\n- Keep a short history of conversions",
+ "browser": [
+  {
+   "open": "/",
+   "why": "Open the converter and see Enter a distance."
+  },
+  {
+   "do": [
+    {
+     "fill": "^Kilometres$",
+     "value": "10"
+    }
+   ],
+   "why": "Type a distance."
+  },
+  {
+   "do": [
+    {
+     "click": "^Convert$",
+     "roles": [
+      "button"
+     ]
+    }
+   ],
+   "why": "Show the result, 10 km is 6.21 miles."
+  },
+  {
+   "do": [
+    {
+     "fill": "^Kilometres$",
+     "value": "abc"
+    }
+   ],
+   "why": "Type something that is not a number."
+  },
+  {
+   "do": [
+    {
+     "click": "^Convert$",
+     "roles": [
+      "button"
+     ]
+    }
+   ],
+   "why": "Show That is not a number."
+  }
+ ]
+}

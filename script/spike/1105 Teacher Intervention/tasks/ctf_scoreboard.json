@@ -1,0 +1,23 @@
+{
+  "schema_version": "1",
+  "task_id": "ctf_scoreboard_v1",
+  "reference_id": "",
+  "category": "realtime",
+  "request": "Build a small Jac web app for a live capture-the-flag scoreboard. Teams submit flags for challenges worth points. A team's first correct flag for a challenge awards the points and pushes a scoreboard update to subscribers. Teams are ranked by points, ties broken by who reached that score first.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "A second correct submission of the same challenge by the same team awards nothing and pushes no update.",
+    "Two teams with 300 points are ordered by the time of their last scoring solve, earliest first.",
+    "A wrong flag never changes the scoreboard; submissions after the end time are rejected."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Deliver events through an in-process event bus that tests can subscribe to; no sockets, no network, no background servers.",
+    "Keep the logic deterministic: time is passed in, never read from the clock inside the rules."
+  ],
+  "source": {
+    "repo": "https://github.com/CTFd/CTFd",
+    "license": "Apache-2.0",
+    "note": "Requirements written in English from the project's feature description; no code or text copied. Only one feature slice is reproduced."
+  }
+}

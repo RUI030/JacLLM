@@ -1,0 +1,7 @@
+{
+  "scenario_id": "ui_dashboard",
+  "sentinel": false,
+  "stages": [
+    "stage_1.md"
+  ]
+}

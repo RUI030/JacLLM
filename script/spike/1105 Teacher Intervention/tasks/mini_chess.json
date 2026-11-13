@@ -1,0 +1,22 @@
+{
+  "schema_version": "1",
+  "task_id": "mini_chess_v1",
+  "reference_id": "",
+  "category": "state_machine_game",
+  "request": "Build a small Jac web app for a reduced chess variant on an 8x8 board with only kings, rooks and knights. It tracks whose turn it is; players submit moves like e2e4. Illegal moves are rejected, including any move that leaves the mover's own king in check, and the game reports check, checkmate or stalemate.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "A knight move onto a square occupied by a piece of the same color is rejected and the turn does not change.",
+    "A move that exposes the mover's king to an enemy rook on an open file is rejected.",
+    "When the side to move has no legal move, the game is checkmate if its king is attacked and stalemate otherwise."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Keep the logic deterministic and independent of external APIs."
+  ],
+  "source": {
+    "repo": "https://github.com/jhlywa/chess.js",
+    "license": "BSD-2-Clause",
+    "note": "Requirements written in English from the project's feature description; no code or text copied. Only one feature slice is reproduced."
+  }
+}

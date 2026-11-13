@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/"}, {"expect_text": ["Stopwatch", "0:00", "Stopped"]}, {"click": "^start$"}, {"expect_text": "Running"}, {"click": "^stop$"}, {"expect_text": "Stopped"}, {"click": "^reset$"}, {"expect_text": ["0:00", "Stopped"]}, {"viewport": [390, 844]}, {"expect_text": "Stopwatch"}]}

@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/"}, {"click_link": "/.+"}, {"expect_url": "^/.+"}, {"goto": "/no-such-page-e2e"}, {"expect_text": "not found"}, {"click_link": "^/"}, {"absent_text": "not found"}]}

@@ -1,0 +1,22 @@
+{
+  "schema_version": "1",
+  "task_id": "room_scheduler_v1",
+  "reference_id": "",
+  "category": "algorithms",
+  "request": "Build a small Jac web app for booking meeting rooms. A booking has a room, a start and an end time on a day. A new or moved booking is accepted only if it does not overlap another booking in the same room. Users can ask for a room's free slots within business hours.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "10:00-11:00 does not conflict with 11:00-12:00 (end is exclusive) but conflicts with 10:59-11:30.",
+    "Moving a booking to a time that overlaps only its own old time is accepted.",
+    "With business hours 9-17 and bookings 9-10 and 13-14, the free slots are exactly 10-13 and 14-17."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Keep the logic deterministic and independent of external APIs."
+  ],
+  "source": {
+    "repo": "https://github.com/fullcalendar/fullcalendar",
+    "license": "MIT",
+    "note": "Requirements written in English from the project's feature description; no code or text copied. Only one feature slice is reproduced."
+  }
+}

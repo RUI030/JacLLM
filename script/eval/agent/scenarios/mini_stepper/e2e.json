@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/"}, {"expect_text": ["Volume control", "Volume: 5"]}, {"click": "^up$"}, {"click": "^up$"}, {"expect_text": "Volume: 7"}, {"click": "^down$"}, {"expect_text": "Volume: 6"}, {"reload": true}, {"expect_text": "Volume: 6"}, {"click": "^mute$"}, {"expect_text": "Volume: 0"}]}

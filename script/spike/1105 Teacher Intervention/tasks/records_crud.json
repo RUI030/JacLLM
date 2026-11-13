@@ -1,0 +1,21 @@
+{
+  "schema_version": "1",
+  "task_id": "records_crud_v1",
+  "reference_id": "",
+  "request": "Build a small Jac web app for a people records system. A visitor can create a record with name, email, age and gender, see all records in a table, edit any field of a record, and delete a record. Reject an email without '@' and an age outside 5-130 with a visible error. Keep the record rules in a reusable service.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "Creating, listing, editing and deleting records works through the service and the page.",
+    "An email without '@' or an age outside 5-130 is rejected and nothing is stored.",
+    "Records persist across restarts."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Keep the logic deterministic and independent of external APIs."
+  ],
+  "source": {
+    "repo": "https://github.com/cefjoeii/mern-crud",
+    "license": "MIT",
+    "note": "Requirements paraphrased in English from the repository README/description; no code copied."
+  }
+}

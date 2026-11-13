@@ -1,0 +1,22 @@
+{
+  "schema_version": "1",
+  "task_id": "sales_dashboard_v1",
+  "reference_id": "",
+  "category": "frontend",
+  "request": "Build a small Jac web app with a sales dashboard: a line chart of daily revenue, a bar chart by category and summary tiles (total, average order, best day). Users filter by date range and category, and can hide a category from the legend, which also removes it from the totals. Keep the aggregation of orders into chart series in a tested module.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "Days in the range without orders appear as 0, not as missing points.",
+    "A range that starts after it ends is rejected; an empty result shows an empty state, not NaN averages.",
+    "Average order is revenue divided by order count, rounded to 2 decimals, and it changes when a category is hidden."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Keep the logic deterministic and independent of external APIs."
+  ],
+  "source": {
+    "repo": "https://github.com/chartjs/Chart.js",
+    "license": "MIT",
+    "note": "Requirements written in English from the project's feature description; no code or text copied. Only one feature slice is reproduced."
+  }
+}

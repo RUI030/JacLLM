@@ -1,0 +1,62 @@
+{
+ "request": "make me a tea timer. one screen, heading Tea timer, shows the time like 3:00 and counts down every second after Start, with a status line Ready, Brewing or Done, and Start and Reset buttons",
+ "app_type": "tool",
+ "nav_pattern": "none",
+ "design_rationale": "A tea timer is glanced at from across the kitchen, so one centred card with a very large tabular-number readout and two equal buttons; the template's nova/neutral/amber/inter kept as is.",
+ "verify": {
+  "flow": "countdown",
+  "route": "/",
+  "steps": "Open the timer, see 3:00 and Ready, press Start and see Brewing, press Reset and see 3:00 and Ready."
+ },
+ "titles": {
+  "/": "Tea timer"
+ },
+ "screen_kind": {
+  "/": "monitor"
+ },
+ "why": {
+  "lib/utils.jac": "cn() helper.",
+  "components/Ticker.jac": "Owns the one interval: mounted only while brewing, it calls onTick every second and clears the interval when it unmounts.",
+  "components/TeaTimer.jac": "The whole screen: Tea timer heading, the M:SS readout, the Ready, Brewing or Done line and the Start and Reset buttons.",
+  "main.jac": "Loads global.css and renders the tea timer; there is no server module."
+ },
+ "write_reasoning": {
+  "lib/utils.jac": "The cn() helper.",
+  "components/Ticker.jac": "Same verified pattern as the timer app: setInterval and clearInterval sit in one manual useEffect whose body returns the cleanup. Mounting it only while brewing means a second Start cannot add a second interval.",
+  "components/TeaTimer.jac": "The tick reads the count from a module glob and assigns the returned value to seconds through a local, so the interval never reads a stale has field. The handlers are plain def because nothing here calls the server.",
+  "main.jac": "This app is client-only: no `services/` folder and no services import in `main.jac`. It loads global.css and returns the tea timer; one screen needs no router."
+ },
+ "plan_call_reasoning": "Plan the build: one client-only screen with a countdown, so a tea timer component, the verified ticker component for the interval, and no server.",
+ "plan_reasoning": "One screen: heading, M:SS readout, status line and two buttons. All state is on the client; the interval lives in a Ticker mounted while brewing so its cleanup stops it. main.jac last.",
+ "plan_summary": "Build plan: a single client-only screen, 3 files leaf-first, interval in a mounted Ticker with useEffect cleanup.",
+ "journal": "# Agent journal\n\n## Issues\n- The interval callback is created once, so the count lives in a module glob and the tick assigns the returned value.\n\n## Learnings\n- Mounting the Ticker only while brewing ties the interval to Start; reaching 0:00 or Reset unmounts it.\n\n## Last Action\nBuilt the tea timer: 3:00 readout counting down once a second, Start and Reset, and a Ready, Brewing or Done line.\n",
+ "final": "Your tea timer is ready: Start counts down from 3:00 once a second and the line says Brewing, at 0:00 it stops and says Done, and Reset returns to 3:00 and Ready. Pressing Start while brewing changes nothing.\n\n**Next steps**\n- Let me pick the brew time\n- Add a sound at Done\n- Add a pause button",
+ "browser": [
+  {
+   "open": "/",
+   "why": "Check the timer starts at 3:00, Ready."
+  },
+  {
+   "do": [
+    {
+     "click": "^Start",
+     "roles": [
+      "button"
+     ]
+    }
+   ],
+   "why": "Start and see Brewing."
+  },
+  {
+   "do": [
+    {
+     "click": "^Reset",
+     "roles": [
+      "button"
+     ]
+    }
+   ],
+   "why": "Reset and see 3:00 and Ready."
+  }
+ ]
+}

@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/"}, {"expect_text": "Opening hours"}, {"expect_text": "Open 9:00 to 18:00"}, {"click": "^Saturday$"}, {"expect_text": "Open 10:00 to 16:00"}, {"absent_text": "Open 9:00 to 18:00"}, {"click": "^Sunday$"}, {"expect_text": "Closed"}]}

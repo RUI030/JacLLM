@@ -1,0 +1,7 @@
+{
+  "scenario_id": "mini_theme_toggle",
+  "sentinel": false,
+  "stages": [
+    "stage_1.md"
+  ]
+}

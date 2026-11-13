@@ -1,0 +1,3 @@
+#!/bin/sh
+echo "pgrep is disabled in this test sandbox (it would hit other users' jobs on this shared machine). Stop what you started by its PID: run it with '&', save \$!, then 'kill <pid>'." >&2
+exit 1

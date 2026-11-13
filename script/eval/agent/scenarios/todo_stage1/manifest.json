@@ -1,0 +1,5 @@
+{
+  "scenario_id": "todo_app_stage1",
+  "sentinel": false,
+  "stages": ["stage_1.md"]
+}

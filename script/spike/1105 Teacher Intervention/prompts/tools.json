@@ -1,0 +1,127 @@
+[
+  {
+    "type": "function",
+    "function": {
+      "name": "read_file",
+      "description": "Read a file with line numbers. [PARALLEL-SAFE: can be batched with other independent tools in one response]",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "file_path": {
+            "type": "string",
+            "description": "<class 'str'>"
+          },
+          "offset": {
+            "type": "integer",
+            "description": "<class 'int'>"
+          },
+          "limit": {
+            "type": "integer",
+            "description": "<class 'int'>"
+          }
+        },
+        "required": [
+          "file_path",
+          "offset",
+          "limit"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "edit_code",
+      "description": "Find-and-replace in an existing file. Matches old_string EXACTLY (including whitespace and indentation) and replaces with new_string. Auto-runs jac_check on .jac files after the edit. This returned check is authoritative \u2014 do NOT re-validate the same file via `jac_check` or a `jac check` run_command afterward; W-code warnings are non-blocking noise. Call read_file first if you're unsure of the exact existing content \u2014 mismatches are the #1 cause of edit_code failures. [PARALLEL-SAFE: can be batched with other independent tools in one response]",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "file_path": {
+            "type": "string",
+            "description": "Absolute path to the existing file."
+          },
+          "old_string": {
+            "type": "string",
+            "description": "REQUIRED. Exact substring to match, including whitespace and indentation. Must be unique in the file unless replace_all=True. Copy it verbatim from read_file output \u2014 do not paraphrase."
+          },
+          "new_string": {
+            "type": "string",
+            "description": "Replacement text. May be an empty string to delete the matched span. May be multi-line."
+          },
+          "replace_all": {
+            "type": "boolean",
+            "description": "If True, replace every occurrence. Defaults to False \u2014 matches must be unique in that mode."
+          }
+        },
+        "required": [
+          "file_path",
+          "old_string",
+          "new_string",
+          "replace_all"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "write_code",
+      "description": "Write or overwrite a file with the given content. Auto-runs jac_check on .jac files, blocks known anti-patterns, returns errors for you to fix in follow-up calls. This returned check is authoritative \u2014 after writing, do NOT re-validate the same file via `jac_check` or a `jac check` run_command; W-code warnings are non-blocking noise, not something to re-inspect. ALWAYS call with BOTH file_path AND content. Never call with content omitted, empty, or containing placeholders like '<rest of code>' \u2014 emit the COMPLETE file text every call. [PARALLEL-SAFE: can be batched with other independent tools in one response]",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "file_path": {
+            "type": "string",
+            "description": "Absolute path to the file. Any existing file at this path is overwritten."
+          },
+          "content": {
+            "type": "string",
+            "description": "REQUIRED. The complete text to write \u2014 no placeholders, no truncation, no '// ...'. Must be a non-empty string. If the file is too large to fit in one call, split it into multiple smaller files instead of truncating."
+          }
+        },
+        "required": [
+          "file_path",
+          "content"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "run_command",
+      "description": "Run a shell command with permission check. [PARALLEL-SAFE: can be batched with other independent tools in one response]",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "command": {
+            "type": "string",
+            "description": "<class 'str'>"
+          },
+          "workdir": {
+            "type": "string",
+            "description": "<class 'str'>"
+          },
+          "timeout": {
+            "type": "integer",
+            "description": "<class 'int'>"
+          },
+          "background": {
+            "type": "boolean",
+            "description": "<class 'bool'>"
+          }
+        },
+        "required": [
+          "command",
+          "workdir",
+          "timeout",
+          "background"
+        ],
+        "additionalProperties": false
+      }
+    }
+  }
+]

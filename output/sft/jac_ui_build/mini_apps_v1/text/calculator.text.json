@@ -1,0 +1,137 @@
+{
+ "request": "can you make me a simple calculator? just the digits, plus minus times divide, equals and a clear button. whole numbers are fine, and dividing by zero should say error",
+ "app_type": "tool",
+ "nav_pattern": "none",
+ "design_rationale": "A calculator is used in quick bursts, so it should be one compact card with big, evenly spaced keys: digits as outline buttons and operators in the green accent so they stand out, Outfit for clear numbers, nova's clean density so the keypad fits a phone.",
+ "verify": {
+  "flow": "calculator",
+  "route": "/",
+  "steps": "Open the calculator, work out 7 + 5 and see 12, clear it, then work out 9 ÷ 3 and see 3."
+ },
+ "titles": {
+  "/": "Calculator"
+ },
+ "screen_kind": {
+  "/": "capture"
+ },
+ "why": {
+  "lib/utils.jac": "cn() helper.",
+  "components/Calculator.jac": "The whole screen: heading, the display and the 4x4 keypad, with the calculator state and its key handlers.",
+  "main.jac": "Loads global.css and renders the calculator."
+ },
+ "write_reasoning": {
+  "lib/utils.jac": "The cn() helper.",
+  "components/Calculator.jac": "The component owns all state as has fields: the shown text, the current and stored numbers, the pending operator. The handlers are plain def, not async, because nothing is awaited and every key only rebinds local state.",
+  "main.jac": "Last, main.jac: this app is client-only, so there is no services/ folder and main.jac has no services import. It only loads global.css and returns the calculator, and one screen needs no router."
+ },
+ "plan_call_reasoning": "Plan the build: one screen with no saved data, so a single component and no server.",
+ "plan_reasoning": "One screen: heading, display and a keypad of digits, four operators, equals and clear. All state lives in the component as has fields; nothing is saved, so there is no server module. main.jac last.",
+ "plan_summary": "Build plan written to .jaccoder/build_plan.json: a single-screen client-only tool, 2 files leaf-first, no server, nova/neutral/green/outfit.",
+ "journal": "# Agent journal\n\n## Issues\n- None so far: the app is client-only, so there are no endpoints to register or await.\n\n## Learnings\n- Digits build the number as a value next to the display text, so no string parsing is needed after a result with decimals.\n- A division that is not whole is shown with round(n, 2); a whole result is shown with round(n) so 9 ÷ 3 reads 3, not 3.0.\n- Dividing by zero clears the state and shows Error; the next digit starts a fresh number.\n\n## Last Action\nBuilt Calculator: a display and a keypad with digits, + - × ÷, = and C. The preview renders, 7 + 5 = gives 12 and 9 ÷ 3 = gives 3.\n",
+ "final": "Calculator is running: tap digits, an operator and = to get the result, and C clears back to 0. I checked 7 + 5 = 12 and 9 ÷ 3 = 3; dividing by zero shows Error.\n\n**Next steps**\n- Add a decimal point key\n- Support keyboard input\n- Show the pending operation above the display",
+ "browser": [
+  {
+   "open": "/",
+   "why": "The coverage block names the core flow: open the calculator and run two calculations."
+  },
+  {
+   "do": [
+    {
+     "click": "^7$",
+     "roles": [
+      "button"
+     ]
+    }
+   ],
+   "why": "Start the first number."
+  },
+  {
+   "do": [
+    {
+     "click": "^\\+$",
+     "roles": [
+      "button"
+     ]
+    }
+   ],
+   "why": "Store 7 and pick addition."
+  },
+  {
+   "do": [
+    {
+     "click": "^5$",
+     "roles": [
+      "button"
+     ]
+    }
+   ],
+   "why": "Enter the second number."
+  },
+  {
+   "do": [
+    {
+     "click": "^=$",
+     "roles": [
+      "button"
+     ]
+    }
+   ],
+   "why": "Show the result, 12."
+  },
+  {
+   "do": [
+    {
+     "click": "^C$",
+     "roles": [
+      "button"
+     ]
+    }
+   ],
+   "why": "Clear back to 0."
+  },
+  {
+   "do": [
+    {
+     "click": "^9$",
+     "roles": [
+      "button"
+     ]
+    }
+   ],
+   "why": "Start the division."
+  },
+  {
+   "do": [
+    {
+     "click": "^÷$",
+     "roles": [
+      "button"
+     ]
+    }
+   ],
+   "why": "Store 9 and pick division."
+  },
+  {
+   "do": [
+    {
+     "click": "^3$",
+     "roles": [
+      "button"
+     ]
+    }
+   ],
+   "why": "Enter the divisor."
+  },
+  {
+   "do": [
+    {
+     "click": "^=$",
+     "roles": [
+      "button"
+     ]
+    }
+   ],
+   "why": "Show the result, 3."
+  }
+ ]
+}

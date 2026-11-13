@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/"}, {"expect_text": ["Pets", "No pets yet"]}, {"fill": {"nth": 0, "value": "Rex"}}, {"fill": {"nth": 1, "value": "dog"}}, {"click": "^add pet$"}, {"expect_text": ["Rex", "dog"]}, {"absent_text": "No pets yet"}, {"reload": true}, {"expect_text": ["Rex", "dog"]}]}

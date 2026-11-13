@@ -1,0 +1,73 @@
+{
+ "request": "can you make a little screen for picking a badge colour? a dropdown with red, green and blue, a save button, and a line showing which colour is saved. keep it on the server so it's still there after a reload",
+ "app_type": "tool",
+ "nav_pattern": "none",
+ "design_rationale": "A single choice should sit on one calm, centred card: the heading, a labelled full-width dropdown, one primary Save button and a quiet line underneath that confirms what is stored.",
+ "verify": {
+  "flow": "colour_select",
+  "route": "/",
+  "steps": "Open the page and see Saved colour: none, choose Green under Colour, click Save colour and see Saved colour: Green, reload and still see Saved colour: Green."
+ },
+ "titles": {
+  "/": "Badge colour"
+ },
+ "screen_kind": {
+  "/": "capture"
+ },
+ "why": {
+  "services/badge.jac": "BadgeColour node holding the saved colour name; open_colour (a walker that creates the node under root on first visit and reports it) and save_colour (a walker with a colour field that stores it and reports the node).",
+  "lib/utils.jac": "cn() helper.",
+  "components/ColourPicker.jac": "The whole screen: the Badge colour heading, the Colour select with Red, Green and Blue, the Save colour button and the Saved colour line.",
+  "main.jac": "Registers the colour walkers, loads global.css and renders the picker."
+ },
+ "write_reasoning": {
+  "services/badge.jac": "Both endpoints are walkers in services/ that visit the single node under root, creating it only when root has none. save_colour takes the colour as a has field, so the client passes it as a keyword argument.",
+  "lib/utils.jac": "The cn() helper, unchanged from the template.",
+  "components/ColourPicker.jac": "Server calls are spawned only inside async can with entry and the async save handler, which does nothing when no colour is chosen. The saved line is set from the node save_colour reports instead of reading again.",
+  "main.jac": "It imports the walkers from services.badge with no leading dot so they are registered on the server, then returns the picker; one screen needs no router."
+ },
+ "plan_call_reasoning": "Plan the build: one screen with one saved string, so a single picker component and a small walker server.",
+ "plan_reasoning": "One screen: a heading, a labelled Colour select, a Save colour button and the saved line. The colour lives in one node under root; one walker reads it and another takes the colour and stores it. main.jac last.",
+ "plan_summary": "Build plan: a single-screen badge colour picker, 3 files leaf-first, the colour on the server behind two walkers, shadcn select and field.",
+ "journal": "# Agent journal\n\n## Issues\n- Endpoints are walkers so they must live in services/ and be named in main.jac's import, or root spawn gives 405.\n- Walker arguments are keyword-only and map to has fields: root spawn save_colour(colour=chosen).\n\n## Learnings\n- open_colour creates the BadgeColour node with an empty name, so the first visit shows Saved colour: none.\n- save_colour reports the updated node, so the picker sets the saved line from result.reports[0] without a second read.\n- The save handler returns early when nothing is chosen.\n\n## Last Action\nBuilt Badge colour: a centred card with a Colour select, a Save colour button and the saved line, backed by two walkers.\n",
+ "final": "Badge colour is running: pick Red, Green or Blue under Colour and Save colour stores it on the server. Choosing Green and saving shows Saved colour: Green, and it is still there after a reload.\n\n**Next steps**\n- Show a preview badge in the chosen colour\n- Add more colours\n- Disable Save colour until a colour is chosen",
+ "browser": [
+  {
+   "open": "/",
+   "why": "Open the page and expect Saved colour: none."
+  },
+  {
+   "do": [
+    {
+     "click": "^Colour",
+     "roles": [
+      "combobox"
+     ]
+    }
+   ],
+   "why": "Open the Colour select."
+  },
+  {
+   "do": [
+    {
+     "click": "^Green$",
+     "roles": [
+      "option"
+     ]
+    }
+   ],
+   "why": "Pick Green."
+  },
+  {
+   "do": [
+    {
+     "click": "^Save colour",
+     "roles": [
+      "button"
+     ]
+    }
+   ],
+   "why": "Save it; the line should read Saved colour: Green."
+  }
+ ]
+}

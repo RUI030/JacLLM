@@ -39,6 +39,8 @@ from train.utils import print_gpu_banner
 def default_config() -> dict:
     return {
         "base_model":     "output/model/JacLLM-SFT-Ornith-9B-v1.35-vlm",   # merged v1.35 + VLM config/processor
+        "adapter":        "",            # continue a LoRA (weights only, fresh optimizer); a text-only one is re-keyed
+        "resume":         "",            # <out_dir>/checkpoint-N: full trainer state (needs the same out_dir and config)
         "data_dir":       "dataset/raw/prod/sft/prod-64k",
         "out_dir":        "",
         "run_name":       "prod-img-sft",
@@ -213,7 +215,34 @@ def load(cfg: dict):
         random_state               = cfg["seed"],
         use_gradient_checkpointing = cfg["grad_checkpt"],
     )
+    if cfg["adapter"]:
+        load_adapter_weights(model, cfg)
     return model, processor
+
+
+def load_adapter_weights(model, cfg: dict) -> None:
+    """Copy a saved LoRA into the fresh one. A text_only adapter has no `.language_model.` in its keys; unmatched keys
+    would leave the LoRA at its init and train from the base model, so every tensor must match by name and shape."""
+    from safetensors.torch import load_file
+    src = Path(cfg["adapter"])
+    acfg = json.loads((src / "adapter_config.json").read_text())
+    for k, c in (("r", "lora_rank"), ("lora_alpha", "lora_alpha"), ("use_rslora", "rslora")):
+        assert acfg[k] == cfg[c], f"adapter {k}={acfg[k]} but config {c}={cfg[c]}: a loaded adapter fixes the LoRA shape"
+    params = {n: p for n, p in model.named_parameters() if "lora_" in n}
+    saved = load_file(str(src / "adapter_model.safetensors"))
+    copied = set()
+    for k, v in saved.items():
+        name = k.replace(".weight", ".default.weight")
+        if name not in params:
+            name = name.replace("base_model.model.model.layers.", "base_model.model.model.language_model.layers.")
+        assert name in params, f"adapter tensor {k} has no LoRA parameter in the model"
+        assert params[name].shape == v.shape, f"{k}: shape {tuple(v.shape)} vs {tuple(params[name].shape)}"
+        with torch.no_grad():
+            params[name].copy_(v.to(params[name].dtype))
+        copied.add(name)
+    missing = set(params) - copied
+    assert not missing, f"{len(missing)} LoRA parameters not in the adapter, e.g. {sorted(missing)[:3]}"
+    print(f"adapter: {len(copied)} LoRA tensors loaded from {src}")
 
 
 def rows(path: Path) -> list[dict]:
@@ -255,7 +284,7 @@ def run_sft_img(config: dict) -> None:
     )
     trainer = ChunkedLossTrainer(model=model, args=args, train_dataset=train, data_collator=collate)
     print_gpu_banner()
-    trainer.train()
+    trainer.train(resume_from_checkpoint=cfg["resume"] or None)
     model.save_pretrained(str(out / "adapter"))
     processor.save_pretrained(str(out / "adapter"))
     if valid:
@@ -277,6 +306,10 @@ if __name__ == "__main__":
     cli = argparse.ArgumentParser(description=__doc__)
     cli.add_argument("--data-dir")
     cli.add_argument("--base-model")
+    cli.add_argument("--adapter")
+    cli.add_argument("--chat-template")
+    cli.add_argument("--resume")
+    cli.add_argument("--save-steps", type=int)
     cli.add_argument("--lr", type=float)
     cli.add_argument("--rank", type=int, dest="lora_rank")
     cli.add_argument("--max-steps", type=int)

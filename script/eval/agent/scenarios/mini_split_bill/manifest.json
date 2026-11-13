@@ -1,0 +1,7 @@
+{
+  "scenario_id": "mini_split_bill",
+  "sentinel": false,
+  "stages": [
+    "stage_1.md"
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "scenario_id": "mini_convert",
+  "sentinel": false,
+  "stages": [
+    "stage_1.md"
+  ]
+}

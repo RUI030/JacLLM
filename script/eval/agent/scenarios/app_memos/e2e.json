@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/"}, {"fill": {"nth": 0, "value": "Read the #jac guide"}}, {"click": "^Post$"}, {"fill": {"nth": 0, "value": "Buy coffee"}}, {"click": "^Post$"}, {"expect_text": ["Read the", "Buy coffee"]}, {"reload": true}, {"expect_text": "Buy coffee"}, {"click_link": "/tags/jac"}, {"expect_url": "/tags/jac"}, {"absent_text": "Buy coffee"}]}

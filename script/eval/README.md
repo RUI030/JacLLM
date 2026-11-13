@@ -17,6 +17,7 @@ script/eval/
   probe/                     # intrinsic model analysis (no dataset scoring)
     svd_energy.py            # LoRA rank sizing via SVD of ΔW = B@A
     cpt_loss.py              # forward NLL per CPT checkpoint
+    merge_loss.py            # base vs base+adapter vs merged loss (merge check)
     adapter_viewer.ipynb     # interactive companion to svd_energy
     sft_mask.py              # decode which tokens the real SFT trainer puts loss on
   rl/
@@ -25,6 +26,7 @@ script/eval/
     run_eval.py              # pi agent fills held-out stubbed Jac bodies via an OpenAI-compatible server; solved/check/similarity
     serve_eval.sh            # llama-server on a GGUF + run_eval.py
     replay.py                # replays dataset records through real pi; tool results must match the recorded ones
+  agent/                     # serve a GGUF behind a logging proxy, run jac_coder / opencode / pi on a scenario (README.md)
 ```
 
 ## I want to…
@@ -42,6 +44,9 @@ script/eval/
 | Nitin function tests on a GGUF | `bash script/eval/Nitin-test/run_gguf.sh <gguf> <tag> test` (see `docs/CLOUD_GPU.md`) |
 | Check tool_fim records replay byte-identical through pi (dataset sanity, no model) | `python script/eval/tool_fim/replay.py --split valid --limit 20` |
 | Which tokens an SFT dataset trains on (packed / unpacked masking) | `python script/eval/probe/sft_mask.py --ds tool_fim/repo-all-pi --n 1 [--packed]` |
+| Serve a GGUF for agents (llama-server + logging proxy) | `bash script/eval/agent/serve.sh <model>` (see `script/eval/agent/README.md`, `docs/SERVING.md`) |
+| A real agent on a full-stack scenario (jac_coder / opencode / pi) | `bash script/eval/agent/run_jaccoder.sh <model>`, `bash script/eval/agent/run_agent.sh <opencode\|pi> <model>` → `output/eval/agent/<scenario>/<agent>-<model>_<stamp>/` |
+| Check a merge (loss: base vs adapter vs merged) | `python script/eval/probe/merge_loss.py --base … --adapter … --merged … --rows …` |
 | Check LoRA rank utilization | `python script/eval/probe/svd_energy.py --adapter <adapter_dir>` |
 | CPT loss per checkpoint | `python script/eval/probe/cpt_loss.py --run <cpt-run> --ds <ds>` |
 | RL task set (hidden tests), pass@k | `python script/eval/rl/run_eval.py --adapter <path> --split dev --n-samples 8 --temperature 0.8` |

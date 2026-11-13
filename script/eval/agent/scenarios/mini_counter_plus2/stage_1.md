@@ -1,0 +1,1 @@
+Build a one-page score web app. The page shows the heading "Score", the current score as "N points" starting at 0, and one button "Add two" that raises the score by two. The score is saved on the server, so it is still the same after reloading the page. Keep styling minimal. Validate in the browser that clicking Add two twice shows "4 points".

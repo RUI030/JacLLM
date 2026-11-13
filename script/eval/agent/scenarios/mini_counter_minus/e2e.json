@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/"}, {"expect_text": ["Stock", "In stock: 10"]}, {"click": "^take one$"}, {"click": "^take one$"}, {"expect_text": "In stock: 8"}, {"reload": true}, {"expect_text": "In stock: 8"}]}

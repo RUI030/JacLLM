@@ -215,6 +215,9 @@ On RunPod, nginx listens on `0.0.0.0:8081` and proxies to `8080`: don't serve on
 8081, and don't trust a healthy port as proof your server started (the launchers
 check their own server process after the health check).
 
+Serving a GGUF to real agents (jac_coder, opencode, pi), VLM merges that keep the vision tower, and the
+pitfalls found doing it: `docs/SERVING.md`.
+
 Budget disk for the merge and each quant before starting: merged 57GB, Q8_0
 32.5GB, Q4_K_M 18.6GB. If only Q4 is needed, don't keep Q8 around.
 

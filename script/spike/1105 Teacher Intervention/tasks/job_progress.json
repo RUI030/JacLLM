@@ -1,0 +1,23 @@
+{
+  "schema_version": "1",
+  "task_id": "job_progress_v1",
+  "reference_id": "",
+  "category": "realtime",
+  "request": "Build a small Jac web app with a job queue that streams progress. Jobs are added to a queue and run by a handler that reports progress from 0 to 100. Every state change (waiting, active, progress, completed, failed) is published as an event and the page shows a live progress bar per job. A failing job is retried up to a configured number of attempts.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "Progress may not go down or above 100: reporting 50 then 30 is rejected.",
+    "A job whose handler fails twice with attempts=3 and then succeeds ends completed with 3 attempts made.",
+    "Listeners receive a job's events in order: waiting, active, progress updates, then completed or failed."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Deliver events through an in-process event bus that tests can subscribe to; no sockets, no network, no background servers.",
+    "Keep the logic deterministic: time is passed in, never read from the clock inside the rules."
+  ],
+  "source": {
+    "repo": "https://github.com/taskforcesh/bullmq",
+    "license": "MIT",
+    "note": "Requirements written in English from the project's feature description; no code or text copied. Only one feature slice is reproduced."
+  }
+}

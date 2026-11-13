@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/"}, {"expect_text": ["Mira Sato", "Portraits", "Travel", "Food"]}, {"click": "^Food$"}, {"full_page": true}, {"click": "^Contact$"}, {"fill": {"label": "name", "value": "Lin"}}, {"fill": {"label": "email", "value": "lin@example.com"}}, {"fill": {"label": "message", "value": "Hello"}}, {"click": "^Send"}, {"expect_text": "Lin"}]}

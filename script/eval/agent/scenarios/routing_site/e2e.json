@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/"}, {"click": "about"}, {"expect_url": "about"}, {"expect_text": ["home", "about", "contact"]}, {"click": "contact"}, {"expect_url": "contact"}, {"fill": {"nth": 0, "value": "Ana"}}, {"fill": {"nth": 1, "value": "ana@example.com"}}, {"fill": {"nth": 2, "value": "Hello"}}, {"click": "send|submit"}, {"expect_text": "thank"}]}

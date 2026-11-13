@@ -1,0 +1,22 @@
+{
+  "schema_version": "1",
+  "task_id": "whiteboard_v1",
+  "reference_id": "",
+  "category": "frontend",
+  "request": "Build a small Jac web app for a whiteboard with rectangles, ellipses and arrows. Users select shapes by clicking or by dragging a selection box, move them, group and ungroup them, bring them to front, and undo or redo every action. Keep the board state and its history in a module that is tested without the UI.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "A selection box selects only shapes fully inside it.",
+    "Clicking any member of a group selects the whole group, and moving it moves every member by the same offset.",
+    "Undo after 'move then group' gives the moved but ungrouped state; any new action after an undo clears redo."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Keep the logic deterministic and independent of external APIs."
+  ],
+  "source": {
+    "repo": "https://github.com/excalidraw/excalidraw",
+    "license": "MIT",
+    "note": "Requirements written in English from the project's feature description; no code or text copied. Only one feature slice is reproduced."
+  }
+}

@@ -1,0 +1,1 @@
+Target Jac version: 0.36.1. Plan a Jac application in Markdown at docs/plan.md. Include a Mermaid graph of .jac module dependencies, explicit frontend and backend .jac module lists, public interfaces, build order, and verification. Treat configuration and styling as supporting implementation files outside the module lists. Do not include implementation bodies.

@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/"}, {"expect_text": ["Likes", "0 likes"]}, {"click": "^like$"}, {"expect_text": "1 like"}, {"absent_text": "0 likes"}, {"click": "^like$"}, {"expect_text": "2 likes"}, {"reload": true}, {"expect_text": "2 likes"}]}

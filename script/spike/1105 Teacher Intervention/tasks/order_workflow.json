@@ -1,0 +1,22 @@
+{
+  "schema_version": "1",
+  "task_id": "order_workflow_v1",
+  "reference_id": "",
+  "category": "state_machine_game",
+  "request": "Build a small Jac web app that tracks orders through a workflow: draft, placed, paid, shipped, delivered, with cancelled and refunded as side branches. Each action (place, pay, ship, deliver, cancel, refund) is only allowed from certain states, and every order keeps its full history of transitions with timestamps passed in by the caller.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "Shipping an order that is placed but unpaid is rejected and the order stays placed; placing an order with no items is rejected.",
+    "Cancelling a paid order moves it to cancelled with a refund due; cancelling a shipped order is rejected.",
+    "A delivered order's history is exactly draft, placed, paid, shipped, delivered, in that order."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Keep the logic deterministic and independent of external APIs."
+  ],
+  "source": {
+    "repo": "https://github.com/statelyai/xstate",
+    "license": "MIT",
+    "note": "Requirements written in English from the project's feature description; no code or text copied. Only one feature slice is reproduced."
+  }
+}

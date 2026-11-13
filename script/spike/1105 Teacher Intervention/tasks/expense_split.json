@@ -1,0 +1,22 @@
+{
+  "schema_version": "1",
+  "task_id": "expense_split_v1",
+  "reference_id": "",
+  "category": "algorithms",
+  "request": "Build a small Jac web app for splitting group expenses. A group has members; an expense has a payer, an amount in integer cents and a split: evenly, by exact amounts, or by shares. The page shows each member's balance and the shortest list of 'X pays Y' transfers that settles the group.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "Splitting 1000 cents evenly among 3 members gives 334, 333 and 333; shares always sum exactly to the expense.",
+    "An exact split whose parts do not sum to the expense amount is rejected.",
+    "For balances A +50, B -30, C -20, settling gives exactly B pays A 30 and C pays A 20; balances always sum to zero."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Keep the logic deterministic and independent of external APIs."
+  ],
+  "source": {
+    "repo": "https://github.com/spliit-app/spliit",
+    "license": "MIT",
+    "note": "Requirements written in English from the project's feature description; no code or text copied. Only one feature slice is reproduced."
+  }
+}

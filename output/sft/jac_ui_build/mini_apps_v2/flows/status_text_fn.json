@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/"}, {"expect_text": ["Team status", "No status yet"]}, {"fill": {"label": "^status$", "value": "Shipping today"}}, {"click": "^save$"}, {"expect_text": "Current status: Shipping today"}, {"reload": true}, {"expect_text": "Current status: Shipping today"}]}

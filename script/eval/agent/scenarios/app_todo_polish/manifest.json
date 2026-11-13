@@ -1,0 +1,7 @@
+{
+  "scenario_id": "app_todo_polish",
+  "sentinel": false,
+  "stages": [
+    "stage_1.md"
+  ]
+}

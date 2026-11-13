@@ -1,0 +1,37 @@
+{
+ "request": "i need a little page that shows our opening hours, with buttons for weekdays, saturday and sunday and the hours for the one i pick",
+ "app_type": "tool",
+ "nav_pattern": "none",
+ "design_rationale": "Three hours are read at a glance, so one compact card with a row of three buttons and a single panel below: the chosen day is the filled button and the others are outlines, so the current choice is never in doubt.",
+ "verify": {
+  "flow": "tabs_client",
+  "route": "/",
+  "steps": "Open the page and see the weekday hours, pick Saturday and see its hours with the weekday hours gone, then pick Sunday and see Closed."
+ },
+ "titles": {
+  "/": "Opening hours"
+ },
+ "screen_kind": {
+  "/": "capture"
+ },
+ "why": {
+  "lib/utils.jac": "cn() helper.",
+  "components/HoursPanel.jac": "The whole screen: heading, the three day buttons and the one panel with the hours of the chosen day.",
+  "main.jac": "Loads global.css and renders the hours panel."
+ },
+ "write_reasoning": {
+  "lib/utils.jac": "The cn() helper.",
+  "components/HoursPanel.jac": "State is one has field, the chosen day, and the handler is a plain def because nothing is awaited. The chosen button uses the default variant and the others outline, and only one panel text is rendered.",
+  "main.jac": "This app is client-only, so there is no services/ folder and main.jac has no services import. It only loads global.css and returns the component."
+ },
+ "plan_call_reasoning": "Plan the build: one screen with no saved data, so a single component and no server.",
+ "plan_reasoning": "One screen: heading, three day buttons and one panel. The chosen day is the only state, kept as a has field; there is no server module. main.jac last.",
+ "plan_summary": "Build plan: a single-screen client-only tool, 2 files leaf-first, no server.",
+ "journal": "# Agent journal\n\n## Issues\n- None so far: the app is client-only.\n\n## Learnings\n- One has field holds the chosen day; the panel text is derived from it, so only one text is on the page.\n\n## Last Action\nBuilt HoursPanel with three buttons and one panel.\n",
+ "final": "The opening hours page is running: pick Weekdays, Saturday or Sunday to see that day's hours.\n\n**Next steps**\n- Add a holiday hours note\n- Show today's day as chosen at the start\n- Add a phone number below the hours",
+ "browser": [
+  {"open": "/", "why": "Open the page and check the weekday hours."},
+  {"do": [{"click": "^Saturday$", "roles": ["button"]}], "why": "Pick Saturday."},
+  {"do": [{"click": "^Sunday$", "roles": ["button"]}], "why": "Pick Sunday and see Closed."}
+ ]
+}

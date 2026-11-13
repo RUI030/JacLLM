@@ -1,0 +1,3 @@
+- components/QuietPanel.jac line 12: `result.reports[0].muted as bool` (a bool field read from a report; the verified apps only read an int with `as int`).
+- services/mute.jac line 7 and 28: `has muted: bool = False`, `MuteFlag(muted=False)` and `here.muted = not here.muted` (bool node field and `not` on it; verified apps only use int fields).
+- components/QuietPanel.jac line 34: the status line shows "Loading..." until the first read returns, so it relies on the flow's expect_text waiting for the text to appear.

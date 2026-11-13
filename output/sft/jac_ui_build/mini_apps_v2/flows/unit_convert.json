@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/"}, {"expect_text": ["Kilometres to miles", "Enter a distance"]}, {"fill": {"label": "^kilometres$", "value": "10"}}, {"click": "^convert$"}, {"expect_text": "10 km is 6.21 miles"}, {"fill": {"label": "^kilometres$", "value": "abc"}}, {"click": "^convert$"}, {"expect_text": "That is not a number"}]}

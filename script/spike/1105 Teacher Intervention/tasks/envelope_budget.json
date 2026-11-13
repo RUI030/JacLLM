@@ -1,0 +1,22 @@
+{
+  "schema_version": "1",
+  "task_id": "envelope_budget_v1",
+  "reference_id": "",
+  "category": "algorithms",
+  "request": "Build a small Jac web app for envelope budgeting by month. Income goes into a 'to budget' pool; the user assigns amounts to categories each month and records spending against them. A category's available amount is what was budgeted plus last month's leftover minus spending. Overspending is not carried as a negative: it is taken from next month's 'to budget' instead.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "A category budgeted 100 with 30 spent in January starts February with 70 available.",
+    "A category overspent by 20 in January starts February at 0, and February's 'to budget' is 20 lower.",
+    "Budgeting more than 'to budget' is allowed but makes it negative, and the month is flagged as overbudgeted."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Keep the logic deterministic and independent of external APIs."
+  ],
+  "source": {
+    "repo": "https://github.com/actualbudget/actual",
+    "license": "MIT",
+    "note": "Requirements written in English from the project's feature description; no code or text copied. Only one feature slice is reproduced."
+  }
+}

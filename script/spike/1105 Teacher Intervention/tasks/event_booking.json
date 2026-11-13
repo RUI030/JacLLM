@@ -1,0 +1,21 @@
+{
+  "schema_version": "1",
+  "task_id": "event_booking_v1",
+  "reference_id": "",
+  "request": "Build a small Jac web app for booking seats at events. An organizer creates events with a title, a date and a seat capacity. An attendee can book one seat per event and cancel their booking. The events page shows each event with its remaining seats. Keep the booking rules in a reusable service.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "Booking reduces the event's remaining seats by one; booking a full event is rejected.",
+    "An attendee cannot book the same event twice.",
+    "Cancelling a booking frees its seat; cancelling a booking that does not exist is rejected."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Keep the logic deterministic and independent of external APIs."
+  ],
+  "source": {
+    "repo": "https://github.com/NhanPhamThanh-IT/Event-Booking-GraphQL-MERN",
+    "license": "MIT (GitHub metadata), ISC (README badge)",
+    "note": "Requirements paraphrased in English from the repository README/description; no code copied."
+  }
+}

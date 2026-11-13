@@ -1,0 +1,21 @@
+{
+  "schema_version": "1",
+  "task_id": "recipe_box_v1",
+  "reference_id": "",
+  "request": "Build a small Jac web app for sharing recipes. A recipe has a name, a list of ingredients, instructions and a cooking time in minutes. Users can add recipes, save other recipes to their own saved list and remove them again, and browse recipes filtered by an ingredient. Keep the recipe rules in a reusable service.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "A recipe needs a name, at least one ingredient and a positive cooking time.",
+    "Saving a recipe twice keeps it once in the saved list; removing it takes it out.",
+    "Filtering by an ingredient returns only recipes that list it, ignoring case."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Keep the logic deterministic and independent of external APIs."
+  ],
+  "source": {
+    "repo": "https://github.com/machadop1407/MERN-Recipe-App",
+    "license": "none stated",
+    "note": "Requirements paraphrased in English from the repository README/description; no code copied."
+  }
+}

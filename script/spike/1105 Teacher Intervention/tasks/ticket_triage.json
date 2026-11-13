@@ -1,0 +1,22 @@
+{
+  "schema_version": "1",
+  "task_id": "ticket_triage_v1",
+  "reference_id": "",
+  "category": "llm",
+  "request": "Build a small Jac web app that triages support tickets with a model. The model returns a typed result: a category (billing, bug, feature_request, other), a priority from 1 to 5 and a one-line summary. Invalid output is retried with the validation error, up to 3 attempts.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "A first response with category 'urgent' is retried, and a valid second response is accepted.",
+    "After 3 invalid responses the ticket is stored as category 'other' and flagged for review.",
+    "A priority outside 1-5 counts as invalid; an empty ticket is rejected without calling the model."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Call the model through byLLM (`by llm`); tests use MockLLM with scripted outputs and never call a real model or the network."
+  ],
+  "source": {
+    "repo": "https://github.com/567-labs/instructor",
+    "license": "MIT",
+    "note": "Requirements written in English from the project's feature description; no code or text copied. Only one feature slice is reproduced."
+  }
+}

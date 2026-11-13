@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/"}, {"expect_text": ["Do not disturb", "Notifications are on"]}, {"click": "^mute$"}, {"expect_text": "Notifications are muted"}, {"reload": true}, {"expect_text": "Notifications are muted"}, {"click": "^unmute$"}, {"expect_text": "Notifications are on"}]}

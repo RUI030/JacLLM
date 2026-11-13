@@ -1,0 +1,64 @@
+{
+ "request": "can you make me a tip calculator? a bill box, buttons for 10%, 15% and 20%, and it shows the tip and the total with cents",
+ "app_type": "tool",
+ "nav_pattern": "none",
+ "design_rationale": "A tip calculator is used standing at a table, so one compact card: a bill box, three equal percent buttons and two large figures, neutral base with the amber accent, Inter for clear numbers.",
+ "verify": {
+  "flow": "tip_calc",
+  "route": "/",
+  "steps": "Open the calculator and see Tip: $0.00, enter 50 and press 20% to see a $10.00 tip and $60.00 total, then press 10% to see $5.00 and $55.00."
+ },
+ "titles": {
+  "/": "Tip calculator"
+ },
+ "screen_kind": {
+  "/": "capture"
+ },
+ "why": {
+  "lib/utils.jac": "cn() helper.",
+  "components/TipScreen.jac": "The whole screen: heading, Bill box, the three percent buttons and the Tip and Total lines, with the state and handlers.",
+  "main.jac": "Loads global.css and renders the tip screen."
+ },
+ "write_reasoning": {
+  "lib/utils.jac": "The cn() helper.",
+  "components/TipScreen.jac": "The component owns all state as has fields: the bill text, the tip, the total and an invalid flag. The handlers are plain def because nothing is awaited, and money() always renders two decimals.",
+  "main.jac": "Last, main.jac: this app is client-only, so there is no services/ folder and main.jac has no services import. It only loads global.css and returns the tip screen, and one screen needs no router."
+ },
+ "plan_call_reasoning": "Plan the build: one screen with no saved data, so a single component and no server.",
+ "plan_reasoning": "One screen: heading, a Bill box, 10%, 15% and 20% buttons and the Tip and Total lines. All state lives in the component as has fields; nothing is saved, so there is no server module. main.jac last.",
+ "plan_summary": "Build plan written to .jaccoder/build_plan.json: a single-screen client-only tool, 2 files leaf-first, no server, nova/neutral/amber/inter.",
+ "journal": "# Agent journal\n\n## Issues\n- None so far: the app is client-only, so there are no endpoints to register or await.\n\n## Learnings\n- Money is built from whole cents so it always shows two decimals.\n- An empty or non-numeric bill shows Enter a bill amount instead of the two lines.\n\n## Last Action\nBuilt TipScreen: a Bill box, 10%, 15% and 20% buttons and the Tip and Total lines.\n",
+ "final": "Tip calculator is running: type a bill, press 10%, 15% or 20%, and it shows the tip and total with two decimals. I checked 50 at 20% gives $10.00 and $60.00, and at 10% gives $5.00 and $55.00.\n\n**Next steps**\n- Add a custom percent box\n- Split the total between people\n- Round the total up",
+ "browser": [
+  {
+   "open": "/",
+   "why": "The coverage block names the core flow: open the calculator and try two percentages."
+  },
+  {
+   "do": [
+    {
+     "fill": "^Bill",
+     "value": "50"
+    },
+    {
+     "click": "^20%$",
+     "roles": [
+      "button"
+     ]
+    }
+   ],
+   "why": "Enter the bill and take 20%: a $10.00 tip and a $60.00 total."
+  },
+  {
+   "do": [
+    {
+     "click": "^10%$",
+     "roles": [
+      "button"
+     ]
+    }
+   ],
+   "why": "Switch to 10%: a $5.00 tip and a $55.00 total."
+  }
+ ]
+}

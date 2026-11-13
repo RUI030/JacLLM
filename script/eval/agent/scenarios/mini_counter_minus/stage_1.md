@@ -1,0 +1,1 @@
+Build a one-page stock counter web app. The page shows the heading "Stock", the current number as "In stock: N" starting at 10, and one button "Take one" that lowers the number by one. The number is saved on the server, so it is still the same after reloading the page. Keep styling minimal. Validate in the browser that clicking Take one twice shows "In stock: 8".

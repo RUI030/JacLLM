@@ -1,0 +1,22 @@
+{
+  "schema_version": "1",
+  "task_id": "shared_bookmarks_v1",
+  "reference_id": "",
+  "category": "permissions",
+  "request": "Build a small Jac web app for bookmarks. Users save bookmarks with tags, each either private or shared. A shared view lists everyone's shared bookmarks; a user's own view shows all of their bookmarks. Both views take a tag query where every listed tag must match and '!tag' excludes a tag. Only the owner can edit a bookmark.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "User B's shared view never includes user A's private bookmarks; A's own view does.",
+    "The query 'dev !old' returns bookmarks tagged dev and not tagged old; tag matching ignores case.",
+    "User B cannot edit A's shared bookmark even though B can see it."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Keep the logic deterministic and independent of external APIs."
+  ],
+  "source": {
+    "repo": "https://github.com/sissbruecker/linkding",
+    "license": "MIT",
+    "note": "Requirements written in English from the project's feature description; no code or text copied. Only one feature slice is reproduced."
+  }
+}

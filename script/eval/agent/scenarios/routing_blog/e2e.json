@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/"}, {"click_link": "^/?[^/#?]+/.+|^/?(post|article|blog)s?/"}, {"expect_url": "^/.+"}, {"click": "back"}, {"expect_url": "^/?$|^/(articles|posts|blog)/?$"}]}

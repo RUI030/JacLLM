@@ -18,7 +18,7 @@ domains sit under `script/`:
   prompts, grade completions with hidden tests, and GRPO reward functions.
   Used by both `train/grpo.py` and `eval/rl/run_eval.py`.
 
-Top-level scripts (`inference.py`, `merge_lora.py`) provide REPL and export.
+Top-level scripts (`inference.py`, `merge_lora.py`, `merge_lora_vlm.py`) provide REPL and export.
 
 
 ## Where code lives
@@ -65,10 +65,12 @@ script/
 │   ├── infer/            adapter + openrouter inference backends
 │   ├── probe/            loss / SVD / adapter probes
 │   ├── rl/               RL task-set eval (pass@k, readiness)
+│   ├── agent/            serve a GGUF behind a logging proxy; jac_coder / opencode / pi on scenarios (see docs/SERVING.md)
 │   └── Nitin-test/       vendored hidden-test harness (see PROVENANCE.md)
 ├── spike/                experimental scripts (own README + spike_utils.py)
 ├── inference.py          REPL chat
 ├── merge_lora.py         LoRA merge + export
+├── merge_lora_vlm.py     tensor-level LoRA merge into a bf16 VLM base, vision tower kept
 └── plot_loss.py, plot_usage.py   training-loss / resource-usage charts
 ```
 

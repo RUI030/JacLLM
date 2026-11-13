@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/"}, {"expect_text": ["MRR", "Customers", "Settings"]}, {"click": "^Customers$"}, {"click": "Add customer"}, {"fill": {"label": "name", "value": "Grace Hopper"}}, {"fill": {"label": "email", "value": "grace@example.com"}}, {"click": "^(Save|Add|Create)"}, {"expect_text": "Grace Hopper"}, {"reload": true}, {"expect_text": "Grace Hopper"}]}

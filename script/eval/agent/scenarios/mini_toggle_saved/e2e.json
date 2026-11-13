@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/"}, {"expect_text": ["Heater", "The heater is off"]}, {"click": "^switch on$"}, {"expect_text": "The heater is on"}, {"reload": true}, {"expect_text": "The heater is on"}, {"click": "^switch off$"}, {"expect_text": "The heater is off"}]}

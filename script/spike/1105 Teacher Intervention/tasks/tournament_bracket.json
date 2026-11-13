@@ -1,0 +1,22 @@
+{
+  "schema_version": "1",
+  "task_id": "tournament_bracket_v1",
+  "reference_id": "",
+  "category": "algorithms",
+  "request": "Build a small Jac web app for single-elimination tournaments. From a seeded list of participants it builds the bracket, padding with byes for the top seeds when the count is not a power of two. Reporting a match result moves the winner to the next round; the champion is known once the final is reported.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "With 6 participants the bracket has 8 slots and seeds 1 and 2 get first-round byes that advance them automatically.",
+    "Seeds 1 and 2 are placed in opposite halves, so they can only meet in the final.",
+    "Reporting a match whose two participants are not both known yet is rejected, and so is changing a result after the next-round match was played."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Keep the logic deterministic and independent of external APIs."
+  ],
+  "source": {
+    "repo": "https://github.com/Drarig29/brackets-manager.js",
+    "license": "MIT",
+    "note": "Requirements written in English from the project's feature description; no code or text copied. Only one feature slice is reproduced."
+  }
+}

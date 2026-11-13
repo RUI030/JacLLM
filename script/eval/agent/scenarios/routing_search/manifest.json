@@ -1,0 +1,5 @@
+{
+  "scenario_id": "routing_search",
+  "sentinel": false,
+  "stages": ["stage_1.md"]
+}

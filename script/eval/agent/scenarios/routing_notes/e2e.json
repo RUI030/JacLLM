@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/"}, {"click": "new"}, {"fill": {"nth": 0, "value": "E2E title"}}, {"fill": {"nth": 1, "value": "E2E body"}}, {"click": "save"}, {"expect_text": "E2E title"}, {"reload": true}, {"expect_text": "E2E title"}]}

@@ -1,0 +1,1 @@
+Build a notes web app. One page lists all notes; a separate page has a form to add a new note (title and body). After saving, the app goes back to the list automatically and the new note is there. Notes should still be there after a page reload. Keep styling minimal. Validate in the browser that adding a note returns to the list and shows the new note.

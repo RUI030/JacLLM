@@ -1,0 +1,22 @@
+{
+  "schema_version": "1",
+  "task_id": "team_invites_v1",
+  "reference_id": "",
+  "category": "permissions",
+  "request": "Build a small Jac web app for teams and invitations. Team members are owner, admin or member. Owners and admins invite an email with a role; the invite has a token that expires after 7 days (the current time is passed in). Accepting a valid invite joins the team with that role. Only owners can make someone an owner, and a team always keeps at least one owner.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "Accepting an expired or already-used token fails and creates no membership.",
+    "A plain member cannot invite anyone, and an admin cannot invite someone as owner.",
+    "Demoting or removing the last remaining owner is rejected."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Keep the logic deterministic and independent of external APIs."
+  ],
+  "source": {
+    "repo": "https://github.com/boxyhq/saas-starter-kit",
+    "license": "Apache-2.0",
+    "note": "Requirements written in English from the project's feature description; no code or text copied. Only one feature slice is reproduced."
+  }
+}

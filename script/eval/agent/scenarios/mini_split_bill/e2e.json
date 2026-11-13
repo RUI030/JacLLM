@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/"}, {"expect_text": ["Split the bill", "Each pays: $0.00"]}, {"fill": {"nth": 0, "value": "60"}}, {"click": "^3 people$"}, {"expect_text": "Each pays: $20.00"}, {"click": "^4 people$"}, {"expect_text": "Each pays: $15.00"}]}

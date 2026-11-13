@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/"}, {"check": 6}, {"expect_text": "Streak: 1"}, {"reload": true}, {"expect_text": "Streak: 1"}, {"expect_text": ["Read", "Exercise", "Streak: 0"]}, {"fill": {"nth": 0, "value": "Meditate"}}, {"click": "Add habit"}, {"expect_text": "Meditate"}, {"reload": true}, {"expect_text": "Meditate"}]}

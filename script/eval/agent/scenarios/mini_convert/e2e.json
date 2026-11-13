@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/"}, {"expect_text": ["Celsius to Fahrenheit", "Enter a temperature"]}, {"fill": {"nth": 0, "value": "20"}}, {"click": "^convert$"}, {"expect_text": "20 °C is 68 °F"}, {"fill": {"nth": 0, "value": "abc"}}, {"click": "^convert$"}, {"expect_text": "That is not a number"}]}

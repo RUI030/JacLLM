@@ -1,0 +1,21 @@
+{
+  "schema_version": "1",
+  "task_id": "travel_blog_v1",
+  "reference_id": "",
+  "request": "Build a small Jac web app for a travel blog. An author creates posts with a title, a description and one category from travel, nature, city, adventure and beaches, and can mark a post as featured. The home page shows featured posts first and lets a reader filter posts by category. Keep the post rules in a reusable service.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "Posts can be created with exactly one of the five categories; any other category is rejected.",
+    "Featured posts are listed before the others on the home page.",
+    "Filtering by a category shows only that category's posts."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Keep the logic deterministic and independent of external APIs."
+  ],
+  "source": {
+    "repo": "https://github.com/krishnaacharyaa/wanderlust",
+    "license": "MIT",
+    "note": "Requirements paraphrased in English from the repository README/description; no code copied."
+  }
+}

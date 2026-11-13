@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "task_id": "markdown_html_v1",
+  "reference_id": "",
+  "category": "non_web",
+  "request": "Build a Jac library that converts a subset of Markdown to HTML: headings, paragraphs, emphasis and strong, inline code, fenced code blocks, links and unordered lists. Raw HTML in the input is escaped. main.jac reads a Markdown file path from the command line and prints the HTML.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "'# Title' becomes '<h1>Title</h1>', while seven '#' characters stay a paragraph.",
+    "Text inside a fenced code block is not parsed for emphasis and '<' in it becomes '&lt;'.",
+    "'**bold *nested* text**' gives correctly nested strong and em tags; an unclosed '**' is kept literally."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1. This is a Jac library with a command-line entry in main.jac, not a web app.",
+    "No network, no external APIs; the library functions are pure and tested with `jac test`."
+  ],
+  "source": {
+    "repo": "https://github.com/markedjs/marked",
+    "license": "MIT",
+    "note": "Requirements written in English from the project's feature description; no code or text copied. Only one feature slice is reproduced."
+  },
+  "support_files": [
+    {
+      "path": "jac.toml",
+      "purpose": "Configure Jac 0.36.1 with a [project] section (name, version) and entry-point main.jac."
+    }
+  ]
+}

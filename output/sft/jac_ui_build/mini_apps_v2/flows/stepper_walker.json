@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/"}, {"expect_text": ["Room temperature", "20 °C"]}, {"click": "^warmer$"}, {"click": "^warmer$"}, {"expect_text": "22 °C"}, {"click": "^cooler$"}, {"expect_text": "21 °C"}, {"reload": true}, {"expect_text": "21 °C"}, {"click": "^reset$"}, {"expect_text": "20 °C"}]}

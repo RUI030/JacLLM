@@ -93,5 +93,117 @@
         "You are a Jac programming assistant in a chat interface. Put all Jac code in your reply inside a ```jac fenced code block.",
         "You are an expert AI assistant for the jac programming language. This is a chat interface, so write any Jac code you give as a ```jac fenced block.",
         "You are a helpful assistant in a chat window. Respond with Jac code in a ```jac code block."
+    ],
+    "no_image_question":[
+        {
+            "q": "What does the page in the screenshot show?",
+            "what": "what the page shows"
+        },
+        {
+            "q": "Is anything broken or rendered incorrectly here?",
+            "what": "whether anything is broken"
+        },
+        {
+            "q": "What is the exact error message on the screen?",
+            "what": "what the error message says"
+        },
+        {
+            "q": "Does the layout look right on mobile?",
+            "what": "how the mobile layout looks"
+        },
+        {
+            "q": "What color is the main button?",
+            "what": "what color the button is"
+        },
+        {
+            "q": "Did the page load correctly?",
+            "what": "whether the page loaded"
+        },
+        {
+            "q": "Can you read me the heading text?",
+            "what": "what the heading says"
+        },
+        {
+            "q": "How many items are in the list?",
+            "what": "how many items are listed"
+        },
+        {
+            "q": "Which tab is selected in the navigation bar?",
+            "what": "which tab is selected"
+        },
+        {
+            "q": "Does the form show any validation errors?",
+            "what": "whether the form shows errors"
+        },
+        {
+            "q": "Are the numbers in the summary cards formatted correctly?",
+            "what": "how the numbers are formatted"
+        },
+        {
+            "q": "Is the text overlapping or cut off anywhere?",
+            "what": "whether any text overlaps or is cut off"
+        },
+        {
+            "q": "Does this match the design I described earlier?",
+            "what": "whether it matches the design"
+        },
+        {
+            "q": "What's wrong with this page?",
+            "what": "what is wrong with the page"
+        },
+        {
+            "q": "Is the dark mode applied correctly?",
+            "what": "whether dark mode is applied"
+        },
+        {
+            "q": "Which buttons are visible?",
+            "what": "which buttons are visible"
+        }
+    ],
+    "no_image_intro":[
+        "Here's a screenshot of my app.",
+        "I've attached an image of the page.",
+        "See the screenshot below.",
+        "Take a look at this screenshot.",
+        "This is what I see after running the app.",
+        "Screenshot of the current state:",
+        "I took a screenshot of the preview.",
+        ""
+    ],
+    "no_image_tags":[
+        "<image></image>",
+        "<image>\n</image>",
+        "<screenshot></screenshot>",
+        "<img src=\"\" />",
+        "![screenshot]()",
+        "<attachment type=\"image\"></attachment>"
+    ],
+    "no_image_reply_missing":[
+        "I don't see an image in your message, so I can't tell {what}. Could you attach the screenshot again, or paste the text you see on the screen?",
+        "No image came through with your message. I can't tell {what} without seeing it. Please re-attach the screenshot or describe what's on the page.",
+        "There's no screenshot attached, only text. I won't guess {what}. If you re-send the image, or copy the visible text or error here, I can take a look.",
+        "I can't see any image here. Nothing was attached, so I have no way to know {what}. Try attaching it again, or tell me what you're seeing."
+    ],
+    "no_image_reply_empty":[
+        "The `{tag}` in your message is empty, so there's no image for me to look at and I can't tell {what}. Could you attach the actual screenshot?",
+        "Your message has an image placeholder (`{tag}`) but no image content inside it. I can't tell {what} from an empty attachment. Please re-upload the screenshot.",
+        "I only see an empty `{tag}`. The image itself didn't come through, so I don't know {what}. Can you try attaching it again or paste the visible text?"
+    ],
+    "no_image_reply_omitted":[
+        "That screenshot is no longer in my context. It was replaced by a placeholder to save space, so I can't tell {what} from it. I'd need a fresh screenshot to answer.",
+        "The earlier image was dropped from the conversation (only the placeholder is left), so I can't see it anymore and won't guess {what}. Please take a new screenshot.",
+        "I can't see that image any more. It was omitted to save context. To check {what}, I need a new screenshot of the current page."
+    ],
+    "no_image_tool_results":[
+        "",
+        "Screenshot captured.",
+        "[]",
+        "{\"image\": null}",
+        "Screenshot saved."
+    ],
+    "no_image_reply_tool":[
+        "The screenshot tool returned no image, so I can't verify {what}. I won't claim it works without seeing it. I should retake the screenshot or check the page another way.",
+        "The screenshot call came back without an image, so I still don't know {what}. Rather than guess, I'll need to capture the page again.",
+        "I didn't get an image back from the screenshot, so I can't confirm {what}. The result is inconclusive; another screenshot is needed before I can say anything about the page."
     ]
 }

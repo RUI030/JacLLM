@@ -1,0 +1,22 @@
+{
+  "schema_version": "1",
+  "task_id": "memo_visibility_v1",
+  "reference_id": "",
+  "category": "permissions",
+  "request": "Build a small Jac web app for short memos with visibility levels. Each user writes memos that are private (owner only), workspace (any signed-in user) or public (anyone, including anonymous visitors). The feed and single-memo lookups only show what the viewer may see, and only the owner can change a memo's visibility or delete it.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "An anonymous viewer's feed contains only public memos, and fetching a private memo by id returns 'not found', not 'forbidden'.",
+    "A signed-in non-owner sees workspace and public memos but cannot edit or delete them.",
+    "When the owner changes a memo from public to private, it disappears from every other viewer's feed."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Keep the logic deterministic and independent of external APIs."
+  ],
+  "source": {
+    "repo": "https://github.com/usememos/memos",
+    "license": "MIT",
+    "note": "Requirements written in English from the project's feature description; no code or text copied. Only one feature slice is reproduced."
+  }
+}

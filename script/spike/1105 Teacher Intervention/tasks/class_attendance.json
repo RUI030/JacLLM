@@ -1,0 +1,21 @@
+{
+  "schema_version": "1",
+  "task_id": "class_attendance_v1",
+  "reference_id": "",
+  "request": "Build a small Jac web app for class attendance. A teacher creates classes, adds students to a class, and marks each student present or absent for a date. The page shows each student's attendance percentage for their class. Marking the same student twice for one date replaces the earlier mark. Keep the attendance rules in a reusable service.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "Students can be added to a class and marked present or absent for a date.",
+    "Attendance percentage is present days divided by marked days, shown per student.",
+    "A second mark for the same student and date replaces the first."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Keep the logic deterministic and independent of external APIs."
+  ],
+  "source": {
+    "repo": "https://github.com/Yogndrr/MERN-School-Management-System",
+    "license": "none stated",
+    "note": "Requirements paraphrased in English from the repository README/description; no code copied."
+  }
+}

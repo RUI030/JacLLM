@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/profile"}, {"expect_url": "login"}, {"expect_text": "log"}]}

@@ -1,0 +1,70 @@
+{
+ "request": "can you make me a little contacts form? a name box and an email box with an add button, and a table of everyone i add with their name and email. if i leave one empty it should tell me, and the contacts should still be there when i come back",
+ "app_type": "tool",
+ "nav_pattern": "none",
+ "design_rationale": "A contacts form is a quick capture tool: one narrow column with the Name and Email boxes stacked above a plain two-column table, neutral base with an amber accent for the one action, Inter for clear names and addresses, nova's clean density.",
+ "verify": {
+  "flow": "contacts_form",
+  "route": "/",
+  "steps": "Open the form, see No contacts yet, click Add contact with both boxes empty and see Name and email are both needed, add Lin with lin@example.com, see the row and the message gone, reload and see Lin still there."
+ },
+ "titles": {
+  "/": "Contacts"
+ },
+ "screen_kind": {
+  "/": "capture"
+ },
+ "why": {
+  "services/contacts.jac": "Contact node with a name and an email; list_contacts (a walker that lists the contacts on root) and add_contact, which creates a contact and returns it.",
+  "lib/utils.jac": "cn() helper.",
+  "components/ContactBook.jac": "The whole screen: heading, Name and Email boxes, the missing-field message, the Add contact button, the contact table, loading and empty states.",
+  "main.jac": "Registers the contact endpoints, loads global.css and renders the contact book."
+ },
+ "write_reasoning": {
+  "services/contacts.jac": "Backend first: the list is read through a walker, not a def:pub, because a def:pub read is cached on the client. add_contact returns the created node so the client never reads the list again.",
+  "lib/utils.jac": "The cn() helper.",
+  "components/ContactBook.jac": "The component owns all state and loads the list in async can with entry. save_contact is async, awaits add_contact and appends the returned contact to the state instead of refetching.",
+  "main.jac": "Last, main.jac: it imports services.contacts with no leading dot so list_contacts and add_contact are registered, and returns the contact book; one screen needs no router."
+ },
+ "plan_call_reasoning": "Plan the build: one screen with saved data, so a single component and a small server.",
+ "plan_reasoning": "One screen: Name and Email boxes, an Add contact button and a table of contacts in the order added, with a message when a box is empty. Contacts are saved on the server, read through a walker and added with a def:pub that returns the new contact. main.jac last.",
+ "plan_summary": "Build plan written to .jaccoder/build_plan.json: a single-screen capture tool, 3 files leaf-first, contacts on the server with a listing walker, nova/neutral/amber/inter.",
+ "journal": "# Agent journal\n\n## Issues\n- A def:pub list is cached on the client on jac 0.34.28, so contacts are read through the list_contacts walker and the list is updated from the contact add_contact returns.\n\n## Learnings\n- The form's onSubmit handler calls preventDefault, shows Name and email are both needed when either box is empty, otherwise starts the async save, clears the message and empties both boxes.\n- Each box has its own label tied to the input by htmlFor, so it can be filled by its label.\n\n## Last Action\nBuilt Contacts: Name and Email boxes with an Add contact button and a table of contacts that loads on open. The preview renders, an empty add shows the message, and adding Lin with lin@example.com puts her in the table.\n",
+ "final": "Contacts is running: fill in a name and an email, press Add contact and the contact joins the table, and the list is still there after a reload. Pressing Add contact with an empty box shows Name and email are both needed; I added Lin with lin@example.com and the message went away.\n\n**Next steps**\n- Remove a contact\n- Check that the email looks like an address\n- Search the contacts by name",
+ "browser": [
+  {
+   "open": "/",
+   "why": "The coverage block names the core flow: open the form, try an empty add, then exercise add_contact."
+  },
+  {
+   "do": [
+    {
+     "click": "^Add contact",
+     "roles": [
+      "button"
+     ]
+    }
+   ],
+   "why": "Add with both boxes empty and check the missing-field message."
+  },
+  {
+   "do": [
+    {
+     "fill": "^Name",
+     "value": "Lin"
+    },
+    {
+     "fill": "^Email",
+     "value": "lin@example.com"
+    },
+    {
+     "click": "^Add contact",
+     "roles": [
+      "button"
+     ]
+    }
+   ],
+   "why": "Fill both boxes and add the contact, then check the row and that the message is gone."
+  }
+ ]
+}

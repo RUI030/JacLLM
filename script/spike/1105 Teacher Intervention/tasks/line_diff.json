@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "task_id": "line_diff_v1",
+  "reference_id": "",
+  "category": "non_web",
+  "request": "Build a Jac library that computes a minimal line diff between two texts, renders it as a unified diff with 3 context lines, and applies a unified diff to the original text. main.jac diffs two files given on the command line.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "Diffing identical texts gives no changes and an empty unified diff.",
+    "Applying diff(a, b) to a always gives back b exactly, including when b has no trailing newline.",
+    "Applying a patch whose context lines do not match fails with an error and produces no partial output."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1. This is a Jac library with a command-line entry in main.jac, not a web app.",
+    "No network, no external APIs; the library functions are pure and tested with `jac test`."
+  ],
+  "source": {
+    "repo": "https://github.com/kpdecker/jsdiff",
+    "license": "BSD-3-Clause",
+    "note": "Requirements written in English from the project's feature description; no code or text copied. Only one feature slice is reproduced."
+  },
+  "support_files": [
+    {
+      "path": "jac.toml",
+      "purpose": "Configure Jac 0.36.1 with a [project] section (name, version) and entry-point main.jac."
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "schema_version": "1",
+  "task_id": "chat_memory_v1",
+  "reference_id": "",
+  "category": "llm",
+  "request": "Build a small Jac web app that remembers facts about each user from their chat messages. After each message the model extracts short facts (for example 'prefers tea'); for each fact a model decision returns ADD, UPDATE (replace a conflicting memory) or NOOP. Users can search their memories by keyword.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "When the decision is UPDATE for 'prefers coffee' over 'prefers tea', the user has exactly one drink preference and it is coffee.",
+    "A NOOP decision leaves the memory count unchanged; a message with no facts writes nothing.",
+    "User A's memories never appear in user B's search."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Call the model through byLLM (`by llm`); tests use MockLLM with scripted outputs and never call a real model or the network."
+  ],
+  "source": {
+    "repo": "https://github.com/mem0ai/mem0",
+    "license": "Apache-2.0",
+    "note": "Requirements written in English from the project's feature description; no code or text copied. Only one feature slice is reproduced."
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "task_id": "cron_next_v1",
+  "reference_id": "",
+  "category": "non_web",
+  "request": "Build a Jac library that parses 5-field cron expressions (numbers, ranges, steps, lists and '*') and returns the next N run times after a given datetime. Invalid expressions raise an error naming the bad field. main.jac takes an expression, a start time and N on the command line and prints the times.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "'*/15 9-17 * * 1-5' from Friday 17:50 next fires Monday 09:00.",
+    "'0 0 31 * *' from January 31 00:00 next fires March 31 00:00, skipping February.",
+    "'61 * * * *' is rejected with an error naming the minute field; a step of 0 is rejected."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1. This is a Jac library with a command-line entry in main.jac, not a web app.",
+    "No network, no external APIs; the library functions are pure and tested with `jac test`."
+  ],
+  "source": {
+    "repo": "https://github.com/harrisiirak/cron-parser",
+    "license": "MIT",
+    "note": "Requirements written in English from the project's feature description; no code or text copied. Only one feature slice is reproduced."
+  },
+  "support_files": [
+    {
+      "path": "jac.toml",
+      "purpose": "Configure Jac 0.36.1 with a [project] section (name, version) and entry-point main.jac."
+    }
+  ]
+}

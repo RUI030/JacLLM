@@ -1,0 +1,21 @@
+{
+  "schema_version": "1",
+  "task_id": "user_roster_v1",
+  "reference_id": "",
+  "request": "Build a small Jac web app that manages a roster of users. Each user has a name and a username. A visitor can add a user, edit a user's name and username in place, and delete a user. Usernames are unique, ignoring case. Keep the roster logic in a reusable service.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "Add, edit and delete users from the page.",
+    "A second user with the same username in different case is rejected.",
+    "The roster persists across restarts."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Keep the logic deterministic and independent of external APIs."
+  ],
+  "source": {
+    "repo": "https://github.com/taniarascia/react-hooks",
+    "license": "MIT (README)",
+    "note": "Requirements paraphrased in English from the repository README/description; no code copied."
+  }
+}

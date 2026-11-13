@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/"}, {"expect_text": ["Pancakes", "Tomato soup"]}, {"click": "Pancakes"}, {"expect_url": "/recipes/"}, {"expect_text": "200 g flour"}, {"click": "^\\+$"}, {"click": "^\\+$"}, {"expect_text": "400 g flour"}, {"click": "All recipes"}, {"expect_text": "Tomato soup"}]}

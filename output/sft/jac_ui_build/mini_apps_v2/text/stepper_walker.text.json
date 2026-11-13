@@ -1,0 +1,73 @@
+{
+ "request": "can you make a small room temperature screen? it starts at 20 degrees, with Warmer, Cooler and Reset buttons, and it should keep the value on the server so it's still there after a reload",
+ "app_type": "tool",
+ "nav_pattern": "none",
+ "design_rationale": "A thermostat dial should be calm and centred so the number is read first: a single card, neutral base, a large tabular value and three clear buttons, the primary one for Warmer.",
+ "verify": {
+  "flow": "stepper_walker",
+  "route": "/",
+  "steps": "Open the page and see 20 °C, click Warmer twice for 22 °C, click Cooler for 21 °C, reload and still see 21 °C, click Reset and see 20 °C."
+ },
+ "titles": {
+  "/": "Room temperature"
+ },
+ "screen_kind": {
+  "/": "capture"
+ },
+ "why": {
+  "services/room.jac": "RoomDial node holding the degrees; four walkers: open_room reads, warm_up, cool_down and reset_room each change it and report it.",
+  "lib/utils.jac": "cn() helper.",
+  "components/RoomPanel.jac": "The whole screen: the Room temperature heading, the value as N °C, and the Warmer, Cooler and Reset buttons.",
+  "main.jac": "Registers the room walkers, loads global.css and renders the panel."
+ },
+ "write_reasoning": {
+  "services/room.jac": "Endpoints are walkers in services/ that take no arguments, one per action plus one reader, each visiting the single node under root. Each creates the node only when root has none.",
+  "lib/utils.jac": "The cn() helper, unchanged from the template.",
+  "components/RoomPanel.jac": "Server calls are spawned only inside async can with entry and async handlers. Each handler sets the state from the node the walker reports instead of reading again.",
+  "main.jac": "It imports the walkers from services.room with no leading dot so they are registered on the server, then returns the panel; one screen needs no router."
+ },
+ "plan_call_reasoning": "Plan the build: one screen with one saved number, so a single panel component and a small walker server.",
+ "plan_reasoning": "One screen: a heading, the value in °C and three buttons. The value lives in one node under root; one walker reads it and three change it and report it. main.jac last.",
+ "plan_summary": "Build plan: a single-screen room temperature panel, 3 files leaf-first, the value on the server behind four walkers.",
+ "journal": "# Agent journal\n\n## Issues\n- Endpoints are walkers so they must live in services/ and be named in main.jac's import, or root spawn gives 405.\n\n## Learnings\n- open_room creates the RoomDial node only when root has none, so the first visit shows 20 °C.\n- Each action walker reports the updated node, so the panel sets the value from result.reports[0] without a second read.\n\n## Last Action\nBuilt Room temperature: a centred card with the value and Warmer, Cooler and Reset buttons backed by four walkers.\n",
+ "final": "Room temperature is running: the card shows the saved value and each button changes it on the server. Warmer twice then Cooler gives 21 °C, which survives a reload, and Reset returns to 20 °C.\n\n**Next steps**\n- Add minimum and maximum limits\n- Switch between °C and °F\n- Show when the value last changed",
+ "browser": [
+  {
+   "open": "/",
+   "why": "Open the page and expect 20 °C."
+  },
+  {
+   "do": [
+    {
+     "click": "^Warmer",
+     "roles": [
+      "button"
+     ]
+    }
+   ],
+   "why": "Click Warmer; the value should read 21 °C."
+  },
+  {
+   "do": [
+    {
+     "click": "^Warmer",
+     "roles": [
+      "button"
+     ]
+    }
+   ],
+   "why": "Click Warmer again; the value should read 22 °C."
+  },
+  {
+   "do": [
+    {
+     "click": "^Cooler",
+     "roles": [
+      "button"
+     ]
+    }
+   ],
+   "why": "Click Cooler; the value should read 21 °C."
+  }
+ ]
+}

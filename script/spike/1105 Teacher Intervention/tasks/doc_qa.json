@@ -1,0 +1,22 @@
+{
+  "schema_version": "1",
+  "task_id": "doc_qa_v1",
+  "reference_id": "",
+  "category": "llm",
+  "request": "Build a small Jac web app for asking questions about uploaded text documents. Documents are split into overlapping chunks; a question retrieves the best-matching chunks by keyword overlap and asks the model, which answers with the ids of the chunks it used. Documents can be deleted.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "A 1000-character document with chunk size 400 and overlap 100 gives exactly 3 chunks, and neighbouring chunks share 100 characters.",
+    "A question that matches no chunk returns 'not found in documents' without calling the model.",
+    "Every cited chunk id is one of the retrieved chunks; a deleted document's chunks are never retrieved."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Call the model through byLLM (`by llm`); tests use MockLLM with scripted outputs and never call a real model or the network."
+  ],
+  "source": {
+    "repo": "https://github.com/zylon-ai/private-gpt",
+    "license": "Apache-2.0",
+    "note": "Requirements written in English from the project's feature description; no code or text copied. Only one feature slice is reproduced."
+  }
+}

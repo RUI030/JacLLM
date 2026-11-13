@@ -1,0 +1,22 @@
+{
+  "schema_version": "1",
+  "task_id": "markdown_editor_v1",
+  "reference_id": "",
+  "category": "frontend",
+  "request": "Build a small Jac web app with a split-pane Markdown editor: text on the left, rendered preview on the right. Toolbar buttons (bold, italic, heading, list, link) wrap or prefix the current selection, and word and character counts update as the user types. Keep the text transforms as plain functions that are tested on their own.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "Bold on 'hi' in 'say hi now' gives 'say **hi** now' with 'hi' still selected; bold again removes the markers.",
+    "Bold with an empty selection inserts '****' with the cursor between the pairs.",
+    "The list button on a 3-line selection prefixes each line with '- '; the word count ignores Markdown symbols."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Keep the logic deterministic and independent of external APIs."
+  ],
+  "source": {
+    "repo": "https://github.com/uiwjs/react-md-editor",
+    "license": "MIT",
+    "note": "Requirements written in English from the project's feature description; no code or text copied. Only one feature slice is reproduced."
+  }
+}

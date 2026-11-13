@@ -1,0 +1,1 @@
+Build a simple todo list web app. Users can add a new todo item via a text input and a button; added items appear in a list below. Keep styling minimal — a clean, readable single-page layout, no need for elaborate visual design. Validate in the browser that the app loads without errors and that adding an item causes it to appear in the list.

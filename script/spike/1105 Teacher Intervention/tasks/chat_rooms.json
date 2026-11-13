@@ -1,0 +1,23 @@
+{
+  "schema_version": "1",
+  "task_id": "chat_rooms_v1",
+  "reference_id": "",
+  "category": "realtime",
+  "request": "Build a small Jac web app with chat rooms. Users join and leave named rooms and send messages to a room. Each room keeps its message log in order and the set of users present. Joining a room delivers its last 20 messages to the new member and announces the join to the others.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "A message sent to room A reaches every other member of A and no member of room B.",
+    "A user who joins after 25 messages receives exactly the last 20, oldest first.",
+    "Sending to a room the user has not joined is rejected; leaving twice sends only one 'left' event."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Deliver events through an in-process event bus that tests can subscribe to; no sockets, no network, no background servers.",
+    "Keep the logic deterministic: time is passed in, never read from the clock inside the rules."
+  ],
+  "source": {
+    "repo": "https://github.com/socketio/socket.io",
+    "license": "MIT",
+    "note": "Requirements written in English from the project's feature description; no code or text copied. Only one feature slice is reproduced."
+  }
+}

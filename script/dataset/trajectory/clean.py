@@ -168,8 +168,9 @@ def apply_rules(msgs: list[dict], info: dict, R: Counter) -> str:
     own = [m for m in msgs if m["role"] == "assistant" and m["origin"] == "own"]
     seq = [(m, cid, n, a) for m in own for cid, n, a in m["calls"]]
     rtext = lambda cid: res[cid]["text"] if cid in res else ""
-    # D1 / D2: delete calls that cannot carry new information
+    # D1 / D2 / D3: delete calls that cannot carry new information
     seen, last_status = {}, None
+    done = {}                                    # D3: (name, args) -> (result, images) since the last file change
     ui_edited, last_do = False, None             # M7: UI edit not yet validated; (args, result) of the last browser_do
     for i, (m, cid, n, a) in enumerate(seq):
         key = (n, json.dumps(a, sort_keys=True))
@@ -180,6 +181,13 @@ def apply_rules(msgs: list[dict], info: dict, R: Counter) -> str:
         elif n == "read_file" and i and seq[i - 1][2] == "write_code" and seq[i - 1][3].get("file_path") == a.get("file_path") \
                 and rtext(seq[i - 1][1]).startswith("OK") and "ERRORS:" not in rtext(seq[i - 1][1]):
             m.setdefault("delete", set()).add(cid); R["D2 re-read right after a clean write_code (calls)"] += 1
+        elif n not in EDIT_TOOLS and not SHELL_WRITE.search(cmd) and cid in res \
+                and done.get(key) == (rtext(cid), res[cid]["images"]):
+            m.setdefault("delete", set()).add(cid); R["D3 same call, same result, no file change between (calls)"] += 1
+        if n in EDIT_TOOLS or SHELL_WRITE.search(cmd):
+            done = {}                            # files changed: the same result now says the change did nothing
+        elif cid in res:
+            done[key] = (rtext(cid), res[cid]["images"])
         if ro:
             seen[key] = i
         else:
@@ -360,7 +368,8 @@ def stats(in_dir: str, tok_name: str) -> None:
     n = len(files)
     print(f"turns {n}: " + ", ".join(f"{k} {v}" for k, v in fates.most_common()))
     print(f"trainable tokens before cleaning (own assistant text+reasoning+args): {R['trainable tokens before cleaning']:,}")
-    for k in ("D1 redundant read-only repeat (calls)", "D2 re-read right after a clean write_code (calls)"):
+    for k in ("D1 redundant read-only repeat (calls)", "D2 re-read right after a clean write_code (calls)",
+              "D3 same call, same result, no file change between (calls)"):
         print(f"  deleted: {k} {R[k]}")
     for w in WINDOWS:
         S = W[w]

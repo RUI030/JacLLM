@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/"}, {"expect_text": "Liftoff"}, {"click": "schedule"}, {"expect_text": ["Yoga", "Climbing", "Strength"]}, {"click": "^Yoga$"}, {"full_page": true}, {"click_link": "/class"}, {"click": "^Book"}, {"click": "My bookings"}, {"expect_text": "Cancel"}]}

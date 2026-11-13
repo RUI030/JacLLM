@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/"}, {"expect_text": ["Tip calculator", "Tip: $0.00", "Total: $0.00"]}, {"fill": {"label": "^bill$", "value": "50"}}, {"click": "^20%$"}, {"expect_text": ["Tip: $10.00", "Total: $60.00"]}, {"click": "^10%$"}, {"expect_text": ["Tip: $5.00", "Total: $55.00"]}]}

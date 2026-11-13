@@ -1,0 +1,23 @@
+{
+  "schema_version": "1",
+  "task_id": "route_finder_v1",
+  "reference_id": "",
+  "category": "graph",
+  "request": "Build a small Jac web app for finding the fastest route between transit stations. Stations are connected by links with a travel time in minutes; a link can be one-way. A user asks for the fastest route between two stations and gets the ordered list of stations and the total time. Links can be closed and reopened, and routing avoids closed links.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "With A-C costing 10 and A-B-C costing 3+4, the route from A to C is A, B, C with total 7.",
+    "A route between unconnected stations returns 'no route' instead of an error; the route from a station to itself is just that station with total 0.",
+    "A one-way link B->A is never used to travel from A to B, and a closed link is skipped until it is reopened."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Model the entities as nodes and the relations as edges; traverse them with walkers or graph queries.",
+    "Keep the logic deterministic and independent of external APIs."
+  ],
+  "source": {
+    "repo": "https://github.com/anvaka/ngraph.path",
+    "license": "MIT",
+    "note": "Requirements written in English from the project's feature description; no code or text copied. Only one feature slice is reproduced."
+  }
+}

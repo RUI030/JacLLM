@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/"}, {"expect_text": ["Appearance", "Theme: light"]}, {"click": "^switch to dark$"}, {"expect_text": "Theme: dark"}, {"click": "^switch to light$"}, {"expect_text": "Theme: light"}]}

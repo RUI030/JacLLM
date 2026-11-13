@@ -1,0 +1,21 @@
+{
+  "schema_version": "1",
+  "task_id": "task_board_v1",
+  "reference_id": "",
+  "request": "Build a small Jac web app for a personal task board. A task has a title, a priority (low, medium or high), a due date and a status (todo, in progress or done). The user can add tasks, move a task to another status, delete it, and see the board grouped by status with high-priority tasks first in each group. Keep the task rules in a reusable service.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "A task needs a non-empty title and one of the three priorities; anything else is rejected.",
+    "Moving a task changes only its status.",
+    "Within each status group, tasks are ordered high, medium, low, then by due date."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Keep the logic deterministic and independent of external APIs."
+  ],
+  "source": {
+    "repo": "https://github.com/codexanjan/taskflow",
+    "license": "MIT",
+    "note": "Requirements paraphrased in English from the repository README/description; no code copied."
+  }
+}

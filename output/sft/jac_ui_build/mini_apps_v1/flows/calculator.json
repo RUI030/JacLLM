@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/"}, {"expect_text": "Calculator"}, {"click": "^7$"}, {"click": "^\\+$"}, {"click": "^5$"}, {"click": "^=$"}, {"expect_text": "12"}, {"click": "^C$"}, {"click": "^9$"}, {"click": "^6$"}, {"click": "^÷$"}, {"click": "^4$"}, {"click": "^=$"}, {"expect_text": "24"}]}

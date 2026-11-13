@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/"}, {"expect_text": ["Tea or coffee?", "Tea: 0", "Coffee: 0"]}, {"click": "^vote tea$"}, {"click": "^vote tea$"}, {"click": "^vote coffee$"}, {"expect_text": ["Tea: 2", "Coffee: 1"]}, {"reload": true}, {"expect_text": ["Tea: 2", "Coffee: 1"]}]}

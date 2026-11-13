@@ -1,0 +1,7 @@
+{
+  "scenario_id": "ui_landing",
+  "sentinel": false,
+  "stages": [
+    "stage_1.md"
+  ]
+}

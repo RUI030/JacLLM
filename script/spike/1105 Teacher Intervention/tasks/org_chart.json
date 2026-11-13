@@ -1,0 +1,23 @@
+{
+  "schema_version": "1",
+  "task_id": "org_chart_v1",
+  "reference_id": "",
+  "category": "graph",
+  "request": "Build a small Jac web app for a company org chart. Employees report to one manager, and there is exactly one CEO at the top. Users add an employee under a manager, move a person together with everyone under them to a new manager, remove an employee, and look up a person's chain of command and all of their direct and indirect reports. The page shows the chart as a nested tree.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "Moving a manager under one of their own indirect reports is rejected and the chart stays unchanged.",
+    "The chain of command of the CEO is empty; for an employee three levels down it lists exactly three managers, nearest first.",
+    "Removing an employee who has reports re-attaches those reports to the removed employee's manager; removing the CEO is rejected."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Model the entities as nodes and the relations as edges; traverse them with walkers or graph queries.",
+    "Keep the logic deterministic and independent of external APIs."
+  ],
+  "source": {
+    "repo": "https://github.com/dabeng/OrgChart",
+    "license": "MIT",
+    "note": "Requirements written in English from the project's feature description; no code or text copied. Only one feature slice is reproduced."
+  }
+}

@@ -1,0 +1,73 @@
+{
+ "request": "make me a simple stopwatch. one screen, shows the time like 0:00 and counts up every second, with start, stop and reset buttons. and a little line that says if it's running or stopped",
+ "app_type": "tool",
+ "nav_pattern": "none",
+ "design_rationale": "A stopwatch is glanced at from a distance, so one centred card with a very large tabular-number readout and three equal buttons; the template's nova/neutral/green/outfit kept as is, with green marking the running state.",
+ "verify": {
+  "flow": "timer",
+  "route": "/",
+  "steps": "Open the stopwatch, see 0:00 and Stopped, press Start and see Running, press Stop and see Stopped, press Reset and see 0:00."
+ },
+ "titles": {
+  "/": "Stopwatch"
+ },
+ "screen_kind": {
+  "/": "monitor"
+ },
+ "why": {
+  "lib/utils.jac": "cn() helper.",
+  "components/Ticker.jac": "Owns the one interval: mounted only while running, it calls onTick every second and clears the interval when it unmounts.",
+  "components/Stopwatch.jac": "The whole screen: Stopwatch heading, the M:SS readout, the Running or Stopped line and the Start, Stop and Reset buttons.",
+  "main.jac": "Loads global.css and renders the stopwatch; there is no server module."
+ },
+ "write_reasoning": {
+  "lib/utils.jac": "The cn() helper.",
+  "components/Ticker.jac": "Leaf first: setInterval and clearInterval sit in one manual useEffect whose body returns the cleanup, because entry and exit blocks are separate closures. Mounting it only while running means a second Start cannot add a second interval.",
+  "components/Stopwatch.jac": "The tick reads the count from a module glob and assigns the returned value to seconds, so the interval never reads a stale has field. The handlers are plain def because nothing here calls the server.",
+  "main.jac": "This app is client-only: no `services/` folder and no services import in `main.jac`. It loads global.css and returns the stopwatch; one screen needs no router."
+ },
+ "plan_call_reasoning": "Plan the build: one client-only screen with a timer, so a stopwatch component, a small ticker component for the interval, and no server.",
+ "plan_reasoning": "One screen: heading, M:SS readout, status line and three buttons. All state is on the client; the interval lives in a Ticker that is mounted while running so its cleanup stops it. main.jac last.",
+ "plan_summary": "Build plan written to .jaccoder/build_plan.json: a single client-only screen, 4 files leaf-first, interval in a mounted Ticker with useEffect cleanup, nova/neutral/green/outfit.",
+ "journal": "# Agent journal\n\n## Issues\n- can with entry and can with exit compile to separate closures, so an interval id from entry is invisible in exit; the interval uses one manual useEffect that returns the clearInterval cleanup.\n- The interval callback is created once, so it would read a stale seconds field; the count lives in a module glob and the tick assigns the returned value.\n\n## Learnings\n- Mounting the Ticker only while running ties the interval to Start and Stop, and a second Start leaves the single mounted Ticker alone.\n- Reset stops the Ticker and sets the glob and the readout back to 0.\n\n## Last Action\nBuilt the stopwatch: 0:00 readout counting up once a second, Start, Stop and Reset, and a Running or Stopped line. The preview renders and Start, Stop and Reset switch the status as expected.\n",
+ "final": "Your stopwatch is running: Start counts up once a second, Stop pauses it, Reset puts it back to 0:00, and the line under the time says Running or Stopped. Pressing Start again while it runs changes nothing.\n\n**Next steps**\n- Add lap times\n- Show tenths of a second\n- Add a countdown mode",
+ "browser": [
+  {
+   "open": "/",
+   "why": "The coverage block names the core flow: open the stopwatch and check it starts at 0:00, Stopped."
+  },
+  {
+   "do": [
+    {
+     "click": "^Start",
+     "roles": [
+      "button"
+     ]
+    }
+   ],
+   "why": "Start the stopwatch and see Running."
+  },
+  {
+   "do": [
+    {
+     "click": "^Stop",
+     "roles": [
+      "button"
+     ]
+    }
+   ],
+   "why": "Pause it and see Stopped."
+  },
+  {
+   "do": [
+    {
+     "click": "^Reset",
+     "roles": [
+      "button"
+     ]
+    }
+   ],
+   "why": "Reset it and see 0:00 again."
+  }
+ ]
+}

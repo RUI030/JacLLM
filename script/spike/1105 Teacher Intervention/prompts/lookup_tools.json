@@ -1,0 +1,107 @@
+[
+ {
+  "type": "function",
+  "function": {
+   "name": "list_files",
+   "description": "List files matching a glob pattern.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "directory": {
+      "type": "string",
+      "description": "<class 'str'>"
+     },
+     "pattern": {
+      "type": "string",
+      "description": "<class 'str'>"
+     }
+    },
+    "required": [
+     "directory",
+     "pattern"
+    ],
+    "additionalProperties": false
+   }
+  }
+ },
+ {
+  "type": "function",
+  "function": {
+   "name": "grep_search",
+   "description": "Regex search across files.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "pattern": {
+      "type": "string",
+      "description": "<class 'str'>"
+     },
+     "path": {
+      "type": "string",
+      "description": "<class 'str'>"
+     },
+     "file_pattern": {
+      "type": "string",
+      "description": "<class 'str'>"
+     },
+     "max_results": {
+      "type": "integer",
+      "description": "<class 'int'>"
+     }
+    },
+    "required": [
+     "pattern",
+     "path",
+     "file_pattern",
+     "max_results"
+    ],
+    "additionalProperties": false
+   }
+  }
+ },
+ {
+  "type": "function",
+  "function": {
+   "name": "find_symbol",
+   "description": "Look up where a named symbol is defined and used across a Jac project. Returns: every definition with file, line, and kind; fields and abilities (for archetypes); walkers that visit it (for nodes); every use location. Use this BEFORE grep when you need to find or trace a specific symbol — it reads the compiler's symbol table, so it never matches strings inside comments or unrelated identifiers.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "name": {
+      "type": "string",
+      "description": "The symbol name to look up (e.g. 'User', 'create_post', 'LoginForm')"
+     },
+     "directory": {
+      "type": "string",
+      "description": "Root directory of the Jac project to search"
+     }
+    },
+    "required": [
+     "name",
+     "directory"
+    ],
+    "additionalProperties": false
+   }
+  }
+ },
+ {
+  "type": "function",
+  "function": {
+   "name": "analyze_project",
+   "description": "First step for understanding a Jac project. Returns every archetype (node, walker, edge, obj, class) in one call, grouped by kind, with each one's fields, abilities, base classes, and source location. Use this BEFORE reading individual files when asked to summarize, explain, map, or understand a Jac project — it answers in one tool call what would otherwise need many read_file calls.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "directory": {
+      "type": "string",
+      "description": "Root directory of the Jac project to analyze"
+     }
+    },
+    "required": [
+     "directory"
+    ],
+    "additionalProperties": false
+   }
+  }
+ }
+]

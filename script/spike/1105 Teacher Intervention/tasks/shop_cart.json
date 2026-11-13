@@ -1,0 +1,21 @@
+{
+  "schema_version": "1",
+  "task_id": "shop_cart_v1",
+  "reference_id": "",
+  "request": "Build a small Jac web app for an online store. An admin adds products with a name, a price and a stock count. A shopper adds products to a cart, changes quantities, sees the cart total, and checks out, which creates an order and reduces stock. A cart quantity above the available stock is rejected. Keep the cart and order rules in a reusable service.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "The cart total is the sum of price times quantity.",
+    "Checkout creates an order and reduces each product's stock by the ordered quantity.",
+    "A quantity above the available stock is rejected and the cart is unchanged."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Keep the logic deterministic and independent of external APIs."
+  ],
+  "source": {
+    "repo": "https://github.com/HuXn-WebDev/MERN-E-Commerce-Store",
+    "license": "none stated",
+    "note": "Requirements paraphrased in English from the repository README/description; no code copied."
+  }
+}

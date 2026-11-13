@@ -1,6 +1,7 @@
 # Data Source
 Where every dataset comes from, one row each. Formats and fields live in `DATASET.md`; per-set counts in each `statistic.json`.
 Update this table whenever a dataset is added under `dataset/` or a new upstream is pulled into `dataset/raw/`.
+Data trained after v1.35 (revdev, prod-64k, the teacher-intervention spike), with token counts and app overlaps: `DATA_AFTER_V135.md`.
 
 Column meaning:
 - **Upstream**: the original public/external origin (HF dataset, GitHub, docs). `?` = not verified yet.
@@ -67,3 +68,13 @@ Downloaded with `hf download <repo> --repo-type dataset --local-dir dataset/raw/
 | --- | --- | --- | --- | --- |
 | [`KodCode/KodCode-V1`](https://huggingface.co/datasets/KodCode/KodCode-V1) (imported: `rl/functions/kodcode-1k`) | 484K train + 3.3K `use_with_caution` (local: `dataset/raw/hf/KodCode-V1/`) | `question`, Python `solution`, pytest `test`, `test_info` (fn name/signature/docstring), `gpt_difficulty`, `subset` (12), `benchmark_similarity` | CC BY-NC 4.0 (non-commercial) | RL `functions`: convert solution + asserts to Jac, keep only rows whose `solution.jac` passes `jac test`. `Package`/`Docs` subsets need their pip packages in the grader env |
 | [`nuprl/MultiPL-T`](https://huggingface.co/datasets/nuprl/MultiPL-T) | 133K Python fns | Python fn + tests (coverage ≥ 90%) | per-file (The Stack) | Already the py2jac upstream; remaining rows could also seed RL tasks |
+
+## Local reviewed pilot datasets
+
+| Dataset | Rows | Upstream | Producer | Verification / status |
+| --- | --- | --- | --- | --- |
+| `sft/jacbuilder/debug-pilot-v1` (local-only, gitignored) | 2 reviewed train rows; original 2-row review export retained; no valid split | JacBuilder synthetic debugging pilot, immutable external snapshot; no production user traces | `script/dataset/sft/jacbuilder.py`, then `review_jacbuilder.py` | Codex agent approved only two exact import edits after fresh pinned-Jac replay, original assertions, 7 extra inputs per edit and actual loss-mask checks. 217 target tokens; historical assistant weights 0. Same template family; not evidence of generalized debugging/offset improvement. |
+| `sft/jacbuilder/debug-pilot-v2-projected` (local-only, gitignored) | 2 derived train rows; no valid split | Exact SHA-verified approved v1 train; no new raw source | `script/dataset/sft/project_jacbuilder.py`, then `check_project_jacbuilder.py` | Exact repeated Student-system lines in the handoff replaced by Teacher-system references, with reversible mapping. 82,229 to 50,437 rendered tokens; the same 217 target token IDs. See the dataset's `projection_manifest.json` and `validation.json`. A one-step GPU SFT plumbing smoke is recorded in `docs/JACBUILDER_DEBUG_SFT_SMOKE.md`; it is not a generalization claim. |
+| `sft/jacbuilder/live-teacher-candidate-audit-v1` (local-only, gitignored) | No train rows; three replay-audited candidates | Archived live Opus Teacher pilot with scripted Student failures | `script/dataset/sft/audit_live_teacher_candidates.py` | Three exact repairs pass baseline-failure, compiler, original behavior and extra-input checks in fresh pinned-Jac workspaces. Read-before-edit observed; no SFT action approved. See `docs/JACBUILDER_LIVE_TEACHER_CANDIDATES.md`. |
+
+The four fresh real-Student diversity controls in `docs/JACBUILDER_REAL_STUDENT_DIVERSITY_PILOT.md` all self-repaired under independent checks. They added no Teacher targets or train rows. Their raw trajectories remain local-only under `output/jacbuilder_collection/`.

@@ -1,0 +1,22 @@
+{
+  "schema_version": "1",
+  "task_id": "expense_tracker_v1",
+  "reference_id": "",
+  "request": "Build a small Jac web app for tracking personal expenses. An expense has a title, an amount, a category and a date. The user can add, edit and delete expenses, see the total for the current month, and see totals per category for a chosen month. Keep the expense rules in a reusable service.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "Amounts must be positive; an expense with a zero or negative amount is rejected.",
+    "The monthly total is the sum of that month's expenses only.",
+    "Per-category totals for a month add up to that month's total.",
+    "Editing an expense updates the totals."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Keep the logic deterministic and independent of external APIs."
+  ],
+  "source": {
+    "repo": "https://github.com/shamahoque/mern-expense-tracker",
+    "license": "MIT",
+    "note": "Requirements paraphrased in English from the repository README/description; no code copied."
+  }
+}

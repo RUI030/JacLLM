@@ -1,0 +1,62 @@
+{
+ "request": "can you make a tiny likes counter? just a like button and the number of likes under a heading, and it should remember the count on the server so it's still there when i reload",
+ "app_type": "tool",
+ "nav_pattern": "none",
+ "design_rationale": "A one-button counter should be calm and centred so the number is the first thing you see: neutral base with a green accent for the button, Outfit for a friendly large number, nova's clean density on a single card.",
+ "verify": {
+  "flow": "add_like",
+  "route": "/",
+  "steps": "Open the page and see 0 likes, click Like twice and see 1 like then 2 likes, reload and still see 2 likes."
+ },
+ "titles": {
+  "/": "Likes"
+ },
+ "screen_kind": {
+  "/": "capture"
+ },
+ "why": {
+  "services/likes.jac": "LikeCount node with the total; open_likes (a walker that creates the counter under root on first visit and reports it) and add_like (a walker that adds one and reports the counter).",
+  "lib/utils.jac": "cn() helper.",
+  "components/LikesCard.jac": "The whole screen: the Likes heading, the current count as N likes, the Like button, loading and error text.",
+  "main.jac": "Registers the like walkers, loads global.css and renders the card."
+ },
+ "write_reasoning": {
+  "services/likes.jac": "Backend first: both endpoints are walkers in services/ that visit the counter node under root, so the client spawns them and reads .reports. open_likes creates the node only when root has none.",
+  "lib/utils.jac": "The cn() helper.",
+  "components/LikesCard.jac": "The card owns the state and spawns open_likes in async can with entry. The Like handler is async because the spawn is awaited, and it sets the total from the counter add_like reports instead of reading again.",
+  "main.jac": "Last, main.jac: it imports the walkers from services.likes with no leading dot so they are registered on the server, and returns the card; one screen needs no router."
+ },
+ "plan_call_reasoning": "Plan the build: one screen with one saved number, so a single card component and a small walker server.",
+ "plan_reasoning": "One screen: a Likes heading, the count and a Like button. The count lives in one node under root; a walker reads it (creating it on first visit) and another adds one and reports it. main.jac last.",
+ "plan_summary": "Build plan written to .jaccoder/build_plan.json: a single-screen counter, 3 files leaf-first, the count on the server behind two walkers, nova/neutral/green/outfit.",
+ "journal": "# Agent journal\n\n## Issues\n- Endpoints are walkers so they must live in services/ and be named in main.jac's import, or root spawn gives 405.\n\n## Learnings\n- open_likes creates the LikeCount node only when root has none, so the first visit shows 0 likes.\n- add_like reports the updated node, so the card sets the count from result.reports[0] without a second read.\n- The label is a render local: 1 like for one, N likes otherwise.\n\n## Last Action\nBuilt Likes: a centred card with the count and a Like button backed by two walkers. The preview shows 0 likes, two clicks give 2 likes, and the count survives a reload.\n",
+ "final": "Likes is running: the card shows the saved count and each click on Like adds one on the server. I clicked twice, saw 2 likes, and it was still 2 likes after a reload.\n\n**Next steps**\n- Add an unlike button\n- Count likes per signed-in user\n- Show when the last like came in",
+ "browser": [
+  {
+   "open": "/",
+   "why": "The coverage block names the core flow: open the page and exercise add_like twice."
+  },
+  {
+   "do": [
+    {
+     "click": "^Like",
+     "roles": [
+      "button"
+     ]
+    }
+   ],
+   "why": "Click Like once; the count should read 1 like."
+  },
+  {
+   "do": [
+    {
+     "click": "^Like",
+     "roles": [
+      "button"
+     ]
+    }
+   ],
+   "why": "Click Like again; the count should read 2 likes."
+  }
+ ]
+}

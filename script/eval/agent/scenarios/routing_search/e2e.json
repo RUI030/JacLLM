@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/"}, {"fill": {"nth": 0, "value": "a"}}, {"press": "Enter"}, {"expect_url": "a"}, {"reload": true}, {"expect_url": "a"}]}

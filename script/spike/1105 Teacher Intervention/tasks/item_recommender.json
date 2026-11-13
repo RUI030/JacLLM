@@ -1,0 +1,23 @@
+{
+  "schema_version": "1",
+  "task_id": "item_recommender_v1",
+  "reference_id": "",
+  "category": "graph",
+  "request": "Build a small Jac web app that recommends items. Users like items; for a user, the app recommends items liked by similar users (users who share at least one liked item), ranked by how many similar users liked each item. A user can hide an item so it is never recommended to them again.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "If u1 and u2 both liked i1 and u2 also liked i2, u1's top recommendation is i2.",
+    "A user with no likes gets the most-liked items overall, ties broken by item id ascending.",
+    "Hidden items and items the user already liked never appear in the recommendations, even when they would score highest."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Model the entities as nodes and the relations as edges; traverse them with walkers or graph queries.",
+    "Keep the logic deterministic and independent of external APIs."
+  ],
+  "source": {
+    "repo": "https://github.com/gorse-io/gorse",
+    "license": "Apache-2.0",
+    "note": "Requirements written in English from the project's feature description; no code or text copied. Only one feature slice is reproduced."
+  }
+}

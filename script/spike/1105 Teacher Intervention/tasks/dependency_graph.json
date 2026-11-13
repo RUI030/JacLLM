@@ -1,0 +1,23 @@
+{
+  "schema_version": "1",
+  "task_id": "dependency_graph_v1",
+  "reference_id": "",
+  "category": "graph",
+  "request": "Build a small Jac web app that analyzes dependencies between modules. Users add modules and 'imports' links between them, and remove links. The report shows every circular dependency, the orphan modules (nothing imports them and they import nothing), and a build order where each module comes after everything it imports.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "For a->b, b->c, c->a the report has exactly one cycle, listed starting from its alphabetically smallest module, and the build order is reported as impossible.",
+    "In an acyclic graph the build order lists every module after all modules it imports.",
+    "A self-import a->a is a cycle of length one; a module with no links at all is listed as an orphan."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Model the entities as nodes and the relations as edges; traverse them with walkers or graph queries.",
+    "Keep the logic deterministic and independent of external APIs."
+  ],
+  "source": {
+    "repo": "https://github.com/pahen/madge",
+    "license": "MIT",
+    "note": "Requirements written in English from the project's feature description; no code or text copied. Only one feature slice is reproduced."
+  }
+}

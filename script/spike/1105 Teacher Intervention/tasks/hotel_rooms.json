@@ -1,0 +1,22 @@
+{
+  "schema_version": "1",
+  "task_id": "hotel_rooms_v1",
+  "reference_id": "",
+  "request": "Build a small Jac web app for a small hotel. Staff add rooms with a number, a type (single, double or suite) and a nightly price. A guest books a room for a check-in and check-out date. The app shows which rooms are free for a chosen date range and the total price of a booking. Keep the room and booking rules in a reusable service.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "A booking needs a check-out date after the check-in date.",
+    "A room cannot be booked for dates that overlap an existing booking of that room.",
+    "The total price is the nightly price times the number of nights.",
+    "The free-rooms list for a date range excludes rooms with an overlapping booking."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Keep the logic deterministic and independent of external APIs."
+  ],
+  "source": {
+    "repo": "https://github.com/SamiurRahmanMukul/Hotel-Room-Booking-System",
+    "license": "Apache-2.0",
+    "note": "Requirements paraphrased in English from the repository README/description; no code copied."
+  }
+}

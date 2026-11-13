@@ -1,0 +1,22 @@
+{
+  "schema_version": "1",
+  "task_id": "role_access_v1",
+  "reference_id": "",
+  "category": "permissions",
+  "request": "Build a small Jac web app for checking access rights. Users have roles, roles can inherit other roles, and policies allow or deny an action on a resource for a role. The app answers whether a user may do an action on a resource and lists a user's effective permissions. A deny always wins over an allow.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "If editor inherits viewer and viewer may read docs, a user with the editor role may read docs.",
+    "A deny on (editor, docs, delete) blocks delete for a user whose admin role inherits editor, even though admin has an allow on (admin, docs, delete).",
+    "Creating an inheritance cycle (a inherits b, b inherits a) is rejected."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Keep the logic deterministic and independent of external APIs."
+  ],
+  "source": {
+    "repo": "https://github.com/apache/casbin-node-casbin",
+    "license": "Apache-2.0",
+    "note": "Requirements written in English from the project's feature description; no code or text copied. Only one feature slice is reproduced."
+  }
+}

@@ -1,0 +1,81 @@
+{
+ "request": "can you make me a shopping list? a box to type an item, an add button, and the items listed underneath, each with a remove button so i can take it off once i've got it. keep it saved so it's still there when i come back",
+ "app_type": "tool",
+ "nav_pattern": "none",
+ "design_rationale": "A shopping list is a quick capture tool: one narrow column with the Item box on top and a plain list of rows below, each with a quiet outline Remove button; neutral base with an amber accent for the one primary action, Inter for easy reading, nova's clean density.",
+ "verify": {
+  "flow": "shopping_delete",
+  "route": "/",
+  "steps": "Open the list, see The list is empty, add Milk and then Eggs with the Add item button, see both rows, remove Milk with its Remove button, see only Eggs, reload and still see only Eggs."
+ },
+ "titles": {
+  "/": "Shopping list"
+ },
+ "screen_kind": {
+  "/": "capture"
+ },
+ "why": {
+  "services/shopping.jac": "ShopItem node; list_shopping (a walker that lists the items on root), add_item, which creates an item and returns it, and remove_item, which finds an item by jid and deletes it.",
+  "lib/utils.jac": "cn() helper.",
+  "components/ShoppingScreen.jac": "The whole screen: heading, Item box and Add item button, the item rows with a Remove button each, loading and empty states.",
+  "main.jac": "Registers the shopping endpoints, loads global.css and renders the shopping screen."
+ },
+ "write_reasoning": {
+  "services/shopping.jac": "Backend first: the list is read through a walker because a def:pub read is cached on the client. remove_item takes a jid, finds the node under root and deletes it there, since a node passed from the client cannot be deleted.",
+  "lib/utils.jac": "The cn() helper.",
+  "components/ShoppingScreen.jac": "The component loads the list in async can with entry and awaits every write inside an async def. It appends the item add_item returns and, when remove_item returns true, drops that item from its own state instead of reading the list again.",
+  "main.jac": "Last, main.jac: it imports services.shopping with no leading dot so list_shopping, add_item and remove_item are registered, and returns the shopping screen; one screen needs no router."
+ },
+ "plan_call_reasoning": "Plan the build: one screen with saved data and a delete, so a single component and a small server.",
+ "plan_reasoning": "One screen: an Item box, an Add item button and a list of items, each row with a Remove button named after its item. Items are saved on the server, read through a walker, added with a def:pub that returns the new item and removed by jid with a def:pub that returns true or false. main.jac last.",
+ "plan_summary": "Build plan written to .jaccoder/build_plan.json: a single-screen capture tool, 3 files leaf-first, items on the server with a listing walker and add/remove by jid, nova/neutral/amber/inter.",
+ "journal": "# Agent journal\n\n## Issues\n- A def:pub list is cached on the client on jac 0.34.28, so items are read through the list_shopping walker and the list is updated from what add_item and remove_item return.\n- A node passed from the client cannot be deleted on the server, so the client sends jid(item) and remove_item looks the node up under root.\n\n## Learnings\n- Every row has a Remove button, so each one gets an aria-label with the item name (Remove Milk) to tell them apart.\n- The form's onSubmit handler calls preventDefault, ignores an empty item, starts the async save and clears the box.\n\n## Last Action\nBuilt Shopping list: an Item box with an Add item button and a list of items with a Remove button each. Adding Milk and Eggs shows both, removing Milk leaves only Eggs, and that is still the case after a reload.\n",
+ "final": "Shopping list is running: type an item, press Add item and it joins the list, and Remove takes it off again; the list is kept after a reload. I added Milk and Eggs, removed Milk, and after a reload only Eggs is left.\n\n**Next steps**\n- Tick items off instead of removing them\n- Add a quantity per item\n- Clear the whole list at once",
+ "browser": [
+  {
+   "open": "/",
+   "why": "The coverage block names the core flow: open the list, exercise add_item twice and remove_item once."
+  },
+  {
+   "do": [
+    {
+     "fill": "^Item",
+     "value": "Milk"
+    },
+    {
+     "click": "^Add item",
+     "roles": [
+      "button"
+     ]
+    }
+   ],
+   "why": "Add Milk first."
+  },
+  {
+   "do": [
+    {
+     "fill": "^Item",
+     "value": "Eggs"
+    },
+    {
+     "click": "^Add item",
+     "roles": [
+      "button"
+     ]
+    }
+   ],
+   "why": "Add two items so there is one to remove and one to keep."
+  },
+  {
+   "do": [
+    {
+     "click": "^Remove Milk",
+     "roles": [
+      "button"
+     ]
+    }
+   ],
+   "why": "Remove Milk with its own Remove button and check only Eggs is left."
+  }
+ ]
+}

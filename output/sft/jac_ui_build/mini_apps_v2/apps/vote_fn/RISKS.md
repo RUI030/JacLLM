@@ -1,0 +1,4 @@
+- services/poll.jac, `def:pub vote(side: str) -> Ballot`: a def:pub with an argument, returning a node. Based on `add_guest(name: str) -> Guest` in verified list_append (argument + node return) and `add_one` in counter_fn; the `if/elif` on a str argument is plain Jac, not in a verified app.
+- components/PollScreen.jac: reading two int fields (`result.cats`, `result.dogs`) of a node returned by a def:pub through a local; list_append reads a node field (`g.name`) on list items only. Local assignment first follows pitfall 11.
+- main.jac imports `Ballot` (node type) alongside the endpoints as list_append does with `Guest`, though the client only uses the returned fields.
+- Clicks are issued back to back without waiting; each handler awaits its own call, so the server order is the click order but the intermediate UI state is not checked.

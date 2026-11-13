@@ -1,0 +1,28 @@
+{
+  "schema_version": "1",
+  "task_id": "unit_convert_v1",
+  "reference_id": "",
+  "category": "non_web",
+  "request": "Build a Jac library that converts values between units of the same measure: length, mass, volume and temperature. Linear units use factors and temperature uses offsets. It lists the units of a measure and suggests the best display unit (the largest unit whose value is at least 1). main.jac converts a value given on the command line.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "1 km is 1000 m, and 100 C is 212 F.",
+    "Converting kg to m is rejected as incompatible; an unknown unit name is rejected.",
+    "The best unit for 1500 m is 1.5 km and for 0.5 m it is 50 cm."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1. This is a Jac library with a command-line entry in main.jac, not a web app.",
+    "No network, no external APIs; the library functions are pure and tested with `jac test`."
+  ],
+  "source": {
+    "repo": "https://github.com/convert-units/convert-units",
+    "license": "MIT",
+    "note": "Requirements written in English from the project's feature description; no code or text copied. Only one feature slice is reproduced."
+  },
+  "support_files": [
+    {
+      "path": "jac.toml",
+      "purpose": "Configure Jac 0.36.1 with a [project] section (name, version) and entry-point main.jac."
+    }
+  ]
+}

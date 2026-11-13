@@ -1,0 +1,22 @@
+{
+  "schema_version": "1",
+  "task_id": "tile_merge_2048_v1",
+  "reference_id": "",
+  "category": "state_machine_game",
+  "request": "Build a small Jac web app for the 2048 tile game on a 4x4 grid. A move in one of four directions slides all tiles and merges equal neighbours once per move; the score grows by the merged values. After a move that changes the board, a new tile appears in an empty cell; the random source is injectable so tests are deterministic.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "Moving left on the row [2,2,2,2] gives [4,4,0,0] and adds 8 to the score.",
+    "A move that changes nothing spawns no tile and does not count as a turn.",
+    "The game is over only when the board is full and no two neighbours are equal; reaching 2048 sets 'won' without ending the game."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Keep the logic deterministic and independent of external APIs."
+  ],
+  "source": {
+    "repo": "https://github.com/gabrielecirulli/2048",
+    "license": "MIT",
+    "note": "Requirements written in English from the project's feature description; no code or text copied. Only one feature slice is reproduced."
+  }
+}

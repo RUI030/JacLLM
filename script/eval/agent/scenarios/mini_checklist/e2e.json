@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/"}, {"expect_text": ["Morning routine", "Stretch", "Shower", "Coffee", "0 of 3 done"]}, {"check": 0}, {"expect_text": "1 of 3 done"}, {"check": 1}, {"expect_text": "2 of 3 done"}, {"reload": true}, {"expect_text": "2 of 3 done"}]}

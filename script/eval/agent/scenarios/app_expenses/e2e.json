@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/"}, {"fill": {"nth": 0, "value": "Lunch"}}, {"fill": {"nth": 1, "value": "12.50"}}, {"click": "^Add$"}, {"fill": {"nth": 0, "value": "Bus"}}, {"fill": {"nth": 1, "value": "2.75"}}, {"click": "^Add$"}, {"expect_text": ["Lunch", "Bus", "Total: $15.25"]}, {"reload": true}, {"expect_text": "Total: $15.25"}]}

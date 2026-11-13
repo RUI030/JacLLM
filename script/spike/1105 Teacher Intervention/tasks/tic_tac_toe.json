@@ -1,0 +1,22 @@
+{
+  "schema_version": "1",
+  "task_id": "tic_tac_toe_v1",
+  "reference_id": "",
+  "category": "state_machine_game",
+  "request": "Build a small Jac web app for two-player tic-tac-toe matches. Several matches can run at once, each with its own board and current player. Players take turns claiming cells; a match ends with a winner on a row, column or diagonal, or a draw when the board is full. The last move can be undone while the match is still running.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "A move by the player whose turn it is not, or onto an occupied cell, is rejected and the board is unchanged.",
+    "A ninth move that completes a line is a win, not a draw.",
+    "Any move or undo after the match has ended is rejected."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Keep the logic deterministic and independent of external APIs."
+  ],
+  "source": {
+    "repo": "https://github.com/boardgameio/boardgame.io",
+    "license": "MIT",
+    "note": "Requirements written in English from the project's feature description; no code or text copied. Only one feature slice is reproduced."
+  }
+}

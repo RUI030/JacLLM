@@ -1,0 +1,22 @@
+{
+  "schema_version": "1",
+  "task_id": "commit_message_v1",
+  "reference_id": "",
+  "category": "llm",
+  "request": "Build a small Jac web app that writes a one-line commit message for a pasted unified diff. It builds a prompt from the diff, asks the model, and cleans the reply: strips quotes, code fences and a trailing period, maps past-tense first verbs to imperative with a small fixed table, and keeps it within 72 characters. Large diffs are cut per file before prompting.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "A reply of '\"Added login check.\"' becomes 'Add login check'.",
+    "A reply longer than 72 characters is cut at a word boundary to at most 72.",
+    "An empty diff returns an error without calling the model; an oversized diff keeps every file's header lines."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Call the model through byLLM (`by llm`); tests use MockLLM with scripted outputs and never call a real model or the network."
+  ],
+  "source": {
+    "repo": "https://github.com/Aider-AI/aider",
+    "license": "Apache-2.0",
+    "note": "Requirements written in English from the project's feature description; no code or text copied. Only one feature slice is reproduced."
+  }
+}

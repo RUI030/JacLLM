@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/"}, {"expect_text": ["Visitor log", "0 visitors today"]}, {"fill": {"nth": 0, "value": "Ana"}}, {"click": "^sign in$"}, {"fill": {"nth": 0, "value": "Ben"}}, {"click": "^sign in$"}, {"expect_text": ["Ana", "Ben", "2 visitors today"]}, {"reload": true}, {"expect_text": ["Ana", "Ben", "2 visitors today"]}]}

@@ -1,0 +1,21 @@
+{
+  "schema_version": "1",
+  "task_id": "library_loans_v1",
+  "reference_id": "",
+  "request": "Build a small Jac web app for a library desk. A librarian adds books with a number of available copies and adds members. A member can borrow a book while copies are available and return it later; the desk shows each member's current loans and each book's remaining copies. Keep the loan rules in a reusable service.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "Borrowing decreases the book's available copies by one; borrowing with no copies left is rejected.",
+    "Returning a book increases its available copies by one; returning a book that is not on loan to that member is rejected.",
+    "A member's current loans list only books not yet returned."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Keep the logic deterministic and independent of external APIs."
+  ],
+  "source": {
+    "repo": "https://github.com/iampranavdhar/Library-Management-System-MERN",
+    "license": "MIT",
+    "note": "Requirements paraphrased in English from the repository README/description; no code copied."
+  }
+}

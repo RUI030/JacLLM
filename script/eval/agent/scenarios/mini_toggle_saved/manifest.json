@@ -1,0 +1,7 @@
+{
+  "scenario_id": "mini_toggle_saved",
+  "sentinel": false,
+  "stages": [
+    "stage_1.md"
+  ]
+}

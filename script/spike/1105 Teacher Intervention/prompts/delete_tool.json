@@ -1,0 +1,22 @@
+[
+ {
+  "type": "function",
+  "function": {
+   "name": "delete_code",
+   "description": "PERMANENTLY DELETE a file from disk — the file will completely disappear from the filesystem. Use this to remove unused template files. DO NOT write comments like '# removed' or edit the file — this tool DELETES THE ACTUAL FILE. The file must not exist after calling this. Cannot be undone. Use when you need to remove files that are not needed in the project.",
+   "parameters": {
+    "type": "object",
+    "properties": {
+     "file_path": {
+      "type": "string",
+      "description": "Absolute path to the file to delete. Must be an existing file (not a directory). Returns error if file doesn't exist or is a directory."
+     }
+    },
+    "required": [
+     "file_path"
+    ],
+    "additionalProperties": false
+   }
+  }
+ }
+]

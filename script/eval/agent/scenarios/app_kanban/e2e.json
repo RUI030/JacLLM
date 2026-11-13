@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/"}, {"expect_text": ["To do", "Doing", "Done", "Write spec", "Design logo", "Set up CI"]}, {"fill": {"nth": 0, "value": "Fix login bug"}}, {"click": "^Add card$"}, {"expect_text": "Fix login bug"}, {"click": "Move right"}, {"reload": true}, {"expect_text": ["Fix login bug", "Write spec"]}]}

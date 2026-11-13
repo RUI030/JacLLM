@@ -1,0 +1,22 @@
+{
+  "schema_version": "1",
+  "task_id": "memories_feed_v1",
+  "reference_id": "",
+  "request": "Build a small Jac web app where people share memories. A memory has a creator name, a title, a message and a list of tags. Readers can like a memory, the author can edit or delete it, and the feed can be searched by title or by tag. Keep the memory rules in a reusable service.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "A memory needs a non-empty creator and title; tags are stored without duplicates.",
+    "Liking a memory increases its like count by one.",
+    "Searching by a tag returns only memories that carry that tag; searching by text matches titles case-insensitively.",
+    "Deleting a memory removes it from the feed."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Keep the logic deterministic and independent of external APIs."
+  ],
+  "source": {
+    "repo": "https://github.com/adrianhajdin/project_mern_memories",
+    "license": "none stated",
+    "note": "Requirements paraphrased in English from the repository README/description; no code copied."
+  }
+}

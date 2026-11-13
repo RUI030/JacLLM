@@ -1,0 +1,7 @@
+{
+  "scenario_id": "mini_counter_minus",
+  "sentinel": false,
+  "stages": [
+    "stage_1.md"
+  ]
+}

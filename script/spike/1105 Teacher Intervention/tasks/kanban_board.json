@@ -1,0 +1,22 @@
+{
+  "schema_version": "1",
+  "task_id": "kanban_board_v1",
+  "reference_id": "",
+  "category": "frontend",
+  "request": "Build a small Jac web app for a kanban board. Columns hold ordered cards and may have a work-in-progress limit. Users drag a card to a new position in its column or to a position in another column, or move it with the arrow keys. Card order is stored and survives a reload.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "Moving the card at index 0 to index 2 in a column [a,b,c,d] gives [b,c,a,d].",
+    "Dropping into a column already at its limit is rejected and the card stays where it was.",
+    "Moving left from the first column does nothing; a target index past the end puts the card last."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Keep the logic deterministic and independent of external APIs."
+  ],
+  "source": {
+    "repo": "https://github.com/clauderic/dnd-kit",
+    "license": "MIT",
+    "note": "Requirements written in English from the project's feature description; no code or text copied. Only one feature slice is reproduced."
+  }
+}

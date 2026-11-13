@@ -1,0 +1,1 @@
+{"steps": [{"goto": "/"}, {"expect_text": ["Plans", "5 projects"]}, {"click": "^pro$"}, {"expect_text": "50 projects"}, {"absent_text": "Unlimited projects"}, {"click": "^team$"}, {"expect_text": "Unlimited projects"}, {"absent_text": "50 projects"}]}

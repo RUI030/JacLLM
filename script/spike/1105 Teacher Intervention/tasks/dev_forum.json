@@ -1,0 +1,22 @@
+{
+  "schema_version": "1",
+  "task_id": "dev_forum_v1",
+  "reference_id": "",
+  "request": "Build a small Jac web app for a developer community. A developer has a profile with a name, a status and a list of skills. Developers write posts, other developers can like a post once and add comments to it. The posts page lists posts newest first with their like and comment counts. Keep the forum rules in a reusable service.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "A developer can like a given post at most once; a second like is rejected.",
+    "Comments are stored on their post and counted on the posts page.",
+    "Posts are listed newest first.",
+    "A profile lists its skills in the order given."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a fullstack Jac app.",
+    "Keep the logic deterministic and independent of external APIs."
+  ],
+  "source": {
+    "repo": "https://github.com/bradtraversy/devconnector_2.0",
+    "license": "none stated",
+    "note": "Requirements paraphrased in English from the repository README/description; no code copied."
+  }
+}
