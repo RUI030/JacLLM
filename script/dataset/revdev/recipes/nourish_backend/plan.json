@@ -1,0 +1,121 @@
+{
+  "schema_version": "1",
+  "ui": {
+    "app_type": "service",
+    "nav_pattern": "none",
+    "pages": [],
+    "auth_required": false,
+    "backend_required": true,
+    "ai_required": false
+  },
+  "files": [
+    {
+      "path": "jac.toml",
+      "layer": "config",
+      "purpose": "Configure Jac 0.36.1 [project] with name, description and entry-point main.jac; this headless slice has no npm, plugin or AI dependencies.",
+      "exports": [],
+      "imports_from_plan": [],
+      "write_order": 1,
+      "status": "pending"
+    },
+    {
+      "path": "services/nourish_model.jac",
+      "layer": "model",
+      "purpose": "Graph data model, no imports. node HubNode { has name: str = \"Nourish Hub\"; }. node BusinessNode with name, location, business_type, contact (all str, no defaults). node ShelterNode with name: str, location: str, current_capacity: int, max_capacity: int, needed_items: list[str] (no defaults). node DonationNode with food_type: str, quantity: int, expiry_time: str, status: str = \"pending\" (lifecycle pending -> matched -> completed), dispatched: bool = False. node VolunteerNode with name, vehicle_type, location, contact (str) and is_available: bool = True. Empty typed edges: Offers (BusinessNode -> DonationNode), AllocatedTo (DonationNode -> ShelterNode), AssignedVolunteer (DonationNode -> VolunteerNode), ConnectedToHub (domain node -> HubNode).",
+      "signatures": {
+        "HubNode": "node HubNode { has name: str = \"Nourish Hub\"; }",
+        "BusinessNode": "node BusinessNode { has name: str; has location: str; has business_type: str; has contact: str; }",
+        "ShelterNode": "node ShelterNode { has name: str; has location: str; has current_capacity: int; has max_capacity: int; has needed_items: list[str]; }",
+        "DonationNode": "node DonationNode { has food_type: str; has quantity: int; has expiry_time: str; has status: str = \"pending\"; has dispatched: bool = False; }",
+        "VolunteerNode": "node VolunteerNode { has name: str; has vehicle_type: str; has location: str; has contact: str; has is_available: bool = True; }",
+        "Offers": "edge Offers {}",
+        "AllocatedTo": "edge AllocatedTo {}",
+        "AssignedVolunteer": "edge AssignedVolunteer {}",
+        "ConnectedToHub": "edge ConnectedToHub {}"
+      },
+      "exports": [
+        "HubNode",
+        "BusinessNode",
+        "ShelterNode",
+        "DonationNode",
+        "VolunteerNode",
+        "Offers",
+        "AllocatedTo",
+        "AssignedVolunteer",
+        "ConnectedToHub"
+      ],
+      "imports_from_plan": [],
+      "write_order": 2,
+      "status": "pending"
+    },
+    {
+      "path": "services/supply_agent.jac",
+      "layer": "service",
+      "purpose": "Imports datetime from datetime and BusinessNode, DonationNode, Offers from services.nourish_model (absolute import path). walker supply_manager has payload food_type: str, quantity: int, expiry_time: str (zero-padded ISO-8601 like 2025-12-31T18:00:00) and result fields created_donation: DonationNode | None = None, error_message: str = \"\". Ability process_business runs with BusinessNode entry on here (the business). Step 1: now_str = datetime.utcnow().strftime(\"%Y-%m-%dT%H:%M:%S\"); if expiry_time <= now_str (plain string comparison) set error_message to exactly f\"REJECTED: Food '{food_type}' from '{business name}' is already expired (expiry={expiry_time}).\", print it prefixed with \"[SupplyAgent] \", report {\"status\": \"error\", \"message\": error_message} and disengage (no node or edge is created). Step 2 otherwise: build DonationNode(food_type, quantity, expiry_time, status=\"pending\", dispatched=False), connect business +>:Offers():+> donation, also root ++> donation, set created_donation to it, print a log line, report exactly {\"status\": \"created\", \"business\": business name, \"food_type\": food_type, \"quantity\": quantity, \"expiry_time\": expiry_time} (keys in that order) and disengage. Exactly one report per spawn.",
+      "signatures": {
+        "supply_manager": "walker supply_manager { has food_type: str; has quantity: int; has expiry_time: str; has created_donation: DonationNode | None = None; has error_message: str = \"\"; can process_business with BusinessNode entry; }"
+      },
+      "exports": [
+        "supply_manager"
+      ],
+      "imports_from_plan": [
+        "BusinessNode",
+        "DonationNode",
+        "Offers"
+      ],
+      "write_order": 3,
+      "status": "pending"
+    },
+    {
+      "path": "main.jac",
+      "layer": "service",
+      "purpose": "Thin entry point with only imports: HubNode, BusinessNode, ShelterNode, DonationNode, VolunteerNode, Offers, AllocatedTo, AssignedVolunteer, ConnectedToHub from services.nourish_model and supply_manager from services.supply_agent; no UI route.",
+      "exports": [],
+      "imports_from_plan": [
+        "HubNode",
+        "BusinessNode",
+        "ShelterNode",
+        "DonationNode",
+        "VolunteerNode",
+        "Offers",
+        "AllocatedTo",
+        "AssignedVolunteer",
+        "ConnectedToHub",
+        "supply_manager"
+      ],
+      "write_order": 4,
+      "status": "pending"
+    }
+  ],
+  "write_order": [
+    "jac.toml",
+    "services/nourish_model.jac",
+    "services/supply_agent.jac",
+    "main.jac"
+  ],
+  "dependency_graph": {
+    "jac.toml": [],
+    "services/nourish_model.jac": [],
+    "services/supply_agent.jac": [
+      "services/nourish_model.jac"
+    ],
+    "main.jac": [
+      "services/nourish_model.jac",
+      "services/supply_agent.jac"
+    ]
+  },
+  "remove_from_template": [],
+  "verify": {
+    "flow": "create business -> spawn supply_manager -> inspect report, created_donation and Offers/root edges",
+    "route": "API only",
+    "steps": "Run jac check main.jac and Jac behavior tests for valid uploads, Offers and root wiring, expired-food rejection and model defaults."
+  },
+  "build_log": {
+    "overall_status": "pending",
+    "last_action": "",
+    "issues": [],
+    "learnings": []
+  },
+  "confidence": 0.9,
+  "assumption": "Backend slice of Viktor-Nedev/Nourish: the graph model and the supply agent walker. The REST dashboard module, the self-contained demo script, client pages and the JSX entry point are out of scope; main.jac is a thin new import module."
+}

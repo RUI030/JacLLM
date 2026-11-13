@@ -1,0 +1,42 @@
+{
+  "source_repository": "Wally-Ahmed/JacHacks2026",
+  "source_url": "https://github.com/Wally-Ahmed/JacHacks2026",
+  "source_commit": "77ba90131e3245cc5ff2fc3774945801080b3737",
+  "source_subproject": ".",
+  "source_dataset": "Upstream clone /home/imrui/Documents/Jaseci/JacLLM/JacLLM/dataset/raw/repo/JacHack2026/Wally-Ahmed__JacHacks2026 (nodes/IntegrationConfig.jac, nodes/Platform.jac); repaired copies /home/imrui/Documents/Jaseci/JacLLM/jac-data-gen/data/jachacks_repaired/Wally-Ahmed__JacHacks2026 (config.sv.jac, app_platform.sv.jac; records: jac-data-gen/data/jachacks_nonsf_jac_files_checked.jsonl, dirname Wally-Ahmed__JacHacks2026)",
+  "source_files_sha256": {
+    "nodes/IntegrationConfig.jac": "0199304e0a47266b287b5a4b595f1b2aa04b2ffcbc4f7d7c4626968f8fa7e1c9",
+    "nodes/Platform.jac": "ab356f35d30ed0f9441632d9ea3c019cf82e56be1e3f007107cfcdf521fd51e8",
+    "config.jac": "1a463576ea686b8c6a8fb78bfae30c1c3228f637b4b42d27d2b7699435456fb9",
+    "app_platform.jac": "b6da546dc2ba64ae10a20f36e1e8b780137bbf54f9b4bcb564b1cc7461c75d4c",
+    "main.jac": "fd3ab8d4d3e5d36e77400bb0b03ad7769a9415d61fb72fc345721212ce00d78b"
+  },
+  "repaired_files": [
+    {"path": "config.jac", "source_path": "config.sv.jac", "repaired_by": "subagent", "original_sha": "dc443358570d"},
+    {"path": "app_platform.jac", "source_path": "app_platform.sv.jac", "repaired_by": "subagent", "original_sha": "bca15393cb93"}
+  ],
+  "slice_import_edges": [
+    ["config.jac", "nodes/IntegrationConfig.jac"],
+    ["app_platform.jac", "config.jac"],
+    ["app_platform.jac", "nodes/IntegrationConfig.jac"],
+    ["app_platform.jac", "nodes/Platform.jac"],
+    ["main.jac", "config.jac"],
+    ["main.jac", "app_platform.jac"]
+  ],
+  "scope": "backend platform/configuration slice: IntegrationConfig and Platform nodes, env-driven config seeding (config) and platform bootstrap/overview (app_platform)",
+  "target_jac_version": "0.36.1",
+  "source_jac_version": "unpinned upstream; upstream config.sv.jac and app_platform.sv.jac fail 0.36.1 check (E0049 'root()' was removed), repaired copies pass",
+  "adaptation": "nodes/IntegrationConfig.jac and nodes/Platform.jac are verbatim upstream (they pass check; byte-identical to the repaired copies). config.jac and app_platform.jac are byte-identical to the jac-data-gen repaired config.sv.jac and app_platform.sv.jac (repair: root() -> root and (root ++> X(...))[0] -> root ++> X(...)); the only change is the file rename dropping the '.sv' marker suffix, because Jac 0.36.1 does not resolve 'import from config' / 'import from app_platform' to *.sv.jac files (runtime 'No module named app_platform', W1100 at check). Import lines were not changed (no relative imports involved). The unused imports in app_platform (datetime, IntegrationConfig) were kept verbatim. main.jac is new: 2 import-only lines (the source main.jac imports every service plus a cl JSX block). jac.toml is a new minimal [project] service config without a version pin. Merchant/invoice/audit/payment/wallet/settlement services were not used: services/merchant and services/invoice fail 0.36.1 check in both upstream and repaired form (E1004 implicit None return in find_merchant/find_invoice; E1053 in merchant), merchant also needs dotenv/subprocess/Circle scripts, and payment/settlement/wallets fail check too.",
+  "independent_acceptance": "reference_acceptance.jac",
+  "independent_acceptance_sha256": "7f35e71f728cf8d935af510bc82ba8516bc700c4d75ea538e1bd5b4ef8fed4b1",
+  "independent_acceptance_adaptation": "Written from scratch (the source has no tests). Tests set/pop the relevant os.environ variables explicitly so results do not depend on the host environment, use a unique revdev provider and platform names, and assert exact-one-per-provider / single-Platform invariants that hold on a persisted root plus a lower-bound root child count.",
+  "reference_preflight": {
+    "jac_check_main": "passed (1 passed)",
+    "per_file_check": "nodes/IntegrationConfig.jac, nodes/Platform.jac, config.jac, app_platform.jac all pass (warnings only)",
+    "reference_jac_test": "5 passed (JAC_TEST_NATIVE=1 JAC_TEST_JOBS=0; fresh .jac state and repeated persisted-root runs; as revdev_acceptance.jac and reference_acceptance.jac)",
+    "workspace": "/tmp/revdev-unibank_backend-preflight"
+  },
+  "split": "train",
+  "split_group": "wally-ahmed__jachacks2026",
+  "split_reason": "JacHacks 2026 repository assigned to train in revdev wave 2."
+}

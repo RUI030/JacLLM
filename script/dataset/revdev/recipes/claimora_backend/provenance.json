@@ -1,0 +1,37 @@
+{
+  "source_repository": "debssM/Jac_2026",
+  "source_url": "https://github.com/debssM/Jac_2026",
+  "source_title": "Claimora.AI (JacHacks 2026)",
+  "source_dataset": "/home/imrui/Documents/Jaseci/JacLLM/jac-data-gen/data/jachacks_repaired/debssM__Jac_2026 (records: jac-data-gen/data/jachacks_nonsf_jac_files_checked.jsonl, dirname debssM__Jac_2026)",
+  "source_files_sha256": {
+    "nodes/data_nodes.jac": "13a07f99c97bd54c76a240052ec4793c581f491cb53857eb78573647223bce52",
+    "walkers/ingest.jac": "9c38eb8ea8ab96bcb5e24e68c9cd4efdafd91bce7eb66e81728fa88eaf0d094c",
+    "main.jac": "2dd91284c246c8351d5fbd2eb6fbdcf5c3aced9f0166739087ae7b756152d167"
+  },
+  "slice_files_sha256": {
+    "nodes/data_nodes.jac": "13a07f99c97bd54c76a240052ec4793c581f491cb53857eb78573647223bce52",
+    "walkers/ingest.jac": "9c38eb8ea8ab96bcb5e24e68c9cd4efdafd91bce7eb66e81728fa88eaf0d094c",
+    "main.jac": "51c6b723a5192d80ddf4e7cbfd344eda27111e60bbcaaef66ffe55418c63e08a"
+  },
+  "repaired_files": [],
+  "slice_import_edges": [
+    ["walkers/ingest.jac", "nodes/data_nodes.jac"],
+    ["main.jac", "nodes/data_nodes.jac"],
+    ["main.jac", "walkers/ingest.jac"]
+  ],
+  "scope": "backend case-graph nodes, document ingest walker and the non-AI API walkers get_scores, get_evidence, get_timeline and reset_case",
+  "target_jac_version": "0.36.1",
+  "source_jac_version": "0.36.1",
+  "adaptation": "nodes/data_nodes.jac and walkers/ingest.jac are verbatim. main.jac is the source main.jac with only deletions: the four imports from agents.* (entity_extractor, timeline_agent, fca_mapper, damage_estimator; all use by llm), the imports of setup_graph from walkers.run and QuiTamOrchestrator from walkers.orchestrator (both depend on the by-llm agents), the analyze_case walker (with its API WALKER 1 comment header) that drives the LLM pipeline, and the trailing with-entry block that spawned setup_graph. The import of ingest_documents is kept and acts as a re-export. A minimal jac.toml ([project] name, kind service, entry-point main.jac, no version pin) was added because the source has none in the checked dataset.",
+  "excluded_modules": ["agents/*.jac (by llm, import repo-local helpers.py)", "walkers/run.jac", "walkers/orchestrator.jac", "maintest.jac", "run_real_pipeline.jac", "test_fca.jac", "tests/test_timeline.jac"],
+  "independent_acceptance": "reference_acceptance.jac",
+  "independent_acceptance_sha256": "02229eb58f8c7900c390cd98ad2ae557f010524ea5a1d1bae1d5772dc4a82514",
+  "independent_acceptance_adaptation": "Newly written; the source has no usable non-LLM tests. Tests use revdev-prefixed unique values and lower-bound counts; the reset and score tests call reset_case first-hand so their exact assertions hold on a shared root.",
+  "reference_preflight": {
+    "jac_check_main": "passed",
+    "jac_test": "5 passed (JAC_TEST_NATIVE=1 JAC_TEST_JOBS=0, as revdev_acceptance.jac and reference_acceptance.jac, repeated 3 times)",
+    "workspace": "/tmp/revdev-claimora_backend-preflight"
+  },
+  "split": "train",
+  "split_group": "debssm__jac_2026"
+}

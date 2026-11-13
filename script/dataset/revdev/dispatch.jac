@@ -32,7 +32,7 @@ with entry {
         mod = JacProgram().parse_str(call["args"]["content"], call["args"]["file_path"]);
         for ability in mod.get_all_sub_nodes(uni.Ability) {
             body = ability.body;
-            if body is None { continue; }
+            if body is None or not isinstance(body, list) { continue; }  # `by llm` body is a call, not statements
             text = "".join([stmt.unparse() for stmt in body]);
             compact = re.sub(r"\s+", "", text);
             if compact != "raiseNotImplementedError();" and not (compact.startswith("return<") and compact.endswith(";")) {
@@ -45,6 +45,6 @@ with entry {
         json.dump({"name": call["name"], "content": result, "executed": not bool(rejection),
                    "origin": "adapter_phase_guard" if rejection else "jaccoder",
                    "runtime_binary": pinned,
-                   "adapter_notice": "run_command now resolves jac to pinned 0.34.27. Earlier run_command checks may have used host 0.36.1; rerun failed checks before changing source for version-specific errors."}, f);
+                   "adapter_notice": "run_command resolves jac to the target binary recorded in runtime_binary."}, f);
     }
 }

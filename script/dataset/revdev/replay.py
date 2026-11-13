@@ -8,11 +8,18 @@ from utils import jac_cli
 from dataset.revdev.checkpoint import workspace_files
 
 # Functions ===============================================
-def replay(run: Path, harness: Path, jac: Path, continue_report: bool = False) -> dict:
+def replay(run: Path, harness: Path, jac: Path, continue_report: bool = False,
+           harness_jac: Path | None = None) -> dict:
     run = run.resolve()
     root = Path(tempfile.mkdtemp(prefix="revdev-replay-"))
     workspace = root / "workspace"
     workspace.mkdir()
+    bootstrap = run / "bootstrap.json"
+    if bootstrap.exists() and not continue_report:
+        machine_plan = workspace / ".jaccoder/build_plan.json"
+        machine_plan.parent.mkdir(parents=True, exist_ok=True)
+        machine_plan.write_text(json.dumps(json.loads(bootstrap.read_text())["machine_plan"],
+                                           ensure_ascii=False, indent=2) + "\n")
     original_roots = []
     outcomes = []
     output_paths = {}
@@ -52,8 +59,9 @@ def replay(run: Path, harness: Path, jac: Path, continue_report: bool = False) -
         result_path = root / (step.name + ".result.json")
         call_path.write_text(json.dumps(replay_call))
         execution = jac_cli.execute(["run", str(Path(__file__).with_name("dispatch.jac"))],
-            jac=str(jac), cwd=harness, timeout=150,
+            jac=str(harness_jac or jac), cwd=harness, timeout=150,
             env={"REVDEV_CALL": str(call_path), "REVDEV_RESULT": str(result_path), "JACCODER_WEB_MODE": "1",
+                 "JAC_TEST_JOBS": "0",
                  "REVDEV_JAC": observed.get("runtime_binary", "/home/imrui/.local/bin/jac" if call["name"] == "run_command" else str(jac))})
         (root / (step.name + ".execution.json")).write_text(json.dumps(vars(execution), indent=2))
         outcomes.append({"step": step.name, "tool": call["name"], "exit_code": execution.returncode})
@@ -80,9 +88,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ("run", "harness", "jac"):
         parser.add_argument("--" + name, type=Path, required=True)
+    parser.add_argument("--harness-jac", type=Path,
+                        help="Jac binary running the JacCoder dispatcher; defaults to --jac")
     parser.add_argument("--continue-report", action="store_true")
     args = parser.parse_args()
-    result = replay(args.run, args.harness, args.jac, args.continue_report)
+    result = replay(args.run, args.harness, args.jac, args.continue_report,
+                    args.harness_jac)
     print(json.dumps({"status": result["status"], "calls": len(result["outcomes"]), "workspace": result["workspace"]}))
 
 # Run =====================================================

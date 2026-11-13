@@ -1,0 +1,203 @@
+{
+  "schema_version": "1",
+  "ui": {
+    "app_type": "service",
+    "nav_pattern": "none",
+    "pages": [],
+    "auth_required": false,
+    "backend_required": true,
+    "ai_required": false
+  },
+  "files": [
+    {
+      "path": "jac.toml",
+      "layer": "config",
+      "purpose": "Configure Jac 0.36.1 [project] name traceforge-backend, kind service and entry-point main.jac; this headless slice has no npm or AI dependencies.",
+      "exports": [],
+      "imports_from_plan": [],
+      "write_order": 1,
+      "status": "pending"
+    },
+    {
+      "path": "traceforge/parser.jac",
+      "layer": "model",
+      "purpose": "Trajectory parsing with only json, hashlib and pathlib. Define obj RawTurn(index:int, role:str, content:str, raw:dict[str, any]={}), obj ParsedStep(index:int, role='other', kind='OTHER', phase='other', excerpt, content_hash, assistant_content:str='', trailing_turns:list[RawTurn]=[], touched_files:list[str]=[], command_text, patch_text, test_text, error_text, submit_text:str='') and obj ParsedRun(run_id:str, source_path:str, raw:dict={}, turns:list[RawTurn]=[], steps:list[ParsedStep]=[], metadata:dict={}, instance_id:str='', task_title:str=''). CONTRACT truncate_text: strip; if len<=limit return it, else clean[:max(limit-3,0)].rstrip()+'...'. unique_strings keeps first occurrences in order. hash_text is the sha256 hexdigest of the utf-8 text. CONTRACT extract_turns: use the first value that is a list among raw['trajectory'], raw['messages'], raw['history'], raw['turns']; for each (index, item) of enumerate(list) skip non-dict items and build RawTurn(index=index, role, content, raw=dict(item)). role = str(item role, else speaker, else type, else 'other').lower(). content = '\\n'.join of the non-empty parts, stripped, where parts are: for role 'tool' only, 'Tool: <name>' when item['name'] is set and 'Tool call id: <tool_call_id>' when set; then the item content (else text, else message; non-str values json.dumps'd); then, if item['tool_calls'] is a list, 'Tool calls:\\n' + lines '- <function.name or name or tool_call>' plus ' args=' + truncate_text(arguments,160) when arguments are non-empty. CONTRACT detectors (all on text.lower(), substring matching): submit = contains any of 'submit','final answer','final response','ready to submit','i will submit',\"i'll submit\",'submitting now'. patch = contains any of 'apply_patch','diff --git','*** begin patch','@@ ','--- ','+++ ', else true when at least 3 lines start with '+' or '-' (lines starting '+++' or '---' skipped). test = contains any of 'pytest','py.test','test session starts','collected ','::',' passed',' failed','assert ','failing tests'. error = contains any of 'traceback','exception','syntaxerror','importerror','module not found','assertionerror','error:',' error ','failed'. inspect = contains any of 'grep ','ls ','find ','read ','inspect','open ','cat ','sed ','rg '. shell command = false if the stripped text is empty; true if it contains any of 'returncode','exit code','non-zero exit','command failed'; else true if any non-empty stripped line, lowercased, starts with one of '$ ','python ','pytest ','py.test ','bash ','sh ','git ','ls ','find ','grep ','rg ','sed ','cat ','head ','tail ','apply_patch'. CONTRACT infer_kind(role,text) precedence: SUBMIT (submit), EDIT (patch), TEST (test), ERROR (error), COMMAND (shell command), TOOL if role in {tool, command}, 'SYSTEM' if role is system, ASSISTANT if role in {assistant, agent}, else OTHER. infer_phase(text) precedence: submit, edit, test, error, inspect (inspect detector), command (shell command), else reason. CONTRACT extract_file_tokens: replace backticks with spaces, split on whitespace, strip the characters ' ,:;()[]{}<>' from each chunk, keep non-empty chunks containing '/' or '::' or ending in .py/.md/.json/.toml/.yaml/.yml, then unique_strings. step_text joins step.assistant_content (if non-empty) and each non-empty trailing turn content with '\\n'. step_has_command/patch/test/error/submit return bool of command_text/patch_text/test_text/error_text/submit_text. CONTRACT segment_steps: each turn whose role is in {assistant, agent} finalizes the open step (if any) and opens ParsedStep(index=len(steps)) with that role, assistant_content=content, excerpt=truncate_text(content), content_hash=hash_text(content). Any other turn opens a step with its own role if none is open (so leading user turns form step 0), is appended to trailing_turns, sets excerpt=truncate_text((excerpt+'\\n'+content).strip()) and, when content is non-empty, content_hash=hash_text(content_hash+content) (or hash_text(content) when no hash yet). The last open step is finalized. CONTRACT finalize_step: text=step_text(step); set content_hash=hash_text(text) and excerpt=truncate_text(text) only if empty; touched_files=extract_file_tokens(text). Payloads are assistant_content (if non-empty) then each non-empty trailing turn content, tested ONE AT A TIME with each detector; matching payloads are joined by '\\n' into command_text, patch_text, test_text, error_text (truncate_text limit 600) and submit_text (limit 280). kind precedence: SUBMIT if submit_text, EDIT if patch_text, TEST if test_text, ERROR if error_text, COMMAND if command_text, else infer_kind(step.role, text). phase precedence: submit, edit, test, error (same evidence fields), then 'inspect' if command_text is set and the inspect detector matches command_text, then 'command' if command_text is set, else infer_phase(text). inferred_task_title returns the first non-empty first line of a user turn (minus a leading 'task:' prefix), truncated to 160. parse_run loads a JSON file and assembles a ParsedRun with normalized metadata (info.exit_status becomes metadata status) and run_id from the argument, raw run_id, raw instance_id or the file stem.",
+      "signatures": {
+        "RawTurn": "obj RawTurn { has index: int; has role: str; has content: str; has raw: dict[str, any] = {}; }",
+        "ParsedStep": "obj ParsedStep { has index: int; has role: str = \"other\"; has kind: str = \"OTHER\"; has phase: str = \"other\"; has excerpt: str = \"\"; has content_hash: str = \"\"; has assistant_content: str = \"\"; has trailing_turns: list[RawTurn] = []; has touched_files: list[str] = []; has command_text: str = \"\"; has patch_text: str = \"\"; has test_text: str = \"\"; has error_text: str = \"\"; has submit_text: str = \"\"; }",
+        "ParsedRun": "obj ParsedRun { has run_id: str; has source_path: str; has raw: dict[str, any] = {}; has turns: list[RawTurn] = []; has steps: list[ParsedStep] = []; has metadata: dict[str, any] = {}; has instance_id: str = \"\"; has task_title: str = \"\"; }",
+        "truncate_text": "def truncate_text(text: str, limit: int = 280) -> str",
+        "unique_strings": "def unique_strings(items: list[str]) -> list[str]",
+        "path_run_stem": "def path_run_stem(path: str) -> str",
+        "load_trajectory_file": "def load_trajectory_file(path: str) -> dict[str, any]",
+        "extract_turns": "def extract_turns(raw: dict[str, any]) -> list[RawTurn]",
+        "hash_text": "def hash_text(text: str) -> str",
+        "infer_kind": "def infer_kind(role: str, text: str) -> str",
+        "infer_phase": "def infer_phase(text: str) -> str",
+        "extract_file_tokens": "def extract_file_tokens(text: str) -> list[str]",
+        "step_text": "def step_text(step: ParsedStep) -> str",
+        "step_has_command": "def step_has_command(step: ParsedStep) -> bool",
+        "step_has_patch": "def step_has_patch(step: ParsedStep) -> bool",
+        "step_has_test": "def step_has_test(step: ParsedStep) -> bool",
+        "step_has_error": "def step_has_error(step: ParsedStep) -> bool",
+        "step_has_submit": "def step_has_submit(step: ParsedStep) -> bool",
+        "finalize_step": "def finalize_step(step: ParsedStep) -> ParsedStep",
+        "segment_steps": "def segment_steps(turns: list[RawTurn]) -> list[ParsedStep]",
+        "inferred_task_title": "def inferred_task_title(turns: list[RawTurn]) -> str",
+        "parse_run": "def parse_run(source_path: str, run_id: str = \"\") -> ParsedRun"
+      },
+      "exports": [
+        "RawTurn",
+        "ParsedStep",
+        "ParsedRun",
+        "truncate_text",
+        "unique_strings",
+        "path_run_stem",
+        "load_trajectory_file",
+        "extract_turns",
+        "hash_text",
+        "infer_kind",
+        "infer_phase",
+        "extract_file_tokens",
+        "step_text",
+        "step_has_command",
+        "step_has_patch",
+        "step_has_test",
+        "step_has_error",
+        "step_has_submit",
+        "finalize_step",
+        "segment_steps",
+        "inferred_task_title",
+        "parse_run"
+      ],
+      "imports_from_plan": [],
+      "write_order": 2,
+      "status": "pending"
+    },
+    {
+      "path": "traceforge/features.jac",
+      "layer": "service",
+      "purpose": "Run fingerprinting. Import ParsedRun, ParsedStep, extract_file_tokens, step_has_command, step_has_error, step_has_patch, step_has_submit, step_has_test, step_text, truncate_text and unique_strings from traceforge.parser. bounded_ratio returns 0.0 for a non-positive denominator and otherwise the ratio clamped to [0,1] rounded to 4 places. count_tokens counts non-empty str(item) keys; sort_count_pairs sorts (key,count) pairs by count desc then key asc; summarize_counts(items, limit) returns the first max(limit,0) pairs. cosine_like_overlap returns 1.0 when both lists are empty, 0.0 when one is, else round(2*sum(min counts of shared tokens)/(left_total+right_total), 4). top_k_indices orders indices by value desc then index. dominant_failure_label returns the label with the highest score strictly above 0.0 in fingerprint['failure_class_scores'] (first wins ties), else 'UNKNOWN'. fingerprint_to_dict returns dict(fingerprint). CONTRACT compute_run_fingerprint returns a dict with exactly these keys and initial values: num_steps=len(run.steps), num_turns=len(run.turns), num_commands=0, num_tests=0, num_patches=0, num_unique_files=0, repeated_step_ratio=0.0, repeated_file_ratio=0.0, first_patch_step=-1, first_test_step=-1, first_error_step=-1, first_submit_step=-1, submit_before_recovery=False, nonzero_return_ratio=0.0, loop_score=0.0, top_files=[], top_test_names=[], top_error_keywords=[], step_kind_sequence=[], failure_class_scores={}, did_any_edit=False, did_any_test=False, did_any_patch_parse_fail=False, did_any_syntax_error=False, did_any_import_error=False, ended_in_fail_signal=False, late_first_edit=False, late_first_test=False, run_status=str(metadata['status'] or 'unknown').lower(). For each (idx, step): text=step_text(step), lower=text.lower(); append step.kind or 'OTHER' to step_kind_sequence; num_commands+=1 if step_has_command; command_lower=command_text.lower(); if command_lower contains any of 'grep ','ls ','find ','read ','inspect','rg ','cat ','sed ' then search_hits+=1 and, if step.phase=='inspect', planning+=1. If step_has_test: num_tests+=1, did_any_test=True, set first_test_step if -1, extend top_test_names with extract_file_tokens(test_text). If step_has_patch: num_patches+=1, did_any_edit=True, set first_patch_step if -1. If step_has_error: saw_error=True, set first_error_step if -1, error_lower=error_text.lower(), append each of 'traceback','error','exception','failed','syntaxerror','importerror' it contains to top_error_keywords; did_any_syntax_error=True if it contains 'syntaxerror' or 'invalid syntax'; did_any_import_error=True if it contains 'importerror' or 'module not found'; if first_patch_step>=0 and idx>=first_patch_step and it contains 'syntaxerror','invalid syntax' or 'traceback' then syntax_error_after_patch=True and did_any_patch_parse_fail=True. Then passed_after_error=True if saw_error and lower contains ' passed', starts with 'passed', contains 'resolved' or contains '1 passed'. If step_has_submit set first_submit_step if -1. nonzero_returns+=1 if command_lower contains 'returncode','exit code','non-zero' or 'command failed'. planning+=1 if step.phase=='reason' with no command, patch or test. files.extend(extract_file_tokens(text)); repeated_hits+=1 if step.content_hash was already seen, else remember it. After the loop: unique=unique_strings(files); num_unique_files=len(unique); top_files=unique[:8]; top_error_keywords and top_test_names = unique_strings(...)[:8]; repeated_step_ratio=bounded_ratio(repeated_hits, max(len(steps),1)); repeated_file_ratio=bounded_ratio(len(files)-len(unique), max(len(files),1)); nonzero_return_ratio=bounded_ratio(nonzero_returns, max(len(steps),1)); loop_score=round(repeated_step_ratio*0.6+repeated_file_ratio*0.4, 4); submit_before_recovery = first_submit_step>=0 and first_error_step>=0 and not passed_after_error; late_first_edit = first_patch_step>=0 and first_patch_step>=max(len(steps)//2,1); late_first_test likewise with first_test_step; ended_in_fail_signal = status not in {resolved, passed, success, succeeded} and not passed_after_error and first_error_step>=0. failure_class_scores = {PREMATURE_COMPLETION:0.0, INVALID_PATCH:0.0, WRONG_FILE_FOCUS:0.0, OSCILLATION_LOOP:0.0, TOOL_MISUSE:nonzero_return_ratio, STALE_CONTEXT_OR_BAD_PLAN:0.0, REQUIREMENT_DRIFT:0.0}, then: PREMATURE_COMPLETION=0.8 if submit_before_recovery; INVALID_PATCH = (0.95 if syntax_error_after_patch else 0.5) when first_patch_step>=0, first_error_step>=0, first_patch_step<=first_error_step and not passed_after_error; WRONG_FILE_FOCUS=0.5 if num_unique_files>0 and repeated_file_ratio>0.5; OSCILLATION_LOOP=max(loop_score,0.7) if not passed_after_error and (loop_score>=0.35 or search_hits>=3 or (repeated_file_ratio>=0.25 and num_tests==0)); STALE_CONTEXT_OR_BAD_PLAN=0.55 if num_patches==0 and planning>=2 and num_tests<=1; REQUIREMENT_DRIFT=0.45 if num_unique_files>=4 and num_tests==0. CONTRACT build_run_digest: status=str(metadata['status'] or 'unknown'); parts are \"Run {run_id} on task '{task_title or 'unknown task'}' ended with status {status}.\" and \"{num_steps} decision steps, {num_tests} test actions, {num_patches} patch actions.\", then if the dominant label is not UNKNOWN \"Primary failure family: {label}.\", if top_files \"Top files: \" + ', '.join(top_files[:4]) + '.', if top_error_keywords \"Error signals: \" + ', '.join(top_error_keywords[:4]) + '.', if submit_before_recovery \"Submission happened before visible recovery.\", if loop_score>=0.35 \"Loop score {loop_score} indicates repetition.\"; return truncate_text(' '.join(parts), 500).",
+      "signatures": {
+        "bounded_ratio": "def bounded_ratio(numerator: int|float, denominator: int|float) -> float",
+        "count_tokens": "def count_tokens(items: list[str]) -> dict[str, int]",
+        "sort_count_pairs": "def sort_count_pairs(counts: dict[str, int]) -> list[tuple[str, int]]",
+        "summarize_counts": "def summarize_counts(items: list[str], limit: int = 5) -> list[tuple[str, int]]",
+        "cosine_like_overlap": "def cosine_like_overlap(left: list[str], right: list[str]) -> float",
+        "top_k_indices": "def top_k_indices(values: list[float], k: int = 5) -> list[int]",
+        "dominant_failure_label": "def dominant_failure_label(fingerprint: dict[str, any]) -> str",
+        "compute_run_fingerprint": "def compute_run_fingerprint(run: ParsedRun) -> dict[str, any]",
+        "fingerprint_to_dict": "def fingerprint_to_dict(fingerprint: dict[str, any]) -> dict[str, any]",
+        "build_run_digest": "def build_run_digest(run: ParsedRun, fingerprint: dict[str, any]) -> str"
+      },
+      "exports": [
+        "bounded_ratio",
+        "count_tokens",
+        "sort_count_pairs",
+        "summarize_counts",
+        "cosine_like_overlap",
+        "top_k_indices",
+        "dominant_failure_label",
+        "compute_run_fingerprint",
+        "fingerprint_to_dict",
+        "build_run_digest"
+      ],
+      "imports_from_plan": [
+        "ParsedRun",
+        "ParsedStep",
+        "extract_file_tokens",
+        "step_has_command",
+        "step_has_error",
+        "step_has_patch",
+        "step_has_submit",
+        "step_has_test",
+        "step_text",
+        "truncate_text",
+        "unique_strings"
+      ],
+      "write_order": 3,
+      "status": "pending"
+    },
+    {
+      "path": "traceforge/critical.jac",
+      "layer": "service",
+      "purpose": "Critical-step localization. Import ParsedRun, ParsedStep and step_text from traceforge.parser and bounded_ratio from traceforge.features. Private detectors on text.lower(): error = contains any of 'traceback','error','exception','failed','syntaxerror'; recovery = any of '1 passed',' passed','resolved','fixed','success'; submit = 'submit' or 'final'; patch = 'patch','diff' or 'apply_patch'; test = 'pytest' or 'test'. CONTRACT candidate_step_indices: start with fingerprint first_patch_step, first_test_step, first_error_step, first_submit_step (in that order, int(get(key,-1)), only values >=0 and not already present); then for each (index, step): add index if its non-empty content_hash equals an earlier step's hash, then remember the hash; if touched_files is non-empty, key='|'.join(touched_files), add index if key was seen before, then remember it; return sorted. CONTRACT build_evidence_window(run, center, radius=1): [] for center<0; otherwise for index from max(center-radius,0) through min(center+radius,len(steps)-1) a dict {idx: step.index, kind: step.kind, phase: step.phase, excerpt: step.excerpt}. CONTRACT score_candidate_step: texts=[step_text(s) for s in run.steps], text=texts[index], later=texts[index+1:]. persistence_of_damage=0.35 if any later has error and none has recovery; new_error_after_step=0.25 if the current text has no error and the next text has an error; no_recovery_after_step=0.2 if no later recovery; divergence_from_target_files=0.15 if the step's touched_files and fingerprint top_files are both non-empty and bounded_ratio(count of touched files in top_files, len(touched_files))<0.34; premature_submit_signal=0.3 if fingerprint submit_before_recovery and (index==first_submit_step or index+1==first_submit_step); loop_start_signal (only when loop_score>=0.35): if a next step exists 0.2 when its content_hash equals this one, elif both touched_files are non-empty and equal 0.15; for the last step 0.1 if submit detector and no later recovery; patch_to_error_signal=0.25 if patch detector on the current text and later error and no later recovery; test_failure_signal=0.15 if test detector and current error and no later recovery; recovery_signal=0.25 if any later recovery. score=round(sum of the eight positive signals - recovery_signal, 4). Return {step_idx: index, score, signals: {those nine names: values}}. CONTRACT localize_critical_step: if str(metadata status).lower() in {resolved, passed, success, succeeded} return {critical_step_idx:-1, confidence:0.0, candidate_scores:[], evidence_window:[], status:'resolved_run'}. Otherwise candidates=candidate_step_indices (or [0] if empty and steps exist), score each in order into candidate_scores; with chosen_idx=-1, chosen_score=-999.0, take the first candidate scoring >=0.45 and stop, else keep the higher score (ties to the lower index). Return {critical_step_idx: chosen_idx, confidence: max(round(chosen_score,4),0.0), candidate_scores, evidence_window: build_evidence_window(run, chosen_idx), status:'localized'}.",
+      "signatures": {
+        "candidate_step_indices": "def candidate_step_indices(run: ParsedRun, fingerprint: dict[str, any]) -> list[int]",
+        "build_evidence_window": "def build_evidence_window(run: ParsedRun, center_index: int, radius: int = 1) -> list[dict[str, any]]",
+        "score_candidate_step": "def score_candidate_step(run: ParsedRun, fingerprint: dict[str, any], index: int) -> dict[str, any]",
+        "localize_critical_step": "def localize_critical_step(run: ParsedRun, fingerprint: dict[str, any]) -> dict[str, any]"
+      },
+      "exports": [
+        "candidate_step_indices",
+        "build_evidence_window",
+        "score_candidate_step",
+        "localize_critical_step"
+      ],
+      "imports_from_plan": [
+        "ParsedRun",
+        "ParsedStep",
+        "step_text",
+        "bounded_ratio"
+      ],
+      "write_order": 4,
+      "status": "pending"
+    },
+    {
+      "path": "main.jac",
+      "layer": "service",
+      "purpose": "Thin service entry with no logic: import ParsedRun, ParsedStep, RawTurn, extract_turns and segment_steps from traceforge.parser, compute_run_fingerprint, dominant_failure_label and build_run_digest from traceforge.features, and localize_critical_step from traceforge.critical.",
+      "exports": [],
+      "imports_from_plan": [
+        "ParsedRun",
+        "ParsedStep",
+        "RawTurn",
+        "extract_turns",
+        "segment_steps",
+        "compute_run_fingerprint",
+        "dominant_failure_label",
+        "build_run_digest",
+        "localize_critical_step"
+      ],
+      "write_order": 5,
+      "status": "pending"
+    }
+  ],
+  "write_order": [
+    "jac.toml",
+    "traceforge/parser.jac",
+    "traceforge/features.jac",
+    "traceforge/critical.jac",
+    "main.jac"
+  ],
+  "dependency_graph": {
+    "jac.toml": [],
+    "traceforge/parser.jac": [],
+    "traceforge/features.jac": [
+      "traceforge/parser.jac"
+    ],
+    "traceforge/critical.jac": [
+      "traceforge/parser.jac",
+      "traceforge/features.jac"
+    ],
+    "main.jac": [
+      "traceforge/parser.jac",
+      "traceforge/features.jac",
+      "traceforge/critical.jac"
+    ]
+  },
+  "remove_from_template": [],
+  "verify": {
+    "flow": "extract_turns -> segment_steps -> compute_run_fingerprint -> build_run_digest / localize_critical_step",
+    "route": "API only",
+    "steps": "Run jac check main.jac and the Jac behavior tests: segment an in-memory failing trajectory, fingerprint it, check the digest, localize the critical patch step, and confirm a resolved run is skipped."
+  },
+  "build_log": {
+    "overall_status": "pending",
+    "last_action": "",
+    "issues": [],
+    "learnings": []
+  },
+  "confidence": 0.85,
+  "assumption": "Backend analysis slice of Dhravidk/TraceForge (JacHacks 2026). parser.jac is unmodified source; features.jac and critical.jac are jac-data-gen repaired versions that pass Jac 0.36.1. The source entry main.jac renders a JSX UI, so a thin import-only main.jac replaces it. Out-of-slice modules (ingest, clustering, graph_build, analysis, llm_ops, eval, api, ui) are not needed."
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": "1",
+  "task_id": "insuraagent_backend_v1",
+  "reference_id": "ref_fozagtx_insuraagent_backend",
+  "request": "Build the headless backend of a health-insurance appeal agent. In models.jac define the denial-reason and appeal-strength enums, the value objects PolicyClause, Contradiction and AppealLetter, and graph nodes Claim, Policy and Appeal. In tools.jac define five LLM-backed tools: classify the denial reason, extract the relevant policy clauses, find contradictions between the denial and the policy, assess appeal strength, and draft the appeal letter. Each tool asks the model for plain text or JSON text and converts the answer into the typed model objects in Jac, tolerating markdown fences and surrounding prose. In walkers.jac expose a public walker submit_claim that stores the claim and policy on root, runs the five tools in sequence, stores an Appeal node and reports the letter, and a public walker list_appeals that reports a summary row per stored appeal. main.jac only imports the two walkers. Include tests that replace the model with MockLLM.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "extract_denial_reason and assess_appeal_strength map free-text model answers (case-insensitive, extra words allowed) onto DenialReason and AppealStrength members, falling back to OTHER and MODERATE.",
+    "extract_relevant_clauses and find_contradictions parse a JSON array that may be fenced or embedded in prose, skip non-object elements, default missing string fields to \"\", and return [] when no array is found.",
+    "draft_appeal_letter builds an AppealLetter from a JSON object embedded in prose, wraps a non-list citations value in a one-element list, and yields empty fields when the answer has no JSON object.",
+    "submit_claim attaches Claim, Policy (policy_id \"POL-\" + member_id) and Appeal (appeal_id \"APL-\" + the first 8 hex chars of a uuid4) nodes to root and reports appeal_id, claim_id, subject, letter and citations; the stored and reported letter is always exactly salutation + \"\\n\\n\" + body + \"\\n\\n\" + closing, even when those parts are empty; list_appeals reports one list of rows with appeal_id, claim_id, subject and created_at."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a backend-only service; no JSX or browser UI; never call a real model (test any by llm function with MockLLM).",
+    "Keep module paths models.jac, tools.jac, walkers.jac and main.jac.",
+    "Use the exact names DenialReason, AppealStrength, PolicyClause, Contradiction, AppealLetter, Claim, Policy, Appeal in models.jac; glob llm, extract_denial_reason, extract_relevant_clauses, find_contradictions, assess_appeal_strength and draft_appeal_letter in tools.jac; and public walkers submit_claim and list_appeals in walkers.jac, re-exported by main.jac.",
+    "tools.jac must call the model only through its module-level glob llm so tests can replace tools.llm with MockLLM."
+  ]
+}

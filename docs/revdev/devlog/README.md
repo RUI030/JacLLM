@@ -4,6 +4,7 @@
 流程設計與資料格式仍在 [總覽](../../REVDEV.md)、
 [實作計畫](../../REVDEV_IMPLEMENTATION_PLAN.md) 和
 [artifact 規格](../../REVDEV_ARTIFACTS.md)。
+目前進度與接手重點見 [狀態摘要](../STATUS.md)。
 
 | 紀錄 | 內容 |
 | --- | --- |
@@ -35,3 +36,15 @@ gitignored 的 `dataset/raw/revdev/` 與
 - [A2-Pulse 雙檔行為軌跡](REVDEV_A2PULSE_TWOFILE.md)：原測試 23/23、日期測試獨立重跑、64k valid 匯出。
 
 - [m-local 雙檔行為軌跡](REVDEV_MLOCAL_CONTEXT.md)：原測試 13/13、reference oracle、失敗後修正與 64k train 匯出。
+
+- [Token-triggered full-app continuation](REVDEV_AUTOCOMPACT_RUN.md)：一條完整 app 軌跡在 token 邊界自動 checkpoint，續作、瀏覽器驗收、重播與 SFT preview。
+
+- [Data quality audit](REVDEV_DATA_QUALITY_20261030.md)：active 35 筆結構檢查、已修資料問題及量產門檻。
+
+- [Checkpoint handoff preparation](REVDEV_HANDOFF_PREP.md)：交接 prompt、A2-Pulse 跨 repo task 與 teacher 驗證狀態。
+
+- [Rendered SFT examples](REVDEV_RENDERED_EXAMPLES.md)：planning、scaffold、app prefix、resume 的實際訓練樣本預覽與 renderer 命令。
+
+- [Markdown plan migration](REVDEV_MARKDOWN_PLAN.md)：`docs/plan.md`、Mermaid 模組圖、harness JSON 使用者與新舊資料邊界。
+
+- [Distribution and scale gate](REVDEV_DISTRIBUTION_REVIEW.md)：現役資料分布、loss tokens、多樣候選、修正設定與量產前待辦。

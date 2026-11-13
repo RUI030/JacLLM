@@ -1,0 +1,83 @@
+{
+  "source_repository": "push-to-production/CareAnchor",
+  "source_url": "https://github.com/push-to-production/CareAnchor",
+  "source_dataset": "/home/imrui/Documents/Jaseci/JacLLM/jac-data-gen/data/jachacks_repaired/push-to-production__CareAnchor (records in /home/imrui/Documents/Jaseci/JacLLM/jac-data-gen/data/jachacks_nonsf_jac_files_checked.jsonl, dirname push-to-production__CareAnchor)",
+  "source_paths": [
+    "models/codes.jac",
+    "models/provider.jac",
+    "models/session.jac",
+    "services/common.jac",
+    "services/pdf_exporter.jac"
+  ],
+  "source_files_sha256": {
+    "models/codes.jac": "79074be0c723b8edb99e7992077c93367a2a8b7301ac4f115041c9b74507049e",
+    "models/provider.jac": "3b54b78bfcc8525499bf673d1c2131f17af28006c762dbbd6caf0507c2b75c76",
+    "models/session.jac": "48a28b68fdd9a40f3370c4af05d52a46df9daad9e6a2f0cfa266a9e614a09b00",
+    "services/common.jac": "2416bb3189867218c66a008ee985c0a692af31178177d39809cc51b5e0030d54",
+    "services/pdf_exporter.jac": "9aa3c98202cefc4965a98c98aa92671decfb8a52b2d5f85cff46756640d00c75"
+  },
+  "repaired_files": [
+    {
+      "path": "services/pdf_exporter.jac",
+      "repaired_by": "subagent",
+      "original_sha": "3caede219932"
+    }
+  ],
+  "slice_import_edges": [
+    [
+      "models/session.jac",
+      "models/codes.jac"
+    ],
+    [
+      "models/session.jac",
+      "models/provider.jac"
+    ],
+    [
+      "services/pdf_exporter.jac",
+      "models/session.jac"
+    ],
+    [
+      "services/pdf_exporter.jac",
+      "services/common.jac"
+    ],
+    [
+      "main.jac",
+      "models/session.jac"
+    ],
+    [
+      "main.jac",
+      "services/pdf_exporter.jac"
+    ]
+  ],
+  "scope": "backend session models, session serialization and PDF export payload; no agents, UI or LLM services",
+  "target_jac_version": "0.36.1",
+  "source_jac_version": "unknown (JacHacks 2026 submission; checked files pass 0.36.1)",
+  "adaptation": "models/codes.jac, models/provider.jac, models/session.jac and services/common.jac copied verbatim. services/pdf_exporter.jac: one line changed, 'import from ..models.session { UserSession }' -> 'import from models.session { UserSession }', because the workspace root is not a package and the relative form raises 'attempted relative import beyond top-level package' at test time; the resulting file's sha256 (3caede219932...) equals the recorded original_sha, i.e. this reverts the sweep's import rewrite to the upstream text. main.jac is new: a 4-line thin module importing the slice's public names (the source main.jac loads dotenv, agents and a JSX AppShell). jac.toml is new and minimal.",
+  "source_edits": [
+    {
+      "path": "services/pdf_exporter.jac",
+      "line": 3,
+      "from": "import from ..models.session { UserSession }",
+      "to": "import from models.session { UserSession }"
+    },
+    {
+      "path": "main.jac",
+      "change": "new thin re-export module"
+    },
+    {
+      "path": "jac.toml",
+      "change": "new minimal [project] config"
+    }
+  ],
+  "independent_acceptance": "reference_acceptance.jac",
+  "independent_acceptance_sha256": "6a11c645aa0f5928d3bda87b091e86736eadf731bb995fa21654ed2390a2b616",
+  "reference_preflight": {
+    "jac_check_main": "passed (main.jac ok, 1 passed)",
+    "jac_test": "5 passed with JAC_TEST_NATIVE=1 JAC_TEST_JOBS=0 as revdev_acceptance.jac",
+    "workspace": "/tmp/revdev-careanchor_backend-preflight-v2"
+  },
+  "split": "train",
+  "split_group": "push-to-production__careanchor",
+  "split_reason": "Wave-1 revdev recipe from a JacHacks 2026 repository.",
+  "revision": "v2: added output contracts asserted by tests (exact session_to_dict keys/agent_trace shape, APP_DISCLAIMER text, PDF HTML section templates, escaping and placeholder strings) to plan.json purposes for models/session.jac, services/common.jac and services/pdf_exporter.jac; reference_acceptance.jac unchanged, no assertions dropped."
+}

@@ -1,0 +1,18 @@
+{
+  "schema_version": "1",
+  "task_id": "flair_backend_v1",
+  "reference_id": "ref_krishs09_123_jachacks_engagement_auditor_flair",
+  "request": "Build the headless scoring core of Flair, a retention/engagement auditor for consumer web apps. A crawler (out of scope) produces deterministic signals; an LLM rubric evaluator turns an evidence pack plus those signals into a JSON text verdict, and the service parses that verdict into a typed audit bundle with clamped category scores and normalized findings. When the LLM call fails, returns unparsable text, or gives no findings, the service must fall back to a bundle built from the deterministic retention signals. Put the plain data objects DeterministicSignal, LlmFindingDraft and LlmAuditBundle in services/models.jac; the by-llm rubric function evaluate_retention_recommendations and its module-level model glob llm in services/llm.jac; and the parsing, clamping, fallback and weighted-rubric logic (safe_retention_bundle, parse_llm_bundle, fallback_bundle, rubric_overall, blended_score and their helpers) in services/audits.jac. main.jac only imports the public audit functions. Include tests that swap the model for MockLLM.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "safe_retention_bundle calls the by-llm evaluator, strips code fences or surrounding prose from its text, and returns an LlmAuditBundle whose overall score is clamped to 0-100 and category scores to 0-10, with missing categories defaulting to 5.",
+    "Each parsed finding is forced into the retention lane, gets its confidence clamped to 0.0-1.0, and missing fields take the documented defaults.",
+    "When the model output has no findings or cannot be parsed, the bundle falls back to drafts copied from retention-lane deterministic signals (or one baseline finding when none exist) with every category set to 3, 5 or 7 by the given score.",
+    "rubric_overall combines the ten clamped category scores with the documented weights into a 0-100 score, and blended_score averages two clamped scores."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a backend-only service; no JSX or browser UI; never call a real model (test any by llm function with MockLLM).",
+    "Keep the public names DeterministicSignal, LlmFindingDraft, LlmAuditBundle (services/models.jac), glob llm and evaluate_retention_recommendations (services/llm.jac), and safe_retention_bundle, parse_llm_bundle, fallback_bundle, draft_from_signal, llm_json_payload, rubric_overall, blended_score, bounded_score, bounded_ten (services/audits.jac).",
+    "Import Model from jaclang.byllm.lib; evaluate_retention_recommendations must read the module-level glob llm at call time so tests can replace services.llm.llm with MockLLM."
+  ]
+}

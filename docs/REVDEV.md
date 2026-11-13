@@ -1,6 +1,13 @@
 # Reverse Development SFT dataset: plan and preview
 
-Status: M0–M4 retain the 8-record, five-type Mindcraft pilot. M5 module expansion has 21 accepted real-tool trajectories across 3 repos (14 train / 7 repo-heldout valid); rank16 continuation training and paired evaluation completed, with no measured behavioral improvement. The two-record smoke covers GhostBoard two-file replay and an A2-Pulse date test (4/4). Two longer connected two-file records now pass original behavior tests and replay: A2-Pulse editor (34,733-token valid) and m-local context (24,456-token train, plus an independent mixed-state oracle). Their splits are separated by repository. See [multifile smoke](revdev/devlog/REVDEV_MULTIFILE_SMOKE.md), [A2-Pulse log](revdev/devlog/REVDEV_A2PULSE_TWOFILE.md), and [m-local log](revdev/devlog/REVDEV_MLOCAL_CONTEXT.md). Full-app expansion remains pending. See [scale-up log](revdev/devlog/REVDEV_SCALEUP.md). Runtime remains pinned to Jac 0.34.27.
+Current active output (2026-11-02): one dataset at
+`dataset/sft/revdev/accepted/train.jsonl`, containing 53 accepted, non-mirror
+records from ten source groups. There is no within-app train/validation split;
+validation requires a different app outside this dataset. The five stage
+names below describe example types inside this dataset, not five active
+datasets. Their old `dataset/sft/revdev_*` paths are historical stage exports
+now preserved under `archived/revdev-stage-exports-20261102/`.
+See [current status](revdev/STATUS.md) for checks and counts.
 Mindcraft passed a Jac 0.34.27 fullstack HTTP/API and JacCoder tool smoke probe;
 see [REVDEV_M3_SMOKE.md](revdev/devlog/REVDEV_M3_SMOKE.md). Git history also
 yielded one reproducible debugging diff; see
@@ -19,10 +26,10 @@ The proposed JSON field contracts are in
 ## Goal
 
 Use an existing, verified Jac application as hidden ground truth to produce
-five separate SFT datasets: planning, scaffolding, dependency-aware function
-implementation, complete application construction, and continuation from a
-partially built project. Verification is part of the execution trajectories,
-not a separate dataset.
+one Reverse Development SFT dataset. Its rows can cover planning,
+scaffolding, dependency-aware function implementation, application
+construction, and continuation from a partially built project. `meta.stage`
+identifies the row type. Verification is part of the execution trajectories.
 
 The student's initial workspace must not contain the reference repository.
 Reference code may guide the offline generator and validate the outcome, but it
@@ -239,8 +246,8 @@ projects and tasks, review draft items, and delete tasks.”
 }
 ```
 
-Stored at `dataset/sft/revdev_plan/<name>/{train,valid}.jsonl` as ordinary
-`messages` plus `meta`. The actual plan must fill every required field of the
+The active form is a row in `dataset/sft/revdev/accepted/train.jsonl` with
+`meta.stage = "revdev_plan"`, ordinary `messages`, and `meta`. The actual plan must fill every required field of the
 selected JacCoder plan schema and include all files in scope. The `...` above
 marks omitted preview content, not a value to put in a dataset row.
 
@@ -309,7 +316,8 @@ def:pub create_task(title: str) -> Task {
 }
 ```
 
-Stored at `dataset/sft/revdev_function/<name>/{train,valid}.jsonl` with
+The active form is a row in `dataset/sft/revdev/accepted/train.jsonl` with
+`meta.stage = "revdev_function"`,
 `messages`, exact harness `tools`, and metadata linking every inspected symbol
 to the reference. The actual `tool_result` content is captured at execution;
 the arrow descriptions here are not fabricated results. If the Task definition
@@ -326,11 +334,12 @@ scoped scaffolds in dependency order, inspects dependencies on demand, and
 fills bodies until either the app is verified or the next safe checkpoint is
 reached before 64k tokens. Raw data uses
 `dataset/raw/trajectory/revdev-<name>.jsonl` with `meta` and ordered `rows`;
-converted SFT lives under `dataset/sft/revdev_app/<name>/`. An unfinished first
+converted SFT is a row of `dataset/sft/revdev/accepted/train.jsonl` with
+`meta.stage = "revdev_app"`. An unfinished first
 segment records its checkpoint ID and continuation status, with no fabricated
 final success reply.
 
-This fourth dataset cannot be assembled by concatenating unrelated examples
+This app-stage row cannot be assembled by concatenating unrelated examples
 from the first three: every tool call and result must belong to one replayable
 execution of the clean workspace.
 
@@ -354,7 +363,8 @@ write_code(walkers.jac, <complete content from the planned contracts>)
 ... continue remaining planned files and verify the final app ...
 ```
 
-Stored at `dataset/sft/revdev_resume/<name>/{train,valid}.jsonl` as a tool-use
+The active form is a row in `dataset/sft/revdev/accepted/train.jsonl` with
+`meta.stage = "revdev_resume"`, as a tool-use
 record with a checkpoint ID, source run ID, workspace file hashes, plan hash,
 remaining task IDs and actual call/result rows. On replay, restoring that
 checkpoint and applying the recorded calls must reproduce the recorded

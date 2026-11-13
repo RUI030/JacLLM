@@ -1,0 +1,133 @@
+{
+  "schema_version": "1",
+  "ui": {
+    "app_type": "api_service",
+    "nav_pattern": "none",
+    "pages": [],
+    "auth_required": false,
+    "backend_required": true,
+    "ai_required": false
+  },
+  "files": [
+    {
+      "path": "jac.toml",
+      "layer": "config",
+      "purpose": "Configure Jac 0.36.1 API-only service with main.jac entry point and no client or AI dependencies.",
+      "exports": [],
+      "imports_from_plan": [],
+      "write_order": 1,
+      "status": "pending"
+    },
+    {
+      "path": "models/Task.jac",
+      "layer": "model",
+      "purpose": "Define Task node with title, alias, notes, and is_draft fields, plus title/alias accessors. This deterministic slice does not invoke the source app's optional LLM alias generator.",
+      "exports": [
+        "Task"
+      ],
+      "imports_from_plan": [],
+      "write_order": 2,
+      "status": "pending"
+    },
+    {
+      "path": "models/Project.jac",
+      "layer": "model",
+      "purpose": "Define Project node with name, tldr, is_draft; methods create_sub_project, create_task, draft_sub_project, draft_task; public functions create_root_project, get_projects, get_project, get_sub_projects, get_tasks, create_sub_project, create_task. Connect nodes with graph edges and recursively find nested projects.",
+      "exports": [
+        "Project",
+        "create_root_project",
+        "get_projects",
+        "get_project",
+        "get_sub_projects",
+        "get_tasks",
+        "create_sub_project",
+        "create_task"
+      ],
+      "imports_from_plan": [
+        "Task"
+      ],
+      "write_order": 3,
+      "status": "pending"
+    },
+    {
+      "path": "walkers.jac",
+      "layer": "service",
+      "purpose": "Implement FindTask, Approver, Cleaner graph walkers and public approve_project, approve_task, delete_project, delete_task functions. Traversal must stay within the chosen project tree.",
+      "exports": [
+        "FindTask",
+        "Approver",
+        "Cleaner",
+        "approve_project",
+        "approve_task",
+        "delete_project",
+        "delete_task"
+      ],
+      "imports_from_plan": [
+        "Project",
+        "Task",
+        "get_project"
+      ],
+      "write_order": 4,
+      "status": "pending"
+    },
+    {
+      "path": "main.jac",
+      "layer": "service",
+      "purpose": "Import and register the public project and walker functions from models/Project.jac, models/Task.jac and walkers.jac. No JSX or browser UI.",
+      "exports": [],
+      "imports_from_plan": [
+        "Project",
+        "Task",
+        "create_root_project",
+        "get_projects",
+        "get_project",
+        "create_sub_project",
+        "create_task",
+        "approve_project",
+        "approve_task",
+        "delete_project",
+        "delete_task"
+      ],
+      "write_order": 5,
+      "status": "pending"
+    }
+  ],
+  "write_order": [
+    "jac.toml",
+    "models/Task.jac",
+    "models/Project.jac",
+    "walkers.jac",
+    "main.jac"
+  ],
+  "dependency_graph": {
+    "jac.toml": [],
+    "models/Task.jac": [],
+    "models/Project.jac": [
+      "models/Task.jac"
+    ],
+    "walkers.jac": [
+      "models/Project.jac",
+      "models/Task.jac"
+    ],
+    "main.jac": [
+      "models/Project.jac",
+      "models/Task.jac",
+      "walkers.jac",
+      "components/ProjectBoard.jac"
+    ]
+  },
+  "remove_from_template": [],
+  "verify": {
+    "flow": "root project -> nested project -> task -> approval -> deletion",
+    "route": "API only",
+    "steps": "Run jac check main.jac, the source-derived independent two-test acceptance on project hierarchy and approval, and clean replay of executed JacCoder calls."
+  },
+  "build_log": {
+    "overall_status": "pending",
+    "last_action": "",
+    "issues": [],
+    "learnings": []
+  },
+  "confidence": 0.75,
+  "assumption": "Scoped Rui/pm backend graph adaptation. Source functions and two independent behavior tests passed under Jac 0.36.1 before generation; no original UI is claimed."
+}

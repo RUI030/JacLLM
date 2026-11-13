@@ -1,0 +1,59 @@
+{
+  "schema_version": "1",
+  "ui": {
+    "app_type": "api_service",
+    "nav_pattern": "none",
+    "pages": [],
+    "auth_required": false,
+    "backend_required": true,
+    "ai_required": false
+  },
+  "files": [
+    {
+      "path": "jac.toml",
+      "layer": "config",
+      "purpose": "Configure Jac 0.36.1 [project] kind api-service and entry-point main.jac; this backend slice needs no npm or AI dependencies.",
+      "exports": [],
+      "imports_from_plan": [],
+      "write_order": 1,
+      "status": "pending"
+    },
+    {
+      "path": "endpoints.jac",
+      "layer": "service",
+      "purpose": "Define reference graph fields exactly: Event(year:int, month:int, day:int, hour:int, minute:int, title:str, description:str, work_min:int, break_min:int, cycles:int), Session(event_id:str, phase:str, cycle_ix:int, running:bool, phase_started_at:str ISO timestamp, phase_elapsed_before_pause:int), and Settings(idle_text:str). Implement now_iso() -> str, create_event, start_pomodoro, advance_phase, get_settings and set_idle_text using these fields. Starting a session marks prior active sessions phase done/running false. A two-cycle event advances work[0] to break[0] to work[1] to done. Keep public endpoints callable without an AI model.",
+      "signatures": {
+        "now_iso": "def now_iso() -> str",
+        "create_event": "def:pub create_event(year: int, month: int, day: int, hour: int, minute: int, title: str, description: str, work_min: int, break_min: int, cycles: int) -> Event",
+        "start_pomodoro": "def:pub start_pomodoro(event_id: str) -> Session",
+        "advance_phase": "def:pub advance_phase(session_id: str) -> Session | None",
+        "get_settings": "def:pub get_settings() -> Settings",
+        "set_idle_text": "def:pub set_idle_text(text: str) -> Settings"
+      },
+      "exports": ["Event", "Session", "Settings", "create_event", "start_pomodoro", "advance_phase", "get_settings", "set_idle_text"],
+      "imports_from_plan": [],
+      "write_order": 2,
+      "status": "pending"
+    },
+    {
+      "path": "main.jac",
+      "layer": "service",
+      "purpose": "Import the public timer and settings endpoints from endpoints.jac so the API service registers them at startup; no browser client or JSX.",
+      "exports": [],
+      "imports_from_plan": ["Event", "Session", "Settings", "create_event", "start_pomodoro", "advance_phase", "get_settings", "set_idle_text"],
+      "write_order": 3,
+      "status": "pending"
+    }
+  ],
+  "write_order": ["jac.toml", "endpoints.jac", "main.jac"],
+  "dependency_graph": {"jac.toml": [], "endpoints.jac": [], "main.jac": ["endpoints.jac"]},
+  "remove_from_template": [],
+  "verify": {
+    "flow": "start_pomodoro -> advance_phase -> settings",
+    "route": "API only",
+    "steps": "Run Jac check on main.jac and behavior tests on endpoints.jac. Independently check that a new session retires the prior one, two cycles alternate phases, and settings persist. Replay actual harness calls from a clean workspace."
+  },
+  "build_log": {"overall_status": "pending", "last_action": "", "issues": [], "learnings": []},
+  "confidence": 0.82,
+  "assumption": "This is a scoped adaptation of the Rui/pomodoro backend at Jac 0.36.1. The reference pins 0.36.0; the same endpoints.jac passed check and three behavior tests after isolated config migration to 0.36.1."
+}

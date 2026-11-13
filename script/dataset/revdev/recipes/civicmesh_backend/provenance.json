@@ -1,0 +1,66 @@
+{
+  "source_repository": "Anbu-00001/CivicMesh",
+  "source_url": "https://github.com/Anbu-00001/CivicMesh",
+  "source_subproject": "civicmesh",
+  "source_dataset": "/home/imrui/Documents/Jaseci/JacLLM/jac-data-gen/data/jachacks_repaired/Anbu-00001__CivicMesh/civicmesh (records: jac-data-gen/data/jachacks_nonsf_jac_files_checked.jsonl, dirname Anbu-00001__CivicMesh)",
+  "source_files_sha256": {
+    "graph/nodes.jac": "0c0ad412d876be815f45282798e87f9ad04f3ffb74cb8ff73f2630f3dc2e8adb",
+    "graph/edges.jac": "dfe9ea39b030e4c11838620d6626b315a92028cb240bca12ece3ca7c355b8131",
+    "walkers/impact.jac": "3eea2d60b3c4f45f5ddcc1243da454f02d1c8e182dffb8edaa695bc12adc48b3",
+    "walkers/pathfinder.jac": "bec86f7ba14337f9859e3914e380e585525d6cd90d9fc1d32c5892e5fa315895",
+    "main.jac": "114fdb74caf205d2207eaab795cd756da60d3fefa6679156915b696fdd330dbd"
+  },
+  "repaired_files": [
+    {
+      "path": "walkers/impact.jac",
+      "repaired_by": "subagent",
+      "original_sha": "5420a7a45693"
+    },
+    {
+      "path": "walkers/pathfinder.jac",
+      "repaired_by": "subagent",
+      "original_sha": "10be7c8d70f9"
+    }
+  ],
+  "slice_import_edges": [
+    [
+      "walkers/impact.jac",
+      "graph/nodes.jac"
+    ],
+    [
+      "walkers/impact.jac",
+      "graph/edges.jac"
+    ],
+    [
+      "walkers/pathfinder.jac",
+      "graph/nodes.jac"
+    ],
+    [
+      "walkers/pathfinder.jac",
+      "graph/edges.jac"
+    ],
+    [
+      "main.jac",
+      "walkers/impact.jac"
+    ],
+    [
+      "main.jac",
+      "walkers/pathfinder.jac"
+    ]
+  ],
+  "scope": "backend graph schema (nodes, edges) plus the two LLM-free aggregation/search walkers ImpactWalker and PathfinderWalker",
+  "target_jac_version": "0.36.1",
+  "source_jac_version": "0.36.1 (checked repaired copy)",
+  "adaptation": "The four source files are byte-identical to the checked jachacks_repaired copies. main.jac is new: a thin entry that only imports ImpactWalker and PathfinderWalker (the source entry app.jac / app.sv.jac pulls in client UI and by-llm walkers). jac.toml is a new minimal [project] service config.",
+  "independent_acceptance": "reference_acceptance.jac",
+  "independent_acceptance_sha256": "1bf3dbfddf4daaf1a953627a15198328fa6e8e474bc98f4712cab565c4881fd2",
+  "independent_acceptance_adaptation": "Written from scratch; the source tests import by-llm stubs and seed_data. In the source, PathfinderWalker reads hop payloads with [cur_node ->:leads_to:-> nbr], which yields nodes rather than edges, so every hop falls back to reason '', days 30, difficulty 'moderate' and ranking is effectively insertion order. Tests therefore assert path structure (start, end, hop from/to, hop_count, path_count, max_paths) and not edge payload values or ordering.",
+  "reference_preflight": {
+    "jac_check_main": "passed",
+    "reference_jac_test": "5 passed (JAC_TEST_NATIVE=1 JAC_TEST_JOBS=0, fresh .jac state and repeated persisted-root runs)",
+    "workspace": "/tmp/revdev-civicmesh_backend-preflight"
+  },
+  "split": "train",
+  "split_group": "anbu-00001__civicmesh",
+  "split_reason": "JacHacks Spring repository assigned to train in revdev wave 1."
+}

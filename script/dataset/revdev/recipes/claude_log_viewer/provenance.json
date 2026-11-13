@@ -1,0 +1,24 @@
+{
+  "source_repository": "Rui/ClaudeLogViewer",
+  "source_paths": [
+    "logs/store.jac",
+    "logs/treeUtils.jac"
+  ],
+  "source_sha256": {
+    "logs/store.jac": "b2687d84a31008564419c26bcd3558dbb359a17d0fe32bad657cdcc05d4a86cf",
+    "logs/treeUtils.jac": "a20e7fbb553ac229be515b34be907beb0d423391e42a324a9dd4cd95438edf93"
+  },
+  "scope": "project/session listing and trajectory tree lookup, no UI",
+  "target_jac_version": "0.36.1",
+  "source_jac_version": "0.36.0",
+  "adaptation": "Original Jac files copied unchanged into an isolated Jac 0.36.1 project for preflight; only jac.toml version/config changed.",
+  "independent_acceptance": "reference_acceptance.jac",
+  "independent_acceptance_sha256": "8843cecd46fe5f35893088192a1f1748b42a1902af7d6826b1c635010fc13920",
+  "reference_preflight": {
+    "jac_check": "store and treeUtils passed",
+    "jac_test": "3 passed with JAC_TEST_NATIVE=1"
+  },
+  "split": "train",
+  "split_group": "rui__claudelogviewer",
+  "split_reason": "Already occurs in old scaffold2impl and tool_fim train rows, so it is not a globally unseen valid source."
+}

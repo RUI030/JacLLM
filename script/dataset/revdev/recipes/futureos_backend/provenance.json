@@ -1,0 +1,38 @@
+{
+  "source_repository": "kshitijkumrawat20/JacHacks2026",
+  "source_url": "https://github.com/kshitijkumrawat20/JacHacks2026",
+  "source_commit": "34c5659924572ec46ee6b246b6c9d450b984e4cd",
+  "source_subproject": "JacHacks Spring FutureOS: services/appService.jac and main.jac",
+  "source_dataset": "/home/imrui/Documents/Jaseci/JacLLM/JacLLM/dataset/raw/repo/JacHackSpring/kshitijkumrawat20__JacHacks2026",
+  "source_files_sha256": {
+    "services/appService.jac": "bdaf44fb9b6a7d45beb19d4139cc375baa542b19c0e1440f770f425a1a7c44be",
+    "main.jac": "6c39a86de90b5bed3624da7f17f3efe5ed97dc4cb42b013c11d960ca2353383a"
+  },
+  "slice_files_sha256": {
+    "services/appService.jac": "97fdf5d8a5dfe398d2802aab30a2c34b113c370100a18c97def3d66754622c22",
+    "main.jac": "b204f3cf27ad563338a86e8bbb8657da649b5a1c723b2804b0baef3895afe5e1",
+    "jac.toml": "cebc65572d9914769c562d3b4f58d7bc5123fd174932e96e17f8406feda5a307"
+  },
+  "repaired_files": [],
+  "slice_import_edges": [
+    [
+      "main.jac",
+      "services/appService.jac"
+    ]
+  ],
+  "scope": "backend goal/mission/memory/agent-log operations, stats and agent status dashboards, and the LLM insight agent with its rule-based fallback",
+  "target_jac_version": "0.36.1",
+  "source_jac_version": "unpinned (jac-client-node 1.0.7 web app); upstream services/appService.jac passes jac check on 0.36.1",
+  "adaptation": "Upstream files pass jac check, so no jac-data-gen repaired copy is used (the repaired copies of main.jac and services/appService.jac are byte-identical to upstream). services/appService.jac edits: (1) deleted unused imports os, json, urllib.request {urlopen, Request}, urllib.parse {urlencode, quote_plus}; (2) deleted out-of-slice declarations AIInsightEntry, MissionPlan/StrategyReport/OpportunityReport and their sems, ai_plan_missions/ai_build_strategy/ai_find_opportunities and their sems, get_mission_templates (keyword template text), agent_generate_missions, agent_get_strategy, web_search_ddg (network) and agent_get_opportunities (network); (3) deleted add_goal, add_mission and add_memory because their `(root ++> X(...))[0]` indexing raises TypeError ('Goal' object is not subscriptable) at runtime on 0.36.1 and the logic may not be rewritten; (4) changed line 1 `import from byllm.lib { Model }` to `import from jaclang.byllm.lib { Model }` because byllm is not an importable module under the 0.36.1 runtime (passes check, fails at import with ModuleNotFoundError). All remaining lines are verbatim, including the glob llm declaration (its api_key was already redacted upstream). main.jac: deleted the JSX app() declaration and the css/index imports and removed the deleted/out-of-slice names from its services.appService import list; the docstring is kept. jac.toml is a new minimal [project] service config.",
+  "independent_acceptance": "reference_acceptance.jac",
+  "independent_acceptance_sha256": "8ad8792cbb875c287b304f7e666827380511b28fd4407968ef9e21b20563710a",
+  "independent_acceptance_adaptation": "Written for this recipe; the source has no tests. Tests seed nodes with root ++> since add_* were removed, swap services.appService.llm for MockLLM, run the async agent_get_insights with asyncio.run, and use an empty-output MockLLM to trigger the rule-based fallback.",
+  "reference_preflight": {
+    "jac_check_main": "passed (W3005 empty-parens warnings only)",
+    "jac_test": "5 passed (JAC_TEST_NATIVE=1 JAC_TEST_JOBS=0, as revdev_acceptance.jac and as reference_acceptance.jac, rerun on a persisted root)",
+    "workspace": "/tmp/revdev-futureos_backend-preflight"
+  },
+  "split": "train",
+  "split_group": "kshitijkumrawat20__jachacks2026",
+  "split_reason": "kshitijkumrawat20/JacHacks2026 already appears in existing scaffold2impl and tool_fim training rows."
+}

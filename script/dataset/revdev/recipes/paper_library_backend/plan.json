@@ -1,0 +1,57 @@
+{
+  "schema_version": "1",
+  "ui": {
+    "app_type": "service",
+    "nav_pattern": "none",
+    "pages": [],
+    "auth_required": false,
+    "backend_required": true,
+    "ai_required": false
+  },
+  "files": [
+    {
+      "path": "jac.toml",
+      "layer": "config",
+      "purpose": "Configure Jac 0.36.1 [project] kind service and entry-point main.jac; this headless slice has no npm or AI dependencies.",
+      "exports": [],
+      "imports_from_plan": [],
+      "write_order": 1,
+      "status": "pending"
+    },
+    {
+      "path": "model.jac",
+      "layer": "model",
+      "purpose": "Define node Paper with exact reference fields title:str, author:str, summary:str, source_url:str, tags:list[str] default [], and created_at:datetime|None default None. Runtime jid is generated automatically, not declared as a field.",
+      "exports": ["Paper"],
+      "imports_from_plan": [],
+      "write_order": 2,
+      "status": "pending"
+    },
+    {
+      "path": "main.jac",
+      "layer": "service",
+      "purpose": "Import Paper from model.jac. Implement get_paper_details(id:str)->Paper|None using jobj. Implement public walkers save_paper, list_papers and search_papers_by_tag. save_paper attaches a timestamped Paper to root and reports a dict with jid, title, author, summary, tags, source_url, created_at. list_papers reports each Paper on root. search_papers_by_tag reports one dict with papers:list[Paper], filtered by exact tag membership.",
+      "signatures": {
+        "get_paper_details": "def:pub get_paper_details(id: str) -> Paper | None",
+        "save_paper": "walker:pub save_paper { has title:str, author:str, summary:str, tags:list[str], source_url:str; can run with Root entry; }",
+        "list_papers": "walker:pub list_papers { can run with Root entry; can gather with Paper entry; }",
+        "search_papers_by_tag": "walker:pub search_papers_by_tag { has tag:str; can run with Root entry; can gather with Paper entry; can finish with Root exit; }"
+      },
+      "exports": ["get_paper_details", "save_paper", "list_papers", "search_papers_by_tag"],
+      "imports_from_plan": ["Paper"],
+      "write_order": 3,
+      "status": "pending"
+    }
+  ],
+  "write_order": ["jac.toml", "model.jac", "main.jac"],
+  "dependency_graph": {"jac.toml": [], "model.jac": [], "main.jac": ["model.jac"]},
+  "remove_from_template": [],
+  "verify": {
+    "flow": "save -> list/search -> get by id",
+    "route": "API only",
+    "steps": "Run jac check main.jac and Jac behavior tests. Independently verify the source's five original tests on a clean copy and replay all actual harness calls in a clean workspace."
+  },
+  "build_log": {"overall_status": "pending", "last_action": "", "issues": [], "learnings": []},
+  "confidence": 0.9,
+  "assumption": "Backend slice from Rui/JacProjectFactory/factory/output/repaircenter/Ornith_grad-student-paper-library. Original source pins 0.36.0; an isolated copy without the pin passed Jac 0.36.1 check and all five original behavior tests."
+}

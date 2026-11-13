@@ -1,0 +1,58 @@
+{
+  "source_repository": "pathakanshu/trace",
+  "source_subproject": "JacHackA2Tech/pathakanshu__trace",
+  "source_commit": "7f93d7b7d8cba8661d54455c33bc8bd261d27a16",
+  "source_dataset": "dataset/raw/repo/JacHackA2Tech/pathakanshu__trace (jachacks-a2tech)",
+  "source_files_sha256": {
+    "graph/nodes.jac": "5837851d976ac9a8e6c00314ddc3887cc7cec0b3dd81f112625b87e6fe62d5ba",
+    "graph/edges.jac": "d3c7b5ac1b25ad111c1c4124ce9d0388fba0ae006b25cb1b49c5c83edfdf8990",
+    "graph/activity.jac": "70af06943f58212078e1ed859186ba13dc520563f77a27f18ea03912beb7064d",
+    "services/timeline.jac": "c8b7cb0041528820ee1bed252eef5f5ceea208f1f0f8e716148c728f182cf8ce"
+  },
+  "scope": "backend incident graph model (nodes, edges), activity helpers and the read-only cited person timeline",
+  "target_jac_version": "0.36.1",
+  "source_jac_version": "unpinned (meta.json jac_version_pin null); per-file check run with 0.36.1",
+  "adaptation": "graph/nodes.jac, graph/edges.jac, graph/activity.jac and services/timeline.jac copied verbatim (all pass jac check 0.36.1). The source main.jac fails check and contains JSX/client routing plus imports of out-of-slice modules, so a new 5-line main.jac imports TimelineEntry, person_timeline from services.timeline and now_iso, plain_status, log_activity from graph.activity. jac.toml replaced by a minimal [project] kind service config without a version pin.",
+  "new_files": {
+    "main.jac": "f1abaab72fe6a3b4a6edb8301a361d42e95fb8e27ad07ef7006dcd0566adc2eb",
+    "jac.toml": "minimal [project] service config"
+  },
+  "repaired_files": [],
+  "slice_import_edges": [
+    [
+      "graph/edges.jac",
+      "graph/nodes.jac"
+    ],
+    [
+      "graph/activity.jac",
+      "graph/nodes.jac"
+    ],
+    [
+      "services/timeline.jac",
+      "graph/nodes.jac"
+    ],
+    [
+      "services/timeline.jac",
+      "graph/edges.jac"
+    ],
+    [
+      "main.jac",
+      "services/timeline.jac"
+    ],
+    [
+      "main.jac",
+      "graph/activity.jac"
+    ]
+  ],
+  "independent_acceptance": "reference_acceptance.jac",
+  "independent_acceptance_sha256": "67bcec2f33002267b7130e2a015fb450bbf3a7a02674dd158ad784fd60e5bfda",
+  "independent_acceptance_adaptation": "Newly written fixture (the source tests/test_timeline.jac depends on services.trace and demo.corpus, which are out of slice). Builds synthetic incidents with unique names per test; ids are compared via jid so persisted root state across runs does not affect results.",
+  "reference_preflight": {
+    "jac_check_main": "passed",
+    "original_jac_test": "5 passed (reference_acceptance.jac, JAC_TEST_NATIVE=1 JAC_TEST_JOBS=0; also passed on a second run with persisted root)",
+    "workspace": "/tmp/revdev-trace_backend-preflight"
+  },
+  "split": "train",
+  "split_group": "pathakanshu__trace",
+  "split_reason": "Hackathon repository JacHackA2Tech/pathakanshu__trace; all recipes from this repo share one split group."
+}

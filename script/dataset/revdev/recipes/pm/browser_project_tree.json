@@ -1,0 +1,20 @@
+{
+  "name": "pm-project-board-create-root",
+  "source_files": [
+    "jac.toml",
+    "main.jac",
+    "models/Project.jac",
+    "models/Task.jac",
+    "walkers.jac",
+    "components/ProjectBoard.jac",
+    "styles.css"
+  ],
+  "steps": [
+    {"op": "expect_text", "selector": "h1", "text": "Project Tracker"},
+    {"op": "fill", "selector": "#project-name", "value": "Website redesign"},
+    {"op": "fill", "selector": "#project-tldr", "value": "Refresh the customer site"},
+    {"op": "click", "selector": "button[type='submit']"},
+    {"op": "expect_text", "selector": ".project-list .project-card:first-child h3", "text": "Website redesign"},
+    {"op": "expect_text", "selector": ".project-list .project-card:first-child .tldr", "text": "Refresh the customer site"}
+  ]
+}

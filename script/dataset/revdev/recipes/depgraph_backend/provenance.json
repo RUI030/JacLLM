@@ -1,0 +1,47 @@
+{
+  "source_repository": "shaileshdev4/depgraph",
+  "source_subproject": "JacHacks Spring entry DepGraph (https://github.com/shaileshdev4/depgraph, upstream HEAD 8ae8de42a393bf317f7a6fe252c0396be103bcda at recipe time)",
+  "source_dataset": "/home/imrui/Documents/Jaseci/JacLLM/jac-data-gen/data/jachacks_repaired/shaileshdev4__depgraph (records: jac-data-gen/data/jachacks_nonsf_jac_files_checked.jsonl, dirname shaileshdev4__depgraph)",
+  "source_files_sha256": {
+    "graph/nodes.jac": "895701d4fcb00683a8a5d02ed4e6810c4134ec1405726d18bec94d9545125ea8",
+    "tools/risk_scorer.jac": "8eb34258737924eef0388dd4e0e97302740b1eff202a5d3b5deb7cc839f19a79",
+    "graph/snapshot_util.jac": "9634a3876d62c3de7dfc04dadc2fb0ffc97ac3a9bc48070140fd8b34a6161a18",
+    "walkers/remediation_walker.jac": "604a2648162283c23fdb3359dd207a17f1b1a2d3600d27224fd64b4b1470ea81"
+  },
+  "slice_files_sha256": {
+    "graph/nodes.jac": "895701d4fcb00683a8a5d02ed4e6810c4134ec1405726d18bec94d9545125ea8",
+    "tools/risk_scorer.jac": "a80c471f427a55900c722ad0b83872f17173cfdd1665ef9aebd08d51f0e4c384",
+    "graph/snapshot_util.jac": "2d5de522182258138dc4ec556a65c3f7b3c3cde5a9a491b150248393aa3c6903",
+    "walkers/remediation_walker.jac": "fca2b324c3469fa1fca4c7258ec3bdf671f5eced00f8f6b313c61402605616a4",
+    "main.jac": "2e8b8ca835126ac359e15cea140c235ed421636f6fef4917d2dc786e40dced96",
+    "jac.toml": "8e65d1864a8cdc62cc26f76943b137ab23f98b5052895752fad48053babd2d13"
+  },
+  "repaired_files": [
+    {"path": "graph/snapshot_util.jac", "repaired_by": "subagent", "original_sha": "1d120c129ddd"},
+    {"path": "walkers/remediation_walker.jac", "repaired_by": "subagent", "original_sha": "fca2b324c346"}
+  ],
+  "slice_import_edges": [
+    ["graph/snapshot_util.jac", "graph/nodes.jac"],
+    ["graph/snapshot_util.jac", "tools/risk_scorer.jac"],
+    ["walkers/remediation_walker.jac", "graph/nodes.jac"],
+    ["main.jac", "graph/nodes.jac"],
+    ["main.jac", "graph/snapshot_util.jac"],
+    ["main.jac", "tools/risk_scorer.jac"],
+    ["main.jac", "walkers/remediation_walker.jac"]
+  ],
+  "scope": "backend graph nodes, in-memory package risk scoring, graph snapshot building and the RemediationWalker; excludes components (UI), main.jac UI, LLM routing/report walkers and all network tools (GitHub, OSV, NVD).",
+  "target_jac_version": "0.36.1",
+  "source_jac_version": "0.36.1",
+  "adaptation": "graph/nodes.jac verbatim. tools/risk_scorer.jac: removed the unused line 'import from tools.jac_coerce { as_list }' (tools/jac_coerce.py is a repo-local Python module, not in the dataset). graph/snapshot_util.jac: removed 'import from ..tools.jac_coerce { as_list }', replaced the two calls as_list(parsed.get(\"packages\", [])) / as_list(parsed.get(\"edges\", [])) with list(...) (upstream as_list returns the value if it is a list, else []), and changed 'import from ..tools.risk_scorer' back to the upstream 'import from tools.risk_scorer'. walkers/remediation_walker.jac: changed the repaired 'import from ..graph.nodes' back to the upstream 'import from graph.nodes'; the result is byte-identical to upstream (sha256 prefix fca2b324c346 = original_sha). Reason for the import reverts: the repair sweep's '..' relative imports pass jac check but fail at runtime with 'ImportError: attempted relative import beyond top-level package' when imported from the workspace root. main.jac is new: a 6-line thin module that only imports/re-exports the slice (the source main.jac is a UI entry importing out-of-slice walkers and a Python runner). jac.toml is new: minimal [project] service config.",
+  "independent_acceptance": "reference_acceptance.jac",
+  "independent_acceptance_sha256": "293355c82661ae918f930b43127a6c5856f4b9822acf2fd61ae9d5b2b6e368f1",
+  "independent_acceptance_adaptation": "Written fresh for this recipe (the source has no Jac tests for these modules). Five deterministic tests with unique revdev-* package/CVE names; nodes are built in memory and walkers are spawned on Package nodes, so persisted root state does not affect results.",
+  "reference_preflight": {
+    "jac_check_main": "passed (main.jac ok, 1 passed)",
+    "jac_test": "5 passed (JAC_TEST_NATIVE=1 JAC_TEST_JOBS=0, run twice)",
+    "workspace": "/tmp/revdev-depgraph_backend-preflight"
+  },
+  "split": "train",
+  "split_group": "shaileshdev4__depgraph",
+  "split_reason": "Assigned by the wave-1 brief; repository-level split group."
+}

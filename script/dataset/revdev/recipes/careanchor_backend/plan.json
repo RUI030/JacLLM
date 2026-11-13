@@ -1,0 +1,186 @@
+{
+  "schema_version": "1",
+  "ui": {
+    "app_type": "service",
+    "nav_pattern": "none",
+    "pages": [],
+    "auth_required": false,
+    "backend_required": true,
+    "ai_required": false
+  },
+  "files": [
+    {
+      "path": "jac.toml",
+      "layer": "config",
+      "purpose": "Configure Jac 0.36.1 [project] with entry-point main.jac; this headless slice has no npm or AI dependencies.",
+      "exports": [],
+      "imports_from_plan": [],
+      "write_order": 1,
+      "status": "pending"
+    },
+    {
+      "path": "models/codes.jac",
+      "layer": "model",
+      "purpose": "Define obj DiagnosisCode with code:str, description:str, category:str, confidence:float default 0.0 and source:str default \"symptom_mapper\".",
+      "signatures": {
+        "DiagnosisCode": "obj DiagnosisCode { has code: str; has description: str; has category: str; has confidence: float = 0.0; has source: str = \"symptom_mapper\"; }"
+      },
+      "exports": [
+        "DiagnosisCode"
+      ],
+      "imports_from_plan": [],
+      "write_order": 2,
+      "status": "pending"
+    },
+    {
+      "path": "models/provider.jac",
+      "layer": "model",
+      "purpose": "Define obj ProviderOption with name, specialty, address, phone (str), accepts_insurance:list[str], distance_miles:float=0.0, rating:float=0.0, accepting_new_patients:bool=True, telehealth_available:bool=False, notes:str=\"\".",
+      "signatures": {
+        "ProviderOption": "obj ProviderOption { has name: str; has specialty: str; has address: str; has phone: str; has accepts_insurance: list[str]; has distance_miles: float = 0.0; has rating: float = 0.0; has accepting_new_patients: bool = True; has telehealth_available: bool = False; has notes: str = \"\"; }"
+      },
+      "exports": [
+        "ProviderOption"
+      ],
+      "imports_from_plan": [],
+      "write_order": 3,
+      "status": "pending"
+    },
+    {
+      "path": "models/session.jac",
+      "layer": "model",
+      "purpose": "Import DiagnosisCode from .codes and ProviderOption from .provider. Define a module-level APP_DISCLAIMER with the same exact text as services/common.jac, obj ChatMessage(role, content, timestamp, agent), objs CareSummary, ConversationStateUpdate, InterventionDecision, DiagnosisResult, CallingPreparation, and node UserSession with session_id, created_at, updated_at, phone_number=\"\", active_agent=\"Conversation Agent\", last_user_message=\"\", list fields transcript, extracted_symptoms, risk_flags, assigned_codes, provider_options, agent_path (default []), bools intervention_active, intervention_resolved, crisis_therapists_shown (default False) and str|None fields symptom_duration, severity, location, insurance, summary_text, doctor_notes (default None). append_message appends ChatMessage(role, content, timestamp=ts, agent) to session.transcript; update_session_timestamp sets only updated_at. session_to_dict returns a dict with exactly these keys: session_id, phone_number, created_at, updated_at, active_agent, transcript, extracted_symptoms, risk_flags, assigned_codes, provider_options, agent_path, agent_trace, intervention_active, intervention_resolved, location, insurance, summary_text, doctor_notes, disclaimer (=APP_DISCLAIMER). transcript items are {\"role\",\"content\",\"timestamp\",\"agent\"} dicts; assigned_codes items are {\"code\",\"description\",\"category\",\"confidence\",\"source\"} dicts; provider_options items are {\"name\",\"specialty\",\"address\",\"phone\",\"accepts_insurance\",\"distance_miles\",\"rating\",\"accepting_new_patients\",\"telehealth_available\",\"notes\"} dicts, each read by attribute from the stored objects. agent_trace is a list of six {\"name\": str, \"status\": str} dicts in this order: Intervention Agent/listening, Conversation Agent/idle, Calling Agent/idle, Diagnosis Agent/idle, Messaging Agent/idle, Summary Agent/idle; each agent_path entry is split on ':' and, when it has at least two parts, sets the status of the trace item whose name equals part 0 to part 1; entries without ':' are ignored.",
+      "signatures": {
+        "ChatMessage": "obj ChatMessage { has role: str; has content: str; has timestamp: str; has agent: str; }",
+        "UserSession": "node UserSession { has session_id: str; has created_at: str; has updated_at: str; ... }",
+        "append_message": "def append_message(session: UserSession, role: str, content: str, agent: str, ts: str) -> None",
+        "update_session_timestamp": "def update_session_timestamp(session: UserSession, ts: str) -> None",
+        "session_to_dict": "def session_to_dict(session: UserSession) -> dict"
+      },
+      "exports": [
+        "ChatMessage",
+        "CareSummary",
+        "ConversationStateUpdate",
+        "InterventionDecision",
+        "DiagnosisResult",
+        "CallingPreparation",
+        "UserSession",
+        "append_message",
+        "update_session_timestamp",
+        "session_to_dict"
+      ],
+      "imports_from_plan": [
+        "DiagnosisCode",
+        "ProviderOption"
+      ],
+      "write_order": 4,
+      "status": "pending"
+    },
+    {
+      "path": "services/common.jac",
+      "layer": "util",
+      "purpose": "Define glob APP_DISCLAIMER exactly \"AnchorCare is an AI-powered care coordination platform. It does not replace emergency care or professional diagnosis.\" and pure helpers new_session_id (uuid4 string), iso_now (datetime.now(timezone.utc).isoformat()), normalize_text, first_non_empty, merge_strings, truncate and transcript_excerpt (last N messages as 'ROLE: content' lines, accepting dicts or objects).",
+      "signatures": {
+        "APP_DISCLAIMER": "glob APP_DISCLAIMER: str",
+        "new_session_id": "def new_session_id() -> str",
+        "iso_now": "def iso_now() -> str",
+        "normalize_text": "def normalize_text(text: str) -> str",
+        "first_non_empty": "def first_non_empty(a: str, b: str) -> str",
+        "merge_strings": "def merge_strings(existing: str, incoming: str) -> str",
+        "truncate": "def truncate(text: str, max_chars: int) -> str",
+        "transcript_excerpt": "def transcript_excerpt(messages: list, max_messages: int) -> str"
+      },
+      "exports": [
+        "APP_DISCLAIMER",
+        "new_session_id",
+        "iso_now",
+        "normalize_text",
+        "first_non_empty",
+        "merge_strings",
+        "truncate",
+        "transcript_excerpt"
+      ],
+      "imports_from_plan": [],
+      "write_order": 5,
+      "status": "pending"
+    },
+    {
+      "path": "services/pdf_exporter.jac",
+      "layer": "service",
+      "purpose": "Import UserSession from models.session and iso_now, APP_DISCLAIMER from .common. Output contract (exact strings; '—' is an em dash, '·' a middle dot): _escape_html replaces & < > \" ' with &amp; &lt; &gt; &quot; &#39; (ampersand first) and is applied to every user value. _fmt_time(ts) returns the 5 chars after 'T' (HH:MM); _fmt_date(ts) returns the part before 'T'. html_content is the concatenation, with no separators, of: a <style> block; '<h2>Clinical Summary</h2>' + summary; '<h2>Session Details</h2>' + meta rows; '<h2>Patient Information</h2>' + info; '<h2>Reported Symptoms</h2>' + symptoms; '<h2>Matched Conditions</h2><p class=\"section-intro\">For informational purposes only — not a medical diagnosis.</p>' + conditions; '<h2>Provider Recommendations</h2>' + providers; '<h2>Risk &amp; Safety Flags</h2>' + risks; '<h2>Conversation Transcript</h2>' + transcript; '<p class=\"disclaimer\">' + escaped APP_DISCLAIMER + '</p>'. Summary: if summary_text is non-blank, '<p>' + escaped stripped summary_text + '</p>'. Otherwise parts joined by one space inside <p>...</p>: 'The patient reported: ' + escaped first five symptoms joined by ', ' + '.' (if any); 'Top provisional match: ' + code + ' — ' + description + '.' from the first assigned code (if any); str(count) + ' provider recommendation(s) available.' (if any); then 'Safety review flagged: ' + risk_flags joined by ', ' + '.' or 'No active safety flags recorded.'. Meta rows: '<p class=\"kv-row\"><span class=\"kv-label\">Session ID: </span>' + id + '</p>', then 'Date: </span>' + date(created_at) + ' at ' + time(created_at) + ' UTC</p>' and 'Exported: </span>' + date(generated_at) + ' at ' + time(generated_at) + ' UTC</p>' in the same row markup. Patient info: rows '<p class=\"kv-row\"><span class=\"kv-label\">Location: </span>' + value + '</p>' and likewise Insurance:, Duration: (symptom_duration), Severity: for non-empty values, else '<p>No patient information recorded.</p>'. Symptoms: '<ul>' + '<li>' + symptom + '</li>' per symptom + '</ul>', else '<p>No patient-reported symptoms captured.</p>'. Conditions: per code '<li><span class=\"code-id\">' + code + '</span> — ' + description + optional ' <span>(' + confidence + ')</span>' + '</li>' in <ul>, else '<p>No provisional diagnosis outputs recorded.</p>'. Providers: per provider '<li><p class=\"provider-name\">' + name + '</p><p class=\"provider-meta\">' + specialty + (' · ' + phone) + '</p>' + optional '<p class=\"provider-meta\">' address/notes '</p>' + '</li>' in <ul>, else '<p>No provider recommendations available yet.</p>'. Risks: '<li class=\"flag-item\">' + flag + '</li>' in <ul>, else '<p>No active risk flags recorded for this session.</p>'. Transcript: per message '<div class=\"msg-block\"><p class=\"' + cls + '\">' + header + '</p><p class=\"msg-body\">' + content + '</p></div><div class=\"msg-divider\"></div>' where role 'user' gives cls msg-header-patient and speaker 'Patient', otherwise cls msg-header and the agent name (or 'Care Anchor' if empty); header is speaker + ' · ' + HH:MM; else '<p>No conversation transcript available.</p>'. Codes, providers and messages may be objects or dicts. build_session_pdf_payload stamps generated_at = iso_now() and returns {\"file_name\": \"anchorcare_session_\" + session_id + \".pdf\", \"mime_type\": \"application/pdf\", \"generated_at\", \"session_id\", \"disclaimer\": APP_DISCLAIMER, \"html_content\"}.",
+      "signatures": {
+        "build_session_pdf_payload": "def build_session_pdf_payload(session: UserSession) -> dict",
+        "_escape_html": "def _escape_html(value: str) -> str",
+        "_fmt_time": "def _fmt_time(ts: str) -> str",
+        "_fmt_date": "def _fmt_date(ts: str) -> str"
+      },
+      "exports": [
+        "build_session_pdf_payload"
+      ],
+      "imports_from_plan": [
+        "UserSession",
+        "iso_now",
+        "APP_DISCLAIMER"
+      ],
+      "write_order": 6,
+      "status": "pending"
+    },
+    {
+      "path": "main.jac",
+      "layer": "service",
+      "purpose": "Thin entry point that imports UserSession, ChatMessage, append_message, update_session_timestamp and session_to_dict from models.session and build_session_pdf_payload from services.pdf_exporter; no UI route.",
+      "exports": [],
+      "imports_from_plan": [
+        "UserSession",
+        "ChatMessage",
+        "append_message",
+        "update_session_timestamp",
+        "session_to_dict",
+        "build_session_pdf_payload"
+      ],
+      "write_order": 7,
+      "status": "pending"
+    }
+  ],
+  "write_order": [
+    "jac.toml",
+    "models/codes.jac",
+    "models/provider.jac",
+    "models/session.jac",
+    "services/common.jac",
+    "services/pdf_exporter.jac",
+    "main.jac"
+  ],
+  "dependency_graph": {
+    "jac.toml": [],
+    "models/codes.jac": [],
+    "models/provider.jac": [],
+    "models/session.jac": [
+      "models/codes.jac",
+      "models/provider.jac"
+    ],
+    "services/common.jac": [],
+    "services/pdf_exporter.jac": [
+      "models/session.jac",
+      "services/common.jac"
+    ],
+    "main.jac": [
+      "models/session.jac",
+      "services/pdf_exporter.jac"
+    ]
+  },
+  "remove_from_template": [],
+  "verify": {
+    "flow": "build session -> append messages -> serialize -> build PDF payload",
+    "route": "API only",
+    "steps": "Run jac check main.jac and the Jac behavior tests for session helpers, session_to_dict and build_session_pdf_payload."
+  },
+  "build_log": {
+    "overall_status": "pending",
+    "last_action": "",
+    "issues": [],
+    "learnings": []
+  },
+  "confidence": 0.85,
+  "assumption": "Backend slice of push-to-production/CareAnchor (AnchorCare): models and the PDF export service. Agents, components, LLM-backed services and the original UI entry point are out of scope; main.jac is a thin new re-export module."
+}

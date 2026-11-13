@@ -1,0 +1,31 @@
+{
+  "schema_version": "1",
+  "ui": {
+    "app_type": "utility",
+    "nav_pattern": "single_page",
+    "pages": [{"name": "WeekPlanner", "route": "/", "title": "Weekly brief planner", "purpose": "preview"}],
+    "auth_required": false,
+    "backend_required": true,
+    "ai_required": false
+  },
+  "files": [
+    {"path": "jac.toml", "layer": "config", "purpose": "Pin the Jac web entry and server codespace.", "exports": [], "imports_from_plan": [], "write_order": 1, "status": "pending"},
+    {"path": "services/brief_dates.jac", "layer": "service", "purpose": "Implement deterministic brief_monday(now: date | datetime | None) -> date, brief_day_index(now: date | datetime | None) -> int, and brief_week_label(now: date | datetime | None) -> str. Expose a small public walker for the page to request a date preview.", "exports": ["brief_monday", "brief_day_index", "brief_week_label", "preview_week"], "imports_from_plan": [], "write_order": 2, "status": "pending"},
+    {"path": "styles.css", "layer": "asset", "purpose": "Style the date input, preview, and clear status text.", "exports": [], "imports_from_plan": [], "write_order": 3, "status": "pending"},
+    {"path": "components/WeekPlanner.jac", "layer": "page", "purpose": "Show the current brief week, accept a chosen date, call the service walker, and render its observed response.", "exports": ["WeekPlanner"], "imports_from_plan": ["preview_week"], "write_order": 4, "status": "pending"},
+    {"path": "main.jac", "layer": "shell", "purpose": "Register the service walker and mount the planner at the home route.", "exports": ["app"], "imports_from_plan": ["preview_week", "WeekPlanner"], "write_order": 5, "status": "pending"}
+  ],
+  "write_order": ["jac.toml", "services/brief_dates.jac", "styles.css", "components/WeekPlanner.jac", "main.jac"],
+  "dependency_graph": {
+    "jac.toml": [],
+    "services/brief_dates.jac": [],
+    "styles.css": [],
+    "components/WeekPlanner.jac": ["services/brief_dates.jac"],
+    "main.jac": ["services/brief_dates.jac", "components/WeekPlanner.jac"]
+  },
+  "remove_from_template": [],
+  "verify": {"flow": "preview_week", "route": "/", "steps": "Run the original brief_dates behavior tests; open the home page, choose a weekday and a weekend date, and verify their Monday and day index. Check the empty/default state."},
+  "build_log": {"overall_status": "pending", "last_action": "", "issues": [], "learnings": []},
+  "confidence": 0.8,
+  "assumption": "The build starts in an empty Jac 0.34.27 workspace; no external AI service is needed."
+}

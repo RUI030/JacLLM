@@ -1,0 +1,107 @@
+{
+  "schema_version": "1",
+  "ui": {
+    "app_type": "library",
+    "nav_pattern": "none",
+    "pages": [],
+    "auth_required": false,
+    "backend_required": true,
+    "ai_required": false
+  },
+  "files": [
+    {
+      "path": "jac.toml",
+      "layer": "config",
+      "purpose": "Configure a Jac 0.36.1 local backend project with main.jac entry point and no npm dependencies.",
+      "exports": [],
+      "imports_from_plan": [],
+      "write_order": 1,
+      "status": "pending"
+    },
+    {
+      "path": "logs/store.jac",
+      "layer": "service",
+      "purpose": "Define source-grounded ProjectSummary, SessionSummary, TrajectoryNode, SubagentRef fields. Implement list_projects, list_sessions and _summarize_session. Project files live under <claude_root>/projects/<encoded-name>/*.jsonl; skip directories without sessions; sort projects by last_activity descending. For each JSONL record, skip bad lines, count user/assistant messages and tool_use blocks, take first user text, ai-title, latest timestamp and first gitBranch, and get file size.",
+      "signatures": {
+        "list_projects": "def:pub list_projects(claude_root: str) -> list[ProjectSummary]",
+        "list_sessions": "def:pub list_sessions(project_dir: str) -> list[SessionSummary]",
+        "_summarize_session": "def _summarize_session(file_path: str) -> SessionSummary"
+      },
+      "exports": [
+        "ProjectSummary",
+        "SessionSummary",
+        "TrajectoryNode",
+        "SubagentRef",
+        "list_projects",
+        "list_sessions"
+      ],
+      "imports_from_plan": [],
+      "write_order": 2,
+      "status": "pending"
+    },
+    {
+      "path": "logs/treeUtils.jac",
+      "layer": "service",
+      "purpose": "Import TrajectoryNode and SubagentRef from store.jac. Recursively search a node's children by id, returning None if absent. Look up a SubagentRef by node ID in a dict, returning None if missing.",
+      "signatures": {
+        "findNode": "def:pub findNode(treeRoot: TrajectoryNode, nodeId: str) -> TrajectoryNode | None",
+        "subagentRefFor": "def:pub subagentRefFor(nodeId: str, subagentByNodeId: dict) -> SubagentRef | None"
+      },
+      "exports": [
+        "findNode",
+        "subagentRefFor"
+      ],
+      "imports_from_plan": [
+        "TrajectoryNode",
+        "SubagentRef"
+      ],
+      "write_order": 3,
+      "status": "pending"
+    },
+    {
+      "path": "main.jac",
+      "layer": "service",
+      "purpose": "Import public store and tree utilities as a small application/library entry point; no UI route.",
+      "exports": [],
+      "imports_from_plan": [
+        "list_projects",
+        "list_sessions",
+        "findNode",
+        "subagentRefFor"
+      ],
+      "write_order": 4,
+      "status": "pending"
+    }
+  ],
+  "write_order": [
+    "jac.toml",
+    "logs/store.jac",
+    "logs/treeUtils.jac",
+    "main.jac"
+  ],
+  "dependency_graph": {
+    "jac.toml": [],
+    "logs/store.jac": [],
+    "logs/treeUtils.jac": [
+      "logs/store.jac"
+    ],
+    "main.jac": [
+      "logs/store.jac",
+      "logs/treeUtils.jac"
+    ]
+  },
+  "remove_from_template": [],
+  "verify": {
+    "flow": "discover projects -> list sessions -> inspect tree",
+    "route": "local Jac library",
+    "steps": "Run jac check on main.jac and Jac behavior tests with temporary JSONL fixtures. Compare source-derived independent assertions, then replay actual harness calls from a clean workspace."
+  },
+  "build_log": {
+    "overall_status": "pending",
+    "last_action": "",
+    "issues": [],
+    "learnings": []
+  },
+  "confidence": 0.8,
+  "assumption": "Unmodified source store.jac and treeUtils.jac passed Jac 0.36.1 check and two source-derived tests in an isolated project."
+}

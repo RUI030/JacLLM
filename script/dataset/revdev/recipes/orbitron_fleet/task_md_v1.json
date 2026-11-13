@@ -1,0 +1,16 @@
+{
+  "schema_version": "1",
+  "task_id": "orbitron_fleet_md_v1",
+  "reference_id": "ref_orbitron_fleet_98f7832",
+  "request": "Build a small Jac web app for an operations team's fleet registry. Show six demo vehicles with plate, type, driver, status, fuel, speed, and location. Show summary counts for the total fleet and for active, maintenance, and idle vehicles. Let the user filter the table by All, Active, Maintenance, or Idle; the shown count and rows must update immediately. Keep the data local and deterministic so the page works without sign-in, external services, or an AI key.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "The initial registry shows the six vehicles and summary counts Total 6, Active 4, Maintenance 1, Idle 1.",
+    "Selecting Active shows four rows, Maintenance one row, and Idle one row.",
+    "The page loads at / with no browser JavaScript errors."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a web-app client with inferred placement.",
+    "The page is a focused Fleet Management slice of the reference app; do not invent authentication, live telemetry, or backend persistence."
+  ]
+}

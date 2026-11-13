@@ -1,0 +1,24 @@
+{
+  "source_repository": "Rui/JacProjectFactory",
+  "source_subproject": "factory/output/repaircenter/Ornith_grad-student-paper-library",
+  "source_files_sha256": {
+    "model.jac": "f23d5d67a7b9ea5432cb0d8e943d2b7abce661e8a1cff54fb8b744af55ddaafa",
+    "main.jac": "ce782819b06e66d2a8fa336de1c060e5be1cc54309227c8d82453b3ef0a7ad3d",
+    "tests.jac": "7b003ec23753213bd0e4749bc512cf2b9bdfce1d03e5717c201e1c147872fa96"
+  },
+  "scope": "backend paper model and public save/list/search/detail operations",
+  "target_jac_version": "0.36.1",
+  "source_jac_version": "0.36.0",
+  "adaptation": "Removed the source version pin and unused watchdog dev dependency in an isolated preflight copy; model.jac, main.jac and tests.jac were not edited.",
+  "independent_acceptance": "reference_acceptance.jac",
+  "independent_acceptance_sha256": "4f45f9063e05a3689c63e61960cdf8199f45bc5b7921ce076e79084cbe8c459e",
+  "independent_acceptance_adaptation": "The original third test searched the same recsys tag seeded by the first test while asserting exactly one match. The validator runs tests with a shared root, so the independent fixture uses a unique tag in the third scenario only. All five behaviors and other assertions are unchanged. The adapted fixture passed against the unmodified reference implementation under the same JAC_TEST_NATIVE=1 mode.",
+  "reference_preflight": {
+    "jac_check_main": "passed",
+    "original_jac_test": "5 passed",
+    "workspace": "/tmp/revdev-paper-library-preflight"
+  },
+  "split": "train",
+  "split_group": "rui__jacprojectfactory",
+  "split_reason": "This source repository already appears in existing scaffold2impl and tool_fim training rows."
+}

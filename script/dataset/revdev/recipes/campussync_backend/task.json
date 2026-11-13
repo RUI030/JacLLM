@@ -1,0 +1,19 @@
+{
+  "schema_version": "1",
+  "task_id": "campussync_backend_v1",
+  "reference_id": "ref_sahil0445_campussync_backend",
+  "request": "Build the headless shift-rule core of CampusSync, a scheduler for student and worker shift jobs. In server/config.jac define the hard-rule constants (international weekly cap, daily hour maximums for students and workers, worker weekly limit, minimum rest minutes). In server/timeutil.jac add time helpers where times are minutes from midnight and days are 0=Mon..6=Sun, including an interval overlap test. In server/models.jac define the graph nodes Employer, Employee, BusyBlock, Employment and Shift, with Employee knowing its first name, whether it is an international student, its weekly hour cap and its daily hour maximum, plus lookups employer_of, employee_of and held_shifts. In server/rules.jac build the in-memory Ledger for one week: it loads an employee's busy blocks, published held shifts and active employment from the graph, and its check operation answers whether an employee may take a proposed shift for an employer, returning a Verdict with an internal code, a public reason, the hours the employer may still schedule and whether another employer is involved. The Ledger also supports clone, in-memory add/remove of held shifts, hour totals, and a whole-week violations list. main.jac imports and re-exports the public names.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "Employee.cap limits international students to 20 hours per week, daily_max is 8 for students and 12 for workers, and employee_of returns the node for its id and None for an empty id.",
+    "Ledger.check returns not_on_team without an active Employment, not_qualified when a required position is not held, and ok with the remaining employer hours otherwise.",
+    "A proposed shift that overlaps a busy block or a held shift yields code overlap with public reason schedule_conflict; a held shift from another employer sets cross_department.",
+    "Compliance reports weekly_cap (public hour_limit), daily_max and a rest gap under 30 minutes (public schedule_conflict), using the ledger's in-memory add/remove.",
+    "clone copies held shifts so changes to the clone do not affect the original, and violations lists overlap, rest, weekly_cap, dept_hours and daily_max problems in that order."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a backend-only service; no JSX or browser UI; never call a real model (test any by llm function with MockLLM).",
+    "Keep module paths server/config.jac, server/timeutil.jac, server/models.jac and server/rules.jac with absolute imports such as import from server.models { ... }.",
+    "Keep the public names INTERNATIONAL_WEEKLY_CAP, MAX_DAILY_HOURS, MAX_DAILY_HOURS_WORKER, WORKER_WEEKLY_LIMIT, MIN_REST_MINUTES, overlaps, Employer, Employee, BusyBlock, Employment, Shift, employer_of, employee_of, held_shifts, Held, Block, Verdict, Ledger, CONFLICT, HOUR_LIMIT, NOT_ON_TEAM and NOT_QUALIFIED."
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "reference_repo": "dataset/raw/repo/JacHackA2Tech/A2Tech360__A2-Pulse",
+  "reference_commit": "9c57f06ad7e6b1fdd2bbf72efde5b6edb88e4771",
+  "reference_files": ["jac.toml", "main.jac", "components/AppShell.jac", "services/brief_dates.jac", "services/brief_dates.test.jac"],
+  "scope": "A clean-workspace adaptation of the reference app's brief-week date helper and fullstack page pattern.",
+  "preflight": "The unmodified reference passes Jac 0.34.27 check main.jac. An isolated copy built its client and served GET / with HTTP 200 on 2026-10-30. Chromium rendered the welcome page with visible onboarding text and no page or console errors. The date helper's original four tests passed in the earlier multifile preflight. Raw browser evidence is in dataset/raw/revdev/A2Pulse/preflight/.",
+  "validation_level": "pending_teacher_run"
+}

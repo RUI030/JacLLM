@@ -1,0 +1,17 @@
+{
+  "schema_version": "1",
+  "task_id": "nourish_backend_v1",
+  "reference_id": "ref_viktor_nedev_nourish_backend",
+  "request": "Build the headless supply backend of Nourish, a food-rescue dispatcher. In services/nourish_model.jac define the graph model: a HubNode anchor, BusinessNode (name, location, business type, contact), ShelterNode (name, location, current and max capacity, needed items), DonationNode (food type, quantity, expiry time, status, dispatched flag), VolunteerNode (name, vehicle type, location, contact, availability) and the typed edges Offers, AllocatedTo, AssignedVolunteer and ConnectedToHub. In services/supply_agent.jac implement the supply_manager walker: spawned on a BusinessNode with a food type, quantity and ISO expiry time, it rejects food that is already expired with an error report, and otherwise creates a pending DonationNode, links it from the business with an Offers edge, anchors it to root, remembers it on the walker and reports a summary. main.jac only imports the model and the walker. Include tests for valid uploads, edge wiring, expiry rejection and model defaults.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "Spawning supply_manager on a BusinessNode with a future expiry reports one {status: created, business, food_type, quantity, expiry_time} dict and sets created_donation to a pending, undispatched DonationNode.",
+    "The created DonationNode is reachable from the business through an Offers edge and from root through a plain edge.",
+    "An expiry time not later than the current UTC time is rejected: one {status: error, message} report, error_message set to the exact REJECTED text, created_donation stays None and no Offers edge is added.",
+    "Model nodes keep their declared defaults (HubNode name 'Nourish Hub', DonationNode status 'pending' and dispatched False, VolunteerNode is_available True)."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a backend-only service; no JSX or browser UI; never call a real model (test any by llm function with MockLLM).",
+    "Keep the public names HubNode, BusinessNode, ShelterNode, DonationNode, VolunteerNode, Offers, AllocatedTo, AssignedVolunteer, ConnectedToHub in services/nourish_model.jac and the walker supply_manager (fields food_type, quantity, expiry_time, created_donation, error_message) in services/supply_agent.jac."
+  ]
+}

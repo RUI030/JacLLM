@@ -1,0 +1,106 @@
+{
+  "schema_version": "1",
+  "ui": {
+    "app_type": "service",
+    "nav_pattern": "none",
+    "pages": [],
+    "auth_required": false,
+    "backend_required": true,
+    "ai_required": false
+  },
+  "files": [
+    {
+      "path": "jac.toml",
+      "layer": "config",
+      "purpose": "Configure Jac 0.36.1 [project] kind service and entry-point main.jac; this headless slice has no npm or AI dependencies.",
+      "exports": [],
+      "imports_from_plan": [],
+      "write_order": 1,
+      "status": "pending"
+    },
+    {
+      "path": "nodes/IntegrationConfig.jac",
+      "layer": "model",
+      "purpose": "Define node IntegrationConfig with fields config_id, provider, label, api_key, secret_key, webhook_secret, rpc_url, treasury_wallet, usdc_contract, chain_id (all str, default \"\"), enabled: bool = True, mode: str = \"test\" and updated_at: str = \"\". postinit sets updated_at to datetime.now().isoformat() when it is empty.",
+      "signatures": {
+        "IntegrationConfig": "node IntegrationConfig { has config_id: str = \"\"; has provider: str = \"\"; has label: str = \"\"; has api_key: str = \"\"; has secret_key: str = \"\"; has webhook_secret: str = \"\"; has rpc_url: str = \"\"; has treasury_wallet: str = \"\"; has usdc_contract: str = \"\"; has chain_id: str = \"\"; has enabled: bool = True; has mode: str = \"test\"; has updated_at: str = \"\"; def postinit; }"
+      },
+      "exports": ["IntegrationConfig"],
+      "imports_from_plan": [],
+      "write_order": 2,
+      "status": "pending"
+    },
+    {
+      "path": "nodes/Platform.jac",
+      "layer": "model",
+      "purpose": "Define node Platform with platform_id: str = \"platform\", name, environment, default_chain, default_asset (str, default \"\"), status: str = \"active\" and created_at: str = \"\". postinit fills each empty field: name = os.getenv(\"PLATFORM_NAME\") or \"FILL_ME_PLATFORM_NAME\"; environment = os.getenv(\"APP_ENV\") or \"dev\"; default_chain = os.getenv(\"DEFAULT_CHAIN\") or \"base\"; default_asset = os.getenv(\"DEFAULT_ASSET\") or \"USDC\"; created_at = datetime.now().isoformat().",
+      "signatures": {
+        "Platform": "node Platform { has platform_id: str = \"platform\"; has name: str = \"\"; has environment: str = \"\"; has default_chain: str = \"\"; has default_asset: str = \"\"; has status: str = \"active\"; has created_at: str = \"\"; def postinit; }"
+      },
+      "exports": ["Platform"],
+      "imports_from_plan": [],
+      "write_order": 3,
+      "status": "pending"
+    },
+    {
+      "path": "config.jac",
+      "layer": "service",
+      "purpose": "Import IntegrationConfig from nodes.IntegrationConfig. env_or returns os.getenv(env_name) when it is non-empty, otherwise fallback (an empty string counts as unset). ensure_config scans [root-->][?:IntegrationConfig] for the config whose provider matches; if found it overwrites label, api_key, secret_key, webhook_secret, rpc_url, treasury_wallet, usdc_contract, chain_id and mode with the call's arguments (omitted ones take their defaults, so earlier values are cleared), sets updated_at to now in ISO format and returns that same node; otherwise it connects a new IntegrationConfig(config_id=provider + \"_config\", provider and all the arguments) to root and returns the new node. seed_demo_config calls ensure_config three times and returns [stripe, wallets, rpc] in that order: provider \"stripe\" with label \"Stripe Checkout\", api_key env_or(\"STRIPE_PUBLISHABLE_KEY\", \"pk_test_FILL_ME_STRIPE_PUBLISHABLE_KEY\"), secret_key env_or(\"STRIPE_SECRET_KEY\", \"sk_test_FILL_ME_STRIPE_SECRET_KEY\"), webhook_secret env_or(\"STRIPE_WEBHOOK_SECRET\", \"whsec_FILL_ME_STRIPE_WEBHOOK_SECRET\"); provider \"wallet_provider\" with label env_or(\"WALLET_PROVIDER_NAME\", \"FILL_ME_WALLET_PROVIDER\"), api_key env_or(\"WALLET_PROVIDER_API_KEY\", \"FILL_ME_WALLET_PROVIDER_API_KEY\"), secret_key env_or(\"WALLET_PROVIDER_SECRET\", \"FILL_ME_WALLET_PROVIDER_SECRET\"), treasury_wallet env_or(\"TREASURY_WALLET\", \"0xFILL_ME_TREASURY_WALLET\"); provider \"rpc\" with label env_or(\"DEFAULT_CHAIN\", \"Base RPC\"), rpc_url env_or(\"RPC_URL\", \"https://FILL_ME_RPC_URL\"), usdc_contract env_or(\"USDC_CONTRACT\", \"0xFILL_ME_USDC_CONTRACT\"), chain_id env_or(\"CHAIN_ID\", \"8453\"); all three use mode env_or(\"APP_MODE\", \"test\") and leave the other arguments at their defaults. list_configs returns every IntegrationConfig directly under root.",
+      "signatures": {
+        "env_or": "def env_or(env_name: str, fallback: str) -> str",
+        "ensure_config": "def ensure_config(provider: str, label: str, api_key: str = \"\", secret_key: str = \"\", webhook_secret: str = \"\", rpc_url: str = \"\", treasury_wallet: str = \"\", usdc_contract: str = \"\", chain_id: str = \"8453\", mode: str = \"test\") -> IntegrationConfig",
+        "seed_demo_config": "def:pub seed_demo_config() -> list[IntegrationConfig]",
+        "list_configs": "def:pub list_configs() -> list[IntegrationConfig]"
+      },
+      "exports": ["env_or", "ensure_config", "seed_demo_config", "list_configs"],
+      "imports_from_plan": ["IntegrationConfig"],
+      "write_order": 4,
+      "status": "pending"
+    },
+    {
+      "path": "app_platform.jac",
+      "layer": "service",
+      "purpose": "Import seed_demo_config from config, IntegrationConfig from nodes.IntegrationConfig and Platform from nodes.Platform. get_platform_node takes the first Platform directly under root, refreshes name = os.getenv(\"PLATFORM_NAME\") or its current name or \"FILL_ME_PLATFORM_NAME\", environment = os.getenv(\"APP_ENV\") or current or \"dev\", default_chain = os.getenv(\"DEFAULT_CHAIN\") or current or \"base\", default_asset = os.getenv(\"DEFAULT_ASSET\") or current or \"USDC\", and returns it; when none exists it connects a new Platform() to root and returns it, so root holds a single Platform. bootstrap_platform calls get_platform_node and seed_demo_config and returns a dict with keys platform_id (jid of the Platform), name, environment, default_chain, default_asset, config_count (len of the seeded list, i.e. 3) and env_keys, a 15-entry dict mapping each lowercase key to its environment-variable name: platform_name PLATFORM_NAME, app_env APP_ENV, app_mode APP_MODE, default_chain DEFAULT_CHAIN, default_asset DEFAULT_ASSET, stripe_publishable_key STRIPE_PUBLISHABLE_KEY, stripe_secret_key STRIPE_SECRET_KEY, stripe_webhook_secret STRIPE_WEBHOOK_SECRET, wallet_provider_name WALLET_PROVIDER_NAME, wallet_provider_api_key WALLET_PROVIDER_API_KEY, wallet_provider_secret WALLET_PROVIDER_SECRET, treasury_wallet TREASURY_WALLET, rpc_url RPC_URL, usdc_contract USDC_CONTRACT, chain_id CHAIN_ID. get_platform_overview calls get_platform_node only (no seeding) and returns platform_id, name, environment, default_chain, default_asset and merchant_count = len([root-->]), the count of all nodes directly under root; it has no config_count key.",
+      "signatures": {
+        "get_platform_node": "def get_platform_node() -> Platform",
+        "bootstrap_platform": "def:pub bootstrap_platform() -> dict",
+        "get_platform_overview": "def:pub get_platform_overview() -> dict"
+      },
+      "exports": ["get_platform_node", "bootstrap_platform", "get_platform_overview"],
+      "imports_from_plan": ["seed_demo_config", "IntegrationConfig", "Platform"],
+      "write_order": 5,
+      "status": "pending"
+    },
+    {
+      "path": "main.jac",
+      "layer": "service",
+      "purpose": "Thin entry module that only imports env_or, ensure_config, seed_demo_config, list_configs from config and get_platform_node, bootstrap_platform, get_platform_overview from app_platform so they are registered and importable from main.",
+      "signatures": {
+        "config": "import from config { env_or, ensure_config, seed_demo_config, list_configs }",
+        "app_platform": "import from app_platform { get_platform_node, bootstrap_platform, get_platform_overview }"
+      },
+      "exports": ["env_or", "ensure_config", "seed_demo_config", "list_configs", "get_platform_node", "bootstrap_platform", "get_platform_overview"],
+      "imports_from_plan": ["env_or", "ensure_config", "seed_demo_config", "list_configs", "get_platform_node", "bootstrap_platform", "get_platform_overview"],
+      "write_order": 6,
+      "status": "pending"
+    }
+  ],
+  "write_order": ["jac.toml", "nodes/IntegrationConfig.jac", "nodes/Platform.jac", "config.jac", "app_platform.jac", "main.jac"],
+  "dependency_graph": {
+    "jac.toml": [],
+    "nodes/IntegrationConfig.jac": [],
+    "nodes/Platform.jac": [],
+    "config.jac": ["nodes/IntegrationConfig.jac"],
+    "app_platform.jac": ["config.jac", "nodes/IntegrationConfig.jac", "nodes/Platform.jac"],
+    "main.jac": ["config.jac", "app_platform.jac"]
+  },
+  "remove_from_template": [],
+  "verify": {
+    "flow": "env_or -> ensure_config / seed_demo_config -> bootstrap_platform -> get_platform_overview",
+    "route": "API only",
+    "steps": "Run jac check main.jac and Jac behavior tests that set or remove environment variables with os.environ, use unique provider and platform names, and lower-bound root child counts because the graph root persists across tests."
+  },
+  "build_log": {"overall_status": "pending", "last_action": "", "issues": [], "learnings": []},
+  "confidence": 0.85,
+  "assumption": "Backend slice of Wally-Ahmed/JacHacks2026 (Uni-bank): the platform/configuration modules. Merchant, invoice, payment, wallet and settlement services are out of scope (they need Stripe/Circle subprocess calls or do not type-check)."
+}

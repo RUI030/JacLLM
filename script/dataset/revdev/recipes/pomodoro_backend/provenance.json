@@ -1,0 +1,19 @@
+{
+  "source_repository": "Rui/pomodoro",
+  "source_path": "dataset/raw/repo/Rui/pomodoro/endpoints.jac",
+  "source_sha256": "1c62aab192e2ae49bb51637a02048869b237bca6bdc94a9c0b375a9d28c0991a",
+  "scope": "backend event, session and settings functions only",
+  "target_jac_version": "0.36.1",
+  "source_jac_version": "0.36.0",
+  "adaptation": "The source jac.toml version pin was removed in an isolated preflight copy to exercise its backend under installed Jac 0.36.1; the source endpoints.jac was not edited.",
+  "independent_acceptance": "reference_acceptance.jac",
+  "independent_acceptance_sha256": "ec51575837953776f19e840422ac357098da20e328fe7a8d4d509f0c20cb17c6",
+  "reference_preflight": {
+    "jac_check": "passed",
+    "jac_test": "3 passed",
+    "workspace": "/tmp/revdev-pomodoro-backend-preflight"
+  },
+  "split": "train",
+  "split_reason": "Rui/pomodoro is already present in existing scaffold2impl and tool_fim training rows; repository-level isolation across the broader training collection requires train assignment.",
+  "split_group": "rui__pomodoro"
+}

@@ -1,0 +1,166 @@
+{
+  "schema_version": "1",
+  "ui": {
+    "app_type": "service",
+    "nav_pattern": "none",
+    "pages": [],
+    "auth_required": false,
+    "backend_required": true,
+    "ai_required": true
+  },
+  "files": [
+    {
+      "path": "jac.toml",
+      "layer": "config",
+      "purpose": "Configure Jac 0.36.1 [project] with name insuraagent-backend, kind service and entry-point main.jac; no npm dependencies and no model settings (byllm ships with jaclang).",
+      "exports": [],
+      "imports_from_plan": [],
+      "write_order": 1,
+      "status": "pending"
+    },
+    {
+      "path": "models.jac",
+      "layer": "model",
+      "purpose": "Typed data model, no imports. Enum DenialReason with members NOT_MEDICALLY_NECESSARY, OUT_OF_NETWORK, PRIOR_AUTH_MISSING, EXPERIMENTAL_OR_INVESTIGATIONAL, CODING_ERROR, BENEFIT_EXCLUSION, OTHER; enum AppealStrength with WEAK, MODERATE, STRONG, VERY_STRONG. Value objects PolicyClause(section, title, text, relevance_note default \"\"), Contradiction(denial_quote, policy_quote, clause_section, explanation) and AppealLetter(subject, salutation, body, citations: list[str], closing). Persistent nodes Claim (claim_id, patient_name, member_id, cpt_code, date_of_service, billed_amount: float, denial_text, clinical_record default \"\"), Policy (policy_id, plan_name, full_text) and Appeal (appeal_id, claim_id, policy_id, denial_reason: DenialReason, strength: AppealStrength, contradictions_json: str holding a serialized list of contradiction dicts, letter_subject, letter_body, citations_json: str holding a serialized list of citation strings, created_at: str).",
+      "signatures": {
+        "DenialReason": "enum DenialReason { NOT_MEDICALLY_NECESSARY, OUT_OF_NETWORK, PRIOR_AUTH_MISSING, EXPERIMENTAL_OR_INVESTIGATIONAL, CODING_ERROR, BENEFIT_EXCLUSION, OTHER }",
+        "AppealStrength": "enum AppealStrength { WEAK, MODERATE, STRONG, VERY_STRONG }",
+        "PolicyClause": "obj PolicyClause { has section: str, title: str, text: str, relevance_note: str = \"\"; }",
+        "Contradiction": "obj Contradiction { has denial_quote: str, policy_quote: str, clause_section: str, explanation: str; }",
+        "AppealLetter": "obj AppealLetter { has subject: str, salutation: str, body: str, citations: list[str], closing: str; }",
+        "Claim": "node Claim { has claim_id: str, patient_name: str, member_id: str, cpt_code: str, date_of_service: str, billed_amount: float, denial_text: str, clinical_record: str = \"\"; }",
+        "Policy": "node Policy { has policy_id: str, plan_name: str, full_text: str; }",
+        "Appeal": "node Appeal { has appeal_id: str, claim_id: str, policy_id: str, denial_reason: DenialReason, strength: AppealStrength, contradictions_json: str, letter_subject: str, letter_body: str, citations_json: str, created_at: str; }"
+      },
+      "exports": [
+        "DenialReason",
+        "AppealStrength",
+        "PolicyClause",
+        "Contradiction",
+        "AppealLetter",
+        "Claim",
+        "Policy",
+        "Appeal"
+      ],
+      "imports_from_plan": [],
+      "write_order": 2,
+      "status": "pending"
+    },
+    {
+      "path": "tools.jac",
+      "layer": "service",
+      "purpose": "Imports os, json, re, Model from jaclang.byllm.llm, and DenialReason, PolicyClause, Contradiction, AppealLetter, AppealStrength from models.jac. _pick_model() returns a Model chosen from environment variables in this order: FEATHERLESS_API_KEY -> Model(model_name=APPEAL_MODEL env or \"openai/Qwen/Qwen2.5-14B-Instruct\", api_key=that key); ANTHROPIC_API_KEY -> \"claude-sonnet-4-20250514\"; GEMINI_API_KEY -> \"gemini/gemini-2.5-flash\"; OPENAI_API_KEY -> \"gpt-4o-mini\"; otherwise raise Exception naming the four variables. Module-level glob llm = _pick_model(); every by-llm function uses `by llm()` and returns str, with a docstring prompt (sem) above it. _parse_json_obj(s): empty -> {}; strip; if a ```json or ``` fence wraps a {...} (regex r\"```(?:json)?\\s*(\\{.*?\\})\\s*```\", DOTALL) use the captured group, else take the substring from the first \"{\" to its matching \"}\" by counting brace depth (no \"{\" or unbalanced -> {}); json.loads it, returning {} on any exception. _parse_json_list(s) is identical with \"[\"/\"]\" and returns []. extract_denial_reason: raw = extract_denial_reason_raw(text).strip().upper(), then the first matching substring rule wins: \"NOT_MEDICALLY_NECESSARY\" -> NOT_MEDICALLY_NECESSARY; \"OUT_OF_NETWORK\" -> OUT_OF_NETWORK; \"PRIOR_AUTH\" -> PRIOR_AUTH_MISSING; \"EXPERIMENTAL\" or \"INVESTIGATIONAL\" -> EXPERIMENTAL_OR_INVESTIGATIONAL; \"CODING\" -> CODING_ERROR; \"BENEFIT_EXCLUSION\" or \"EXCLUSION\" -> BENEFIT_EXCLUSION; else OTHER. assess_appeal_strength: raw upper-cased and stripped; \"VERY_STRONG\" or \"VERY STRONG\" -> VERY_STRONG; else \"STRONG\" -> STRONG; else \"WEAK\" -> WEAK; else MODERATE. extract_relevant_clauses and find_contradictions call their _raw function once, run _parse_json_list, skip elements that are not dicts, and build PolicyClause / Contradiction with each field str(d.get(key, \"\")). draft_appeal_letter calls draft_appeal_letter_raw once with all ten arguments, runs _parse_json_obj, takes cites = d.get(\"citations\") or [], wraps a non-list cites as [str(cites)], and returns AppealLetter with subject, salutation, body, closing as str(d.get(key, \"\")) and citations as [str(c) for c in cites]. Each public tool makes exactly one model call.",
+      "signatures": {
+        "_pick_model": "def _pick_model() -> Model",
+        "llm": "glob llm = _pick_model();",
+        "_parse_json_obj": "def _parse_json_obj(s: str) -> dict",
+        "_parse_json_list": "def _parse_json_list(s: str) -> list",
+        "extract_denial_reason_raw": "def extract_denial_reason_raw(denial_text: str) -> str by llm();",
+        "extract_denial_reason": "def extract_denial_reason(denial_text: str) -> DenialReason",
+        "extract_relevant_clauses_raw": "def extract_relevant_clauses_raw(policy_text: str, denial_reason: DenialReason) -> str by llm();",
+        "extract_relevant_clauses": "def extract_relevant_clauses(policy_text: str, denial_reason: DenialReason) -> list[PolicyClause]",
+        "find_contradictions_raw": "def find_contradictions_raw(denial_text: str, clinical_record: str, clauses: list[PolicyClause]) -> str by llm();",
+        "find_contradictions": "def find_contradictions(denial_text: str, clinical_record: str, clauses: list[PolicyClause]) -> list[Contradiction]",
+        "assess_appeal_strength_raw": "def assess_appeal_strength_raw(contradictions: list[Contradiction]) -> str by llm();",
+        "assess_appeal_strength": "def assess_appeal_strength(contradictions: list[Contradiction]) -> AppealStrength",
+        "draft_appeal_letter_raw": "def draft_appeal_letter_raw(patient_name: str, member_id: str, claim_number: str, date_of_service: str, cpt_code: str, billed_amount: float, plan_name: str, denial_reason: DenialReason, contradictions: list[Contradiction], clinical_record: str) -> str by llm();",
+        "draft_appeal_letter": "def draft_appeal_letter(patient_name: str, member_id: str, claim_number: str, date_of_service: str, cpt_code: str, billed_amount: float, plan_name: str, denial_reason: DenialReason, contradictions: list[Contradiction], clinical_record: str) -> AppealLetter"
+      },
+      "exports": [
+        "llm",
+        "extract_denial_reason",
+        "extract_relevant_clauses",
+        "find_contradictions",
+        "assess_appeal_strength",
+        "draft_appeal_letter"
+      ],
+      "imports_from_plan": [
+        "DenialReason",
+        "PolicyClause",
+        "Contradiction",
+        "AppealLetter",
+        "AppealStrength"
+      ],
+      "write_order": 3,
+      "status": "pending"
+    },
+    {
+      "path": "walkers.jac",
+      "layer": "service",
+      "purpose": "Imports json, uuid, datetime; Claim, Policy, Appeal, DenialReason, AppealStrength, Contradiction from models.jac; and extract_denial_reason, extract_relevant_clauses, find_contradictions, assess_appeal_strength, draft_appeal_letter from tools.jac. submit_claim on Root entry: builds Claim(claim_id=claim_number, patient_name, member_id, cpt_code, date_of_service, billed_amount, denial_text, clinical_record) and Policy(policy_id=f\"POL-{member_id}\", plan_name, full_text=policy_text), connects both to here (root); then calls in this order reason = extract_denial_reason(denial_text), clauses = extract_relevant_clauses(policy_text, reason), contradictions = find_contradictions(denial_text, clinical_record, clauses), strength = assess_appeal_strength(contradictions), letter = draft_appeal_letter(...all claim fields, plan_name, denial_reason=reason, contradictions, clinical_record); then connects Appeal(appeal_id=f\"APL-{uuid.uuid4().hex[:8]}\", claim_id, policy_id, denial_reason=reason, strength, contradictions_json=json.dumps of a list of dicts with keys denial_quote, policy_quote, clause_section, explanation, letter_subject=letter.subject, letter_body=f\"{letter.salutation}\\n\\n{letter.body}\\n\\n{letter.closing}\", citations_json=json.dumps(letter.citations), created_at=datetime.datetime.utcnow().isoformat()) to root and reports exactly one dict {appeal_id, claim_id, subject: letter.subject, letter: appeal.letter_body, citations: letter.citations}. list_appeals on Root entry collects [-->[?:Appeal]] and reports ONE list whose rows are dicts {appeal_id, claim_id, subject: letter_subject, created_at}.",
+      "signatures": {
+        "submit_claim": "walker:pub submit_claim { has patient_name: str; has member_id: str; has claim_number: str; has date_of_service: str; has cpt_code: str; has billed_amount: float; has plan_name: str; has denial_text: str; has policy_text: str; has clinical_record: str = \"\"; can run with Root entry; }",
+        "list_appeals": "walker:pub list_appeals { can run with Root entry; }"
+      },
+      "exports": [
+        "submit_claim",
+        "list_appeals"
+      ],
+      "imports_from_plan": [
+        "Claim",
+        "Policy",
+        "Appeal",
+        "DenialReason",
+        "AppealStrength",
+        "Contradiction",
+        "extract_denial_reason",
+        "extract_relevant_clauses",
+        "find_contradictions",
+        "assess_appeal_strength",
+        "draft_appeal_letter"
+      ],
+      "write_order": 4,
+      "status": "pending"
+    },
+    {
+      "path": "main.jac",
+      "layer": "service",
+      "purpose": "Thin service entry: only `import from walkers { submit_claim, list_appeals }` so both public walkers are registered and importable from main.",
+      "exports": [
+        "submit_claim",
+        "list_appeals"
+      ],
+      "imports_from_plan": [
+        "submit_claim",
+        "list_appeals"
+      ],
+      "write_order": 5,
+      "status": "pending"
+    }
+  ],
+  "write_order": [
+    "jac.toml",
+    "models.jac",
+    "tools.jac",
+    "walkers.jac",
+    "main.jac"
+  ],
+  "dependency_graph": {
+    "jac.toml": [],
+    "models.jac": [],
+    "tools.jac": [
+      "models.jac"
+    ],
+    "walkers.jac": [
+      "models.jac",
+      "tools.jac"
+    ],
+    "main.jac": [
+      "walkers.jac"
+    ]
+  },
+  "remove_from_template": [],
+  "verify": {
+    "flow": "submit_claim (5 mocked tool calls) -> Claim/Policy/Appeal on root -> list_appeals",
+    "route": "API only",
+    "steps": "Run jac check main.jac and the Jac behavior tests. Tests set OPENAI_API_KEY to a placeholder before importing tools.jac, then assign tools.llm = MockLLM(model_name=\"mockllm\", config={\"outputs\": [...]}) with one string output per by-llm call, in call order (denial reason, clauses JSON, contradictions JSON, strength, letter JSON for submit_claim)."
+  },
+  "build_log": {
+    "overall_status": "pending",
+    "last_action": "",
+    "issues": [],
+    "learnings": []
+  },
+  "confidence": 0.85,
+  "assumption": "Backend slice of the InsuraAgent JacHacks Spring app (fozagtx/insuraAgent). The React frontend, app.jac, the CLI demo main.jac, the ReAct orchestrator and the probe/smoke scripts are out of scope; main.jac is a new thin entry that imports the two walkers."
+}

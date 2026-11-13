@@ -1,0 +1,20 @@
+{
+  "name": "orbitron_fleet_filter",
+  "source_files": ["jac.toml", "main.jac", "components/FleetModule.jac"],
+  "steps": [
+    {"op": "expect_visible", "selector": "h1"},
+    {"op": "expect_text", "selector": "h1", "text": "Fleet Management"},
+    {"op": "expect_visible", "selector": "text=Total Fleet"},
+    {"op": "expect_visible", "selector": "text=Active Now"},
+    {"op": "expect_visible", "selector": "text=In Maintenance"},
+    {"op": "expect_count", "selector": "tbody tr", "count": 6},
+    {"op": "select_option", "selector": "select", "value": "active"},
+    {"op": "expect_count", "selector": "tbody tr", "count": 4},
+    {"op": "select_option", "selector": "select", "value": "maintenance"},
+    {"op": "expect_count", "selector": "tbody tr", "count": 1},
+    {"op": "select_option", "selector": "select", "value": "idle"},
+    {"op": "expect_count", "selector": "tbody tr", "count": 1},
+    {"op": "select_option", "selector": "select", "value": "all"},
+    {"op": "expect_count", "selector": "tbody tr", "count": 6}
+  ]
+}

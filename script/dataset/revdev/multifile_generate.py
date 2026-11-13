@@ -9,7 +9,7 @@ sys.path.append(str(Path(__file__).resolve().parents[2]))
 from utils import jac_cli
 from dataset.revdev.checkpoint import save, restore, workspace_files
 from dataset.revdev.claude_adapter import DECISION_SCHEMA, execute_tool, validate_call, write_json
-from dataset.revdev.export import event_rows
+from dataset.revdev.export import event_rows, normalize_paths
 from dataset.trajectory.common import to_template_input
 from dataset.pipeline import split_and_write
 from dataset.statistics import generate_report
@@ -578,7 +578,7 @@ def export() -> dict:
                 rows.append({'role': 'user', 'mode': 'prompt',
                              'content': json.dumps(context['review_feedback'], ensure_ascii=False)})
             rows += event_rows([event])
-        rows = json.loads(json.dumps(rows).replace(context['workspace'], '/workspace'))
+        rows = normalize_paths(rows, [Path(context['workspace'])])
         messages = to_template_input({'meta': {'tools': tools}, 'rows': rows}, None)
         text = tokenizer.apply_chat_template(messages, tools=tools, tokenize=False)
         tokens = len(tokenizer(text, add_special_tokens=False)['input_ids'])
@@ -588,7 +588,8 @@ def export() -> dict:
             for call in message.get('tool_calls', []): call['function']['arguments'] = json.dumps(call['function']['arguments'])
         record = {'messages': messages, 'tools': json.dumps(tools), 'meta': {
             'source': 'agent-synth', 'format': 'jac', 'class': 'fullstack' if name in {'orbitron', 'ghostboard'} else 'function',
-            'task_type': 'revdev_multifile', 'fp': str(run), 'split_group': str(spec['repo']),
+            'task_type': 'revdev_multifile', 'fp': str(run),
+            'split_group': Path(spec['repo']).name.lower(),
             'validation': 'accepted', 'validation_level': spec['validation_level'], 'tokens': tokens,
             'transport': 'claude_cli_json_to_function_calls', 'context_projection': True,
             'path_normalization': {context['workspace']: '/workspace'}}}

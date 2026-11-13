@@ -1,0 +1,18 @@
+{
+  "schema_version": "1",
+  "task_id": "repoghost_backend_v1",
+  "reference_id": "ref_async_avengers_repoghost_memory_store",
+  "request": "Build the headless memory backend for RepoGhost, a tool that turns a code repository plus meeting notes into an engineering plan. Put the shared data objects in app/models/core.jac (repo selection, chat message, decision, blocker, file match, ownership guess, meeting summary), the workflow objects in app/models/workflow.jac (workflow mode, trace step, request, run state, planning insight, execution planning context), and the result objects in app/models/outputs.jac (repo summary, task, action plan, generated ticket, handoff, standup, review scope, graph views, docs sync result, query answer, the combined workflow result bundle and the UI view-state record), reusing the core and workflow objects. Then write app/services/memory_store.jac, an in-memory store with remember_session (record a workflow request with the bundle's action-plan headline), recent_session_runs, update_project_memory (keep the decision, blocker and ticket titles from a bundle per repository path) and get_project_memory (return an empty default for unknown repositories; an empty path means the default key). main.jac only imports the four memory operations so the service exposes them.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "remember_session returns a record with the request's repo_path, mode and prompt, a non-empty saved_at and the bundle's action_plan headline.",
+    "recent_session_runs grows after each remember_session and includes the newly remembered record.",
+    "update_project_memory keeps the titles of the bundle's decisions, blockers and tickets, and get_project_memory returns that same memory for the repository path.",
+    "get_project_memory returns empty decisions, blockers and tickets and an empty updated_at for an unknown repository, and an empty path is stored under the default key."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a backend-only service; no JSX, browser UI or external AI.",
+    "Keep the module paths app/models/core.jac, app/models/workflow.jac, app/models/outputs.jac and app/services/memory_store.jac.",
+    "Use the source's public functions remember_session, recent_session_runs, update_project_memory and get_project_memory, and the object names DecisionItem, BlockerItem, WorkflowRequest, ActionPlan, GeneratedTicket and WorkflowResultBundle."
+  ]
+}

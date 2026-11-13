@@ -1,0 +1,18 @@
+{
+  "schema_version": "1",
+  "task_id": "pm_project_tree_0361",
+  "reference_id": "ref_rui_pm_project_tree",
+  "request": "Build a small Jac project tracker. Let people create root projects, add sub-projects and tasks, browse the hierarchy, approve draft children, and delete a task or project. Show the current projects on a simple home page with a clear empty state. Preserve project-to-project and project-to-task graph relationships. The core project and task operations should also be available as public Jac functions so they can be tested without a browser. Keep the app usable without an AI key.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "Creating a root project and a sub-project makes the child discoverable under its parent and by ID.",
+    "Creating a task under a sub-project makes it discoverable through that project.",
+    "Approving a draft task or project clears is_draft, and deleting a task or project removes it from traversal.",
+    "The home page allows creating and viewing a root project and gives clear empty, loading, and error states."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and inferred client/server placement.",
+    "Do not require an external AI provider; this is a deterministic slice of the source application's project hierarchy.",
+    "Keep a single source repository for this trajectory: Rui/pm."
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": "1",
+  "task_id": "pm_project_tree_backend_0361",
+  "reference_id": "ref_rui_pm_project_tree",
+  "request": "Build a headless Jac API for a project tracker. Represent projects and tasks as graph nodes. Create root and nested projects, add tasks, browse each project hierarchy by ID, approve draft children recursively, and delete a task or project from traversal. Keep the public project and walker function names and fields grounded in the source repository. Implement the API without a browser UI or AI provider.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "Creating a root project and a sub-project makes the child discoverable under its parent and by ID.",
+    "Creating a task under a sub-project makes it discoverable through that project.",
+    "Approving a draft task or project clears is_draft, and deleting a task or project removes it from traversal."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 in an API-only project with no JSX or browser UI.",
+    "Use models/Task.jac, models/Project.jac, walkers.jac and main.jac as a dependency-aware cross-file implementation.",
+    "Preserve Rui/pm source function signatures and observable graph behavior."
+  ]
+}

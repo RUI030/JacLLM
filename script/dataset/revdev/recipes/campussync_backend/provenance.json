@@ -1,0 +1,86 @@
+{
+  "source_repository": "Sahil0445/campussync",
+  "source_url": "https://github.com/Sahil0445/campussync",
+  "source_commit": "98efb978772eb451acc33bdb01038bb2f2ea90d4",
+  "source_dataset": "/home/imrui/Documents/Jaseci/JacLLM/JacLLM/dataset/raw/repo/JacHackA2Tech/Sahil0445__campussync (upstream git clone; meta: /home/imrui/Documents/Jaseci/JacLLM/JacLLM/dataset/raw/repo/meta.json repos[\"JacHackA2Tech/Sahil0445__campussync\"], dataset jachacks-a2tech)",
+  "source_paths": [
+    "server/config.jac",
+    "server/timeutil.jac",
+    "server/models.jac",
+    "server/rules.jac"
+  ],
+  "source_files_sha256": {
+    "server/config.jac": "186cc3dd17c7facab44c2ec378ee6bd2d16f713fcd0a82fc2871b43cbeec88c4",
+    "server/timeutil.jac": "7d764052bb6ee87721b661cf02a5968b682478b387bf830642101f6c66c3ccd8",
+    "server/models.jac": "1156bf8ece8613a8efbf960f20c55421a2b48e583b8316e4bee60999c0b59691",
+    "server/rules.jac": "1050f62b6e3d03a69ec790fcaa92f627b86a785da9eb0c5ccabb336c95dde4e2"
+  },
+  "slice_files_sha256": {
+    "server/config.jac": "ec61650cfb09c351a21a978ecab325365ae330b4334e03dbf153ca4bf7d8c441",
+    "server/timeutil.jac": "7d764052bb6ee87721b661cf02a5968b682478b387bf830642101f6c66c3ccd8",
+    "server/models.jac": "5ba4a2b53f3650ad975b14ca198d79d436b3276711c99dc2adf71dab9be6e469",
+    "server/rules.jac": "1050f62b6e3d03a69ec790fcaa92f627b86a785da9eb0c5ccabb336c95dde4e2",
+    "main.jac": "9b86d183a06bd10edae7cb96c5dc6cac3eb21b69e665adedf377ddc987ea7304",
+    "jac.toml": "18e0b52148b39289e77ade3ecaec7f5f49a166862db3c0c714665afaa2e897ab"
+  },
+  "repaired_files": [],
+  "slice_import_edges": [
+    [
+      "server/models.jac",
+      "server/config.jac"
+    ],
+    [
+      "server/rules.jac",
+      "server/config.jac"
+    ],
+    [
+      "server/rules.jac",
+      "server/timeutil.jac"
+    ],
+    [
+      "server/rules.jac",
+      "server/models.jac"
+    ],
+    [
+      "main.jac",
+      "server/models.jac"
+    ],
+    [
+      "main.jac",
+      "server/rules.jac"
+    ]
+  ],
+  "scope": "backend hard-rule config, time helpers, employee/shift graph nodes and the deterministic Ledger conflict/compliance checker; no notifications, scheduling, swaps, AI agents, endpoints or UI",
+  "target_jac_version": "0.36.1",
+  "source_jac_version": "==0.37.23 (upstream jac.toml pin; all four slice files pass jac check on 0.36.1, none is in meta jac_check.failed_files)",
+  "adaptation": "server/rules.jac and server/timeutil.jac copied verbatim. server/config.jac and server/models.jac trimmed only by deleting whole out-of-slice declarations/imports; no line of kept code was changed. main.jac and jac.toml are new (upstream main.jac mounts the web client and API modules; upstream jac.toml is a web-app config with npm deps and a version pin).",
+  "source_edits": [
+    {
+      "path": "server/config.jac",
+      "change": "deleted import os, import from datetime { date }, helpers _env/_envf/_envi and every glob statement except the 'Hard rules' glob (INTERNATIONAL_WEEKLY_CAP, MAX_DAILY_HOURS, MAX_DAILY_HOURS_WORKER, WORKER_WEEKLY_LIMIT, MIN_REST_MINUTES) and its comment; module docstring kept"
+    },
+    {
+      "path": "server/models.jac",
+      "change": "deleted import from server.clock { now_s }; nodes Hub, Meta, Account, University, Position, Requirement, Draft, SwapRequest, SwapLoop, SwapOffer, Notification, TimeEntry, PushSub, Probe, RecruitProposal, AgentEvent; edges HubLink, Owns; glob _hub_id; defs hub, put, also, unlink, university_of, position_of, shift_of, employment_of, draft_of, request_of, loop_of, offer_of, entry_of, proposal_of, account_of, employers, employees, universities, positions_of, requirements_of, employments_of_employer, employments_of_student, employment_between, employer_shifts, add_shift, set_holder, meta_get, meta_set. Kept verbatim: module docstring, config import, Employer, Employee, BusyBlock, Employment, Shift, employer_of, employee_of, held_shifts."
+    },
+    {
+      "path": "main.jac",
+      "change": "new thin 2-line import module"
+    },
+    {
+      "path": "jac.toml",
+      "change": "new minimal [project] service config without version pin"
+    }
+  ],
+  "by_llm_note": "server/ai.jac (by llm functions on a ModelPool glob named gemini) passes check but is not included: its only caller among passing files is server/scheduling.jac, which drags in clock, notify, trace and the full models graph (9+ modules), and every caller gates the model behind ai.ready(), which needs an API key env var, so a MockLLM path would not be reachable without editing source. ai_required is false.",
+  "independent_acceptance": "reference_acceptance.jac",
+  "independent_acceptance_sha256": "443f7e5026407d57c9dc6426567755289745c87ed9dcd86e6f110b364677c603",
+  "reference_preflight": {
+    "jac_check_main": "passed (main.jac ok, 1 passed)",
+    "jac_test": "5 passed with JAC_TEST_NATIVE=1 JAC_TEST_JOBS=0 as revdev_acceptance.jac (also passed on a second run with persisted root)",
+    "workspace": "/tmp/revdev-campussync_backend-preflight"
+  },
+  "split": "train",
+  "split_group": "sahil0445__campussync",
+  "split_reason": "Wave-2 revdev recipe from a JacHacks Ann Arbor (A2Tech) repository."
+}

@@ -1,0 +1,9 @@
+{
+  "reference_repo": "dataset/raw/repo/JacHackSpring/orbitronsystems__ori-Jac-Demo",
+  "reference_commit": "98f7832",
+  "reference_file": "pages/dashboard/FleetModule.jac",
+  "reference_sha256": "2404e69c3a411331ecc7223c0aad41a92cea449e5f82db69516c76c456ec4c38",
+  "scope": "A focused, working Fleet Management UI slice from the unchanged reference FleetModule. The original repository's root returns 404 under Jac 0.34.27 and 0.36.1, so its whole app is not used as a working reference.",
+  "reference_wrapper": "/tmp/revdev-orbitron-fleet-reference",
+  "preflight": "With the original FleetModule copied unchanged into a minimal Jac 0.36.1 web-app wrapper, jac build passed. Chromium observed GET / 200, six initial table rows, four Active rows, one Maintenance row, and zero page errors. The shared scripted browser spec also checks Idle and summary counts."
+}

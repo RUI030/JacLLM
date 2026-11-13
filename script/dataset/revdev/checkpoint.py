@@ -32,6 +32,35 @@ def tree_digest(files: list[dict]) -> str:
     return digest("\n".join(f'{f["path"]}:{f["sha256"]}' for f in files).encode())
 
 
+def resume_handoff(snapshot: dict, events: list[dict], plan: dict) -> dict:
+    """Summarize only checkpoint bytes and observed tool results for a fresh context."""
+    files = {row["path"]: row for row in snapshot["files"]}
+    planned = []
+    stub_paths = {row["path"] for row in snapshot["plan_consistency"]["issues"]
+                  if row["issue"] in {"done_file_has_stub", "planned_file_has_stub"}}
+    for item in plan["files"]:
+        path = item["path"]
+        entry = files.get(path)
+        planned.append({"path": path, "present": entry is not None,
+                        "sha256": entry["sha256"] if entry else None,
+                        "size": entry["size"] if entry else None,
+                        "contains_stub": path in stub_paths})
+    checks = []
+    for event in events:
+        decision = event.get("decision", {})
+        if decision.get("kind") != "tool" or decision.get("name") != "run_command":
+            continue
+        result = event.get("result", {})
+        checks.append({"command": decision.get("args", {}).get("command"),
+                       "executed": result.get("executed", True),
+                       "result_excerpt": str(result.get("content", ""))[:500]})
+    return {"checkpoint_id": snapshot["checkpoint_id"],
+            "workspace_tree_sha256": snapshot["workspace_tree_sha256"],
+            "plan_sha256": snapshot["plan_sha256"],
+            "planned_files": planned, "observed_commands": checks[-8:],
+            "evidence_note": "File presence and hashes do not prove behavior; command excerpts are actual tool results."}
+
+
 def plan_state(root: Path) -> tuple[str | None, list[dict]]:
     plan_file = root / PLAN_PATH
     if not plan_file.is_file():
@@ -63,7 +92,7 @@ def save(workspace: Path, destination: Path, *, run_id: str, after_event_id: str
         raise ValueError(f"Cannot checkpoint inconsistent plan: {issues}")
     plan = json.loads((workspace / PLAN_PATH).read_text(encoding="utf-8"))
     scaffold_only = [row["path"] for row in plan.get("files", [])
-                     if row.get("status") == "done" and row["path"].endswith(".jac")
+                     if row["path"].endswith(".jac") and (workspace / row["path"]).is_file()
                      and "NotImplementedError" in (workspace / row["path"]).read_text(encoding="utf-8")]
     files = workspace_files(workspace)
     tree_hash = tree_digest(files)
@@ -81,7 +110,7 @@ def save(workspace: Path, destination: Path, *, run_id: str, after_event_id: str
         "plan_consistency": {
             "state": "scaffold_only" if scaffold_only else "file_presence_passed",
             "implementation_state": "unverified",
-            "issues": [{"issue": "done_file_has_stub", "path": path} for path in scaffold_only],
+            "issues": [{"issue": "planned_file_has_stub", "path": path} for path in scaffold_only],
         },
         "completed_work": completed_work, "remaining_work": remaining_work,
         "environment_fingerprint": environment_fingerprint,

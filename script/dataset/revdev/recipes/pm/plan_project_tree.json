@@ -1,0 +1,39 @@
+{
+  "schema_version": "1",
+  "ui": {
+    "app_type": "project_tracker",
+    "nav_pattern": "single_page",
+    "pages": [{"name": "ProjectBoard", "route": "/", "title": "Project tracker", "purpose": "browse and create projects"}],
+    "auth_required": false,
+    "backend_required": true,
+    "ai_required": false
+  },
+  "files": [
+    {"path": "jac.toml", "layer": "config", "purpose": "Configure Jac 0.36.1 web-app with main.jac entry point and [serve] base_route_app app. Jac supplies its core client dependencies automatically; add only packages directly used by this small project tracker.", "exports": [], "imports_from_plan": [], "write_order": 1, "status": "pending"},
+    {"path": "models/Task.jac", "layer": "model", "purpose": "Define Task node with title, alias, notes, and is_draft fields, plus title/alias accessors. This deterministic slice does not invoke the source app's optional LLM alias generator.", "exports": ["Task"], "imports_from_plan": [], "write_order": 2, "status": "pending"},
+    {"path": "models/Project.jac", "layer": "model", "purpose": "Define Project node with name, tldr, is_draft; methods create_sub_project, create_task, draft_sub_project, draft_task; public functions create_root_project, get_projects, get_project, get_sub_projects, get_tasks, create_sub_project, create_task. Connect nodes with graph edges and recursively find nested projects.", "exports": ["Project", "create_root_project", "get_projects", "get_project", "get_sub_projects", "get_tasks", "create_sub_project", "create_task"], "imports_from_plan": ["Task"], "write_order": 3, "status": "pending"},
+    {"path": "walkers.jac", "layer": "service", "purpose": "Implement FindTask, Approver, Cleaner graph walkers and public approve_project, approve_task, delete_project, delete_task functions. Traversal must stay within the chosen project tree.", "exports": ["FindTask", "Approver", "Cleaner", "approve_project", "approve_task", "delete_project", "delete_task"], "imports_from_plan": ["Project", "Task", "get_project"], "write_order": 4, "status": "pending"},
+    {"path": "styles.css", "layer": "asset", "purpose": "Style the project board, create form, hierarchy list, and status messages without shadcn.", "exports": [], "imports_from_plan": [], "write_order": 5, "status": "pending"},
+    {"path": "components/ProjectBoard.jac", "layer": "page", "purpose": "Render root projects on the home page; provide a form to create a root project and list nested project/task counts. Use the public server functions with awaited calls, plus loading, empty, and error states.", "exports": ["ProjectBoard"], "imports_from_plan": ["Project", "get_projects", "create_root_project", "get_sub_projects", "get_tasks"], "write_order": 6, "status": "pending"},
+    {"path": "main.jac", "layer": "shell", "purpose": "Import public project and walker functions for server registration, import styles.css and ProjectBoard, and mount the board as the public app at /.", "exports": ["app"], "imports_from_plan": ["Project", "Task", "create_root_project", "get_projects", "get_project", "create_sub_project", "create_task", "approve_project", "approve_task", "delete_project", "delete_task", "ProjectBoard"], "write_order": 7, "status": "pending"}
+  ],
+  "write_order": ["jac.toml", "models/Task.jac", "models/Project.jac", "walkers.jac", "styles.css", "components/ProjectBoard.jac", "main.jac"],
+  "dependency_graph": {
+    "jac.toml": [],
+    "models/Task.jac": [],
+    "models/Project.jac": ["models/Task.jac"],
+    "walkers.jac": ["models/Project.jac", "models/Task.jac"],
+    "styles.css": [],
+    "components/ProjectBoard.jac": ["models/Project.jac"],
+    "main.jac": ["models/Project.jac", "models/Task.jac", "walkers.jac", "components/ProjectBoard.jac"]
+  },
+  "remove_from_template": [],
+  "verify": {
+    "flow": "project_tree",
+    "route": "/",
+    "steps": "Run independent project hierarchy tests from the source repository's model and walker contracts; check, build, then open / and create/view a project."
+  },
+  "build_log": {"overall_status": "pending", "last_action": "", "issues": [], "learnings": []},
+  "confidence": 0.75,
+  "assumption": "Clean Jac 0.36.1 workspace; inferred placement. This reproduces the deterministic project-tree slice of Rui/pm, without its optional AI planner, auth, or shadcn UI."
+}

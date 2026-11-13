@@ -1,0 +1,16 @@
+{
+  "schema_version": "1",
+  "task_id": "paper_library_backend_v1",
+  "reference_id": "ref_rui_jacprojectfactory_paper_library",
+  "request": "Build a small headless Jac research-paper library. A researcher can save a paper with title, author, personal summary, source URL and tags; each saved paper receives a generated ID and timestamp. They can list saved papers, find papers by tag, and retrieve one paper by ID. Store Paper as a graph node in model.jac, and expose the operations from main.jac. Include tests for saving, listing, tag filtering and ID lookup.",
+  "workspace_kind": "clean",
+  "acceptance": [
+    "Saving a paper reports its metadata, generated ID and timestamp and attaches the Paper node to root.",
+    "Listing reports every saved Paper and searching by a tag excludes unrelated papers.",
+    "Looking up a saved Paper by ID returns it; an unknown ID returns None."
+  ],
+  "constraints": [
+    "Use Jac 0.36.1 and a backend-only service; no JSX, browser UI or external AI.",
+    "Use the source's public walker names save_paper, list_papers, search_papers_by_tag and public function get_paper_details."
+  ]
+}

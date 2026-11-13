@@ -1,0 +1,61 @@
+{
+  "source_repository": "yousefalwahami/rent_jac",
+  "source_url": "https://github.com/yousefalwahami/rent_jac",
+  "source_subproject": "JacHacks 2026 Rentora (services/graph)",
+  "source_dataset": "/home/imrui/Documents/Jaseci/JacLLM/jac-data-gen/data/jachacks_repaired/yousefalwahami__rent_jac (rows with dirname yousefalwahami__rent_jac in /home/imrui/Documents/Jaseci/JacLLM/jac-data-gen/data/jachacks_nonsf_jac_files_checked.jsonl)",
+  "source_files_sha256": {
+    "services/graph/models.jac": "651ac04335703f2dac85ea6400c32407d50e7fea4c85fa8f8181d40c7be18631",
+    "services/graph/localdb.jac": "ceee8b0d08211262f10cc1e38c984beb8c25bb0054a486aec058b4612a73ff1a",
+    "services/graph/crud.jac": "c2d917adac5ecf8c18d9e382fa7e4f1d7cc68940114757f408ca9eceef51238b",
+    "services/graph/actions.jac": "862909b3b1f733afaa027b0467be24a26887ccca5103b9d993ce30ea5f5ced51"
+  },
+  "new_files_sha256": {
+    "main.jac": "2d814fa124fe11e026475606b8928fadd473be02e5c6a1c8dc1ade44b9f895c0",
+    "jac.toml": "20ba82562fa39cf01aab16453ee84ced4f545565113c2215d6a9e4ee1f7a4984"
+  },
+  "repaired_files": [
+    {
+      "path": "services/graph/crud.jac",
+      "repaired_by": "subagent",
+      "original_sha": "52c64c3c044a"
+    }
+  ],
+  "slice_import_edges": [
+    [
+      "services/graph/crud.jac",
+      "services/graph/models.jac"
+    ],
+    [
+      "services/graph/crud.jac",
+      "services/graph/localdb.jac"
+    ],
+    [
+      "services/graph/actions.jac",
+      "services/graph/models.jac"
+    ],
+    [
+      "main.jac",
+      "services/graph/crud.jac"
+    ],
+    [
+      "main.jac",
+      "services/graph/actions.jac"
+    ]
+  ],
+  "scope": "backend property/unit/tenant/ticket graph model with CRUD, tenant registration and ticket dispatch/resolve walkers",
+  "excluded": "UI page files (index, dashboard, login, settings, incidents, workflow, tenants_properties, shared, graphviz), services/graph/ai.jac and its importers triage.jac, maintenance.jac and graphService.jac (by llm), backboard.jac and foursquare.jac (network/randomness), appService.jac (FastAPI/Twilio), seed.jac (kept slice at 5 modules).",
+  "target_jac_version": "0.36.1",
+  "source_jac_version": "0.36.1 (checked dataset copy)",
+  "adaptation": "models.jac, localdb.jac, crud.jac and actions.jac copied verbatim with relative paths kept. New thin main.jac re-exports the crud and action walkers (the source main.jac mounts the JSX client and imports LLM/Twilio services). New minimal jac.toml [project] service config without a version pin.",
+  "independent_acceptance": "reference_acceptance.jac",
+  "independent_acceptance_sha256": "29fed4b51b4361eb985b42fd908c9d9de78145303c05d857c826e82971a39e53",
+  "independent_acceptance_adaptation": "No source tests exist; the fixture was written for this recipe. Each test uses unique property names, phones and ticket ids; assertions filter by those values.",
+  "reference_preflight": {
+    "jac_check_main": "passed (1 passed)",
+    "jac_test": "5 passed (JAC_TEST_NATIVE=1 JAC_TEST_JOBS=0), repeated runs also pass, both as reference_acceptance.jac and revdev_acceptance.jac",
+    "workspace": "/tmp/revdev-rentora_backend-preflight"
+  },
+  "split": "train",
+  "split_group": "yousefalwahami__rent_jac",
+  "split_reason": "Wave-1 revdev recipe; split grouped by source repository."
+}

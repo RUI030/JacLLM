@@ -1,0 +1,33 @@
+{
+  "schema_version": "1",
+  "ui": {
+    "app_type": "fleet_registry",
+    "nav_pattern": "single_page",
+    "pages": [{"name": "FleetModule", "route": "/", "title": "Fleet Management", "purpose": "filter_vehicle_registry"}],
+    "auth_required": false,
+    "backend_required": false,
+    "ai_required": false
+  },
+  "files": [
+    {"path": "jac.toml", "layer": "config", "purpose": "Configure Jac 0.36.1 as a web-app with main.jac as entry point and app at /. The client runtime dependencies are provided by Jac. No backend, AI service, shadcn package, or additional npm dependency is required.", "exports": [], "imports_from_plan": [], "write_order": 1, "status": "pending"},
+    {"path": "styles.css", "layer": "asset", "purpose": "Provide readable fleet registry and status styles for the single-page UI.", "exports": [], "imports_from_plan": [], "write_order": 2, "status": "pending"},
+    {"path": "components/FleetModule.jac", "layer": "component", "purpose": "Implement the FleetModule component: six demo vehicle records, status counts (total 6, active 4, maintenance 1, idle 1), a status filter, visible-row count, and a table with each vehicle's plate, type, driver, status, fuel, speed, and location. VehicleRow may be a private helper in this module. Keep controls limited to the requested behavior.", "exports": ["FleetModule"], "imports_from_plan": [], "write_order": 3, "status": "pending"},
+    {"path": "main.jac", "layer": "shell", "purpose": "Import FleetModule, load styles.css, and expose public app() -> JsxElement that mounts the fleet registry at /.", "exports": ["app"], "imports_from_plan": ["FleetModule"], "write_order": 4, "status": "pending"}
+  ],
+  "write_order": ["jac.toml", "styles.css", "components/FleetModule.jac", "main.jac"],
+  "dependency_graph": {
+    "jac.toml": [],
+    "styles.css": [],
+    "components/FleetModule.jac": [],
+    "main.jac": ["components/FleetModule.jac"]
+  },
+  "remove_from_template": [],
+  "verify": {
+    "flow": "filter_vehicle_registry",
+    "route": "/",
+    "steps": "Run jac check and jac build. Use a real browser to verify six initial rows and filter actions yielding active 4, maintenance 1, idle 1 with no page errors."
+  },
+  "build_log": {"overall_status": "pending", "last_action": "", "issues": [], "learnings": []},
+  "confidence": 0.9,
+  "assumption": "The source module is pages/dashboard/FleetModule.jac at commit 98f7832. The original source repo has a broken root route in available Jac versions, so the working reference is that unchanged module mounted in a minimal Jac 0.36.1 wrapper."
+}
