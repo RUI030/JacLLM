@@ -137,6 +137,10 @@ Plain-language definitions of every technical term used in this tutorial. Each e
 
 **Teacher model.** A strong model (Claude, GPT, GLM and others) used to generate training examples for our smaller model.
 
+**Teacher loop (teacher intervention).** Our model (the **student**) works on a task while a **supervisor** program watches. When the student gets stuck, the teacher (Claude Opus) **takes over** for one step, writes the correct next action, and hands control back. We train the student on those correct actions. We use it instead of GRPO when the student almost never succeeds. See [training_methods.md](training_methods.md#4-teacher-loop-when-grpo-has-no-signal).
+
+**Episode.** One attempt at one task in the teacher loop, possibly with several teacher takeovers inside it.
+
 ---
 
 ## Model types

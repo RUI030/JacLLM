@@ -6,7 +6,7 @@
 > - **SFT:** "here is a question and the right answer". It needs input/answer pairs.
 > - **GRPO:** "try several times; we tell you which attempt was better". It needs only a way to score attempts.
 >
-> We run them in that order. Unfamiliar terms are in the [glossary](glossary.md).
+> We run them in that order. When the model is too weak for GRPO to work (it never succeeds, so there is nothing "better" to learn from), we use a **teacher loop** instead: a strong model steps in when ours gets stuck, and we train on its correct actions (section 4). Unfamiliar terms are in the [glossary](glossary.md).
 
 | | CPT | SFT | GRPO (RL) |
 |---|---|---|---|
@@ -197,6 +197,66 @@ Every step needs 8 attempts per task plus grading:
 
 ---
 
+## 4. Teacher loop: when GRPO has no signal
+
+### Why we need it
+
+GRPO only learns from tasks the model **sometimes** passes. For full-stack apps, our 9B model is so weak at debugging that it practically **never** passes:
+
+- On 4 held-out app tasks × 4 runs each, the 1105 model scored **pass@4 = 0** on every task, with 0% of tests passing (`output/spike/1105-teacher-intervention/eval_1107.txt`, [report/weekly/1114.md](../../report/weekly/1114.md) §5).
+- With 8 attempts that all score 0, every advantage is 0. GRPO would run for hours and learn nothing.
+
+What the student lacks is not a *score*. It lacks an **example of the right action** at the moment it gets stuck. The teacher loop provides exactly that.
+
+### What it is
+
+The **student** (our model) works on an app task in a JacCoder-like harness, and a **supervisor** watches each turn. When the student fails 3 times at the same spot (a tool error, an identical repeated call, a final answer before the checks pass), a **teacher** takes over. The teacher is Claude Opus via `claude -p`. It:
+
+1. sees the student's trajectory so far and a scratch copy of the workspace;
+2. diagnoses the problem;
+3. tries a fix in its copy, checking it with `jac check` / `jac test`;
+4. writes the student's **next turn**, which the harness executes as if the student had made it.
+
+Then the student continues on its own.
+
+**Example** (real episode `batch5-class_attendance`, [report/weekly/1114.md](../../report/weekly/1114.md)):
+
+- **What happened.** The student kept writing an untyped `REGISTRY` that failed the checks, three times in a row.
+- **What the teacher did.** It took over and wrote: "All three attempts kept the untyped REGISTRY ... The fix defines typed obj records ... I ran `jac check` (passed) and `jac test` (1 test passed)".
+- **Outcome.** The episode needed 6 takeovers in total and ended in `success` after 777 s.
+
+### How it becomes training data
+
+It is ordinary **SFT**, but the targets are the teacher's correct actions at the exact points where the student fails (`script/spike/1105 Teacher Intervention/`):
+
+| Row type | What it is | Loss weight |
+|---|---|---|
+| Trajectory | the whole episode | teacher turns that worked: 1. Student turns: 1 only if the episode was accepted. |
+| Mined fix | a file that failed `jac check` → its later fix | 1 on the fix |
+| Injected bug | files from accepted episodes broken in the ways the student got stuck, kept only if the tools confirm the bug | 1 on the fix |
+
+In short, GRPO says "this attempt scored better than that one", while the teacher loop says "**here is what you should have done**". When the model never succeeds, only the second one carries any information.
+
+### Results so far
+
+- **Volume.** 122 episodes with 514 teacher takeovers; 76 episodes ended in acceptance ([report/weekly/1114.md](../../report/weekly/1114.md)).
+- **Training.** The 1107 model was trained on this data (trajectories + mined fixes + injected bugs) on top of 1105. On the held-out tasks, **without** the teacher:
+
+| | pass@4 | tests pass | planned modules exist | frontend mounts |
+|---|---|---|---|---|
+| 1105 (before) | 0 | 0% | 12% | 0% |
+| 1107 (trained on teacher data) | 0 | 12% | 56% | 0% |
+
+- **What it shows.** Planning and structure improved, and some tests now pass. The app as a whole still fails, and no web frontend ever mounted.
+- **A lesson.** The supervisor's checks were static (tests, `jac check`, compiling the client). When we opened its 10 accepted web episodes in a real browser, **only 1 of 10 actually worked**, so 9 broken apps had been trained on as successes. Since then every verdict comes from a browser run of the user flow.
+- **The path to RL.** Once teacher-loop SFT lifts the model to "sometimes passes" (pass@4 > 0 but pass@1 < 1), the same tasks give GRPO a learning signal.
+
+### Next round
+
+A new set of teacher-loop data has just been produced in the [jac-data-gen](https://github.com/chess10kp/jac-data-gen) repo, and it will be used for the next round of training (team-reported; not yet in a recipe or report).
+
+---
+
 ## Which method fits which data
 
 | You have… | Use | Example in this project |
@@ -206,6 +266,7 @@ Every step needs 8 attempts per task plus grading:
 | Failed attempt + compiler or test error → fix | SFT (debugging format) | `code_fix`, `test_gen` |
 | Agent session (tool calls + results) | SFT on the assistant turns | `tool_fim`, `revdev`, `jacbuilder` |
 | Tasks + tests, no answers, model passes sometimes | GRPO | `dataset/rl/functions/{spike-sample-20, kodcode-1k}` |
+| Tasks the model (almost) never passes, plus a strong teacher | Teacher loop → SFT | full-stack app tasks (`script/spike/1105 Teacher Intervention/`) |
 
 ## References
 

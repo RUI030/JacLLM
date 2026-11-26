@@ -68,7 +68,11 @@ The root cause is the harness. JacHammer/JacBuilder, the existing Jac app builde
 - **The Jac version moves.** Data is gated on Jac 0.36.1 (the JacBuilder pilot used 0.34.28). A language update can invalidate data or skills.
 - **RL tasks need test benches.** KodCode prescreening took 75 min for 7,000 samples ([report/v1.3RL/kod-result.md](../../report/v1.3RL/kod-result.md)).
 
-**What we are doing:** reuse harvested repair traces; produce short per-task trajectories from Jach instead of full-app sessions; screen RL tasks to the mixed-pass band so no rollouts are wasted.
+- **The model is too weak for RL on apps.** On held-out app tasks the 9B scored pass@4 = 0, so GRPO gets no signal.
+
+**What we are doing:**
+- Use the **teacher loop** (Claude Opus takes over when the student is stuck), which gives correct debugging actions to learn from; a new set of this data has just been produced in jac-data-gen for the next training round (see [training_methods.md](training_methods.md#4-teacher-loop-when-grpo-has-no-signal)).
+- Reuse harvested repair traces; produce short per-task trajectories from Jach instead of full-app sessions; screen RL tasks to the mixed-pass band so no rollouts are wasted.
 
 ---
 

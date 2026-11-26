@@ -78,6 +78,22 @@ Every producer follows the same shape: `# Setting` / `# Functions` / `# Run` sec
 
 **`-nofence` variants.** The 27B run uses `-nofence` copies of the 8 main SFT sets. In every reply that was a single fenced block, the ```` ``` ```` fence is removed, leaving bare code, so the target matches the eval prompt, which asks for no fence (`script/eval/Nitin-test/run_eval.py`). Overall 3,096 replies were unfenced, and 23 replies that mix prose and code were left as they were.
 
+### Teacher-loop data (full-stack app debugging)
+
+Made by the teacher loop described in [training_methods.md](training_methods.md#4-teacher-loop-when-grpo-has-no-signal): our model builds an app, and Claude Opus takes over whenever it is stuck. The source is 45 app tasks (41 train, 4 held out), paraphrased from open-source GitHub repos across 8 categories: graph, algorithms, state-machine game, permissions, realtime, LLM, non-web and frontend. The output lives in `output/spike/1105-teacher-intervention/sft/` (not under `dataset/`).
+
+| Set | What | Size | Used in |
+|---|---|---|---|
+| trajectories | whole episodes; teacher turns weight 1 | 122 episodes, 514 takeovers, 76 accepted | 1106b, 1107 |
+| mined_fixes | file that failed `jac check` → its later fix | part of `seg2_mined_injected` (up to 495 rows) | 1106b, 1107 |
+| injected_bugs | accepted files broken the way the student got stuck → fix | 644 rows for batch 4 | 1106b, 1107 |
+
+Source: [report/weekly/1114.md](../../report/weekly/1114.md) §5, [docs/TEACHER_INTERVENTION.md](../TEACHER_INTERVENTION.md).
+
+There is a known flaw: the early supervisor accepted 10 web episodes on static checks, but only 1 of them worked in a real browser. Treat accepted web episodes from before the browser check as suspect.
+
+**New data for the next round.** A new set of teacher-loop data has just been produced in [jac-data-gen](https://github.com/chess10kp/jac-data-gen). It will be used for the next round of training (team-reported; not yet in a recipe).
+
 ### RL (`dataset/rl/functions/`)
 
 | Set | Tasks (train/dev/test) | Hidden tests | Source |
