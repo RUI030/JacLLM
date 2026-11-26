@@ -45,4 +45,5 @@ External claims cite peer-reviewed papers only (conference or journal versions, 
 
 - **Main model line:** Ornith-1.5-9B (dense), recipe `1023-v135`, about 56% pass@1 on the 972-problem Nitin function suite ([report/v1.3/v13_report.md](../../report/v1.3/v13_report.md), `script/eval/Nitin-test/out/`).
 - **Latest run:** Qwen3.8-27B (dense), QLoRA r32, 16k packed, CPT → SFT, on an RTX PRO 5000 48 GB (`script/train/recipe/1123-qwen27b-r32/`).
+- **Plan:** first get a ~30B-class dense model (Qwen3.8-27B) good at planning, testing and debugging. Then train the 9B to solve the well-scoped tasks the plan hands it, which keeps cost down and makes progress faster than pushing the 9B to do everything. See [model_choice.md](model_choice.md#plan-a-30b-dense-model-for-the-hard-parts-the-9b-for-the-rest).
 - **Main open problem:** agent trajectories are far longer than any context we can train on. See [bottleneck_and_current_solution.md](bottleneck_and_current_solution.md).

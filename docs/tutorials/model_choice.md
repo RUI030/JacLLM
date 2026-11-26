@@ -62,6 +62,26 @@ Our reading of the numbers above:
 
 **This is an interpretation of the data, not a controlled result.** The comparisons differ in data version, method (MLX vs bnb), Jac version and evaluator. A clean test would train a dense and an MoE model of similar active size on the same recipe and evaluate both on the same suite.
 
+## Plan: a ~30B dense model for the hard parts, the 9B for the rest
+
+This is the team's plan going forward. It is a decision, not a measured result.
+
+**1. Focus on a ~30B-class dense model first** (currently Qwen3.8-27B) and make sure it has good **planning, testing and debugging** skills. These are the steps where a small model fails:
+
+- In the Jach baseline on 16 Jac app tasks, the 27B passed 14 of 16 with no fine-tuning, against 3 of 16 for the 9B ([Jach `runs/baseline/summary.md`](https://github.com/RUI030/Jach)).
+- In the teacher loop, the fine-tuned 9B still never finished a held-out app (pass@4 = 0; see [training_methods.md](training_methods.md#4-teacher-loop-when-grpo-has-no-signal)).
+
+**2. Train the 9B on solving the task**, i.e. well-scoped units of work handed to it by the plan: "implement this function so these tests pass", with only the files and hints it needs. This is the work the 9B already handles: inside Jach's per-task sessions its context stayed under 5k tokens.
+
+**3. Why split it this way: more effective progress.** Training the 9B to build whole apps has hit a wall. It almost never succeeds, so GRPO gets no signal, and teacher-loop data moved only partial scores. The 27B already succeeds often, so training on it builds on real successes, gives RL tasks that sometimes pass, and needs fewer teacher takeovers per episode. The 9B is then trained only on the narrower task-solving skill, which it can actually learn.
+
+**4. Why split it this way: cost.** Most of an app's sessions are task-level implementation. Running those on the 9B is much cheaper than the 27B, both per token and in hardware: the 9B fits on a 16 GB card, while the 27B needs a 48 GB card even in 4-bit. The bigger model is used only where its quality is needed. This fits the layered SDLC in Jach (plan → scaffold → tests → implement → verify), where each phase can be given to a different model ([bottleneck_and_current_solution.md](bottleneck_and_current_solution.md)).
+
+**What has to be true for this to work.**
+
+- **The 27B needs a clean training run.** The current 27B fine-tune scores below the 9B on the function suite (39.0% vs 56.1%). It was stopped early, and its data had the issues listed in [data_preparation.md](data_preparation.md#known-data-issues).
+- **Task specs must be self-contained.** Each task handed to the 9B must carry everything it needs, so the 9B never has to plan.
+
 **Practical reasons that also favour dense models:**
 
 - **Merging.** MoE adapters with LoRA on expert parameters cannot be merged into a 4-bit base: the merge silently yields the base model (`utils/model.py`). They must be served unmerged.
