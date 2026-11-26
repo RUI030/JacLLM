@@ -61,9 +61,17 @@ def load_model(
     # e.g. Qwen3-Coder-30B-A3B) are the opposite case: merge_and_unload on the
     # 4-bit base generates exactly like the base model, while the unmerged
     # adapter produces the trained output. Keep those attached.
+    #
+    # Any adapter on a 4-bit (NF4) base stays attached too: folding the LoRA delta
+    # into quantised weights re-rounds them. On Qwen3.8-27B (r32, checkpoint-90) the
+    # merged path scored 24% on the Nitin test split vs ~52% unmerged on a 25-problem
+    # A/B, and the training itself had used the unmerged adapter. A merge for export
+    # goes through the original bf16 shards instead (see merge_lora.py).
     if hasattr(model, "peft_config"):
         if any(getattr(c, "target_parameters", None) for c in model.peft_config.values()):
             print("MoE expert LoRA (target_parameters): keeping adapter unmerged for inference")
+        elif load_in_4bit:
+            print("4-bit base: keeping adapter unmerged for inference")
         else:
             print("Merging LoRA into base (in-memory) for inference")
             model = model.merge_and_unload()

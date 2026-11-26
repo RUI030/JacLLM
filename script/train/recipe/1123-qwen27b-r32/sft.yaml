@@ -1,0 +1,60 @@
+# Qwen3.8-27B QLoRA r32, 16k packed (SFT on the CPT adapter). Derived from 1023-v135/sft.yaml.
+# Changes vs v135: base Ornith-9B -> Qwen/Qwen3.8-27B, r64 -> r32 (alpha 23: rslora scale alpha/sqrt(r) kept at v135 CPT's 4),
+# max_seq_length 16384 for both stages, grad_checkpt true (on-GPU; offload needs more host RAM than this shared box has),
+# save_steps 5 + save_total_limit 2 (few checkpoints), SFT sets are the -nofence copies (reply = bare code, no ``` fence). 
+recipe:
+  name: qwen27b-r32-sft
+  stage: sft
+  base_model: Qwen/Qwen3.8-27B
+  adapter: "output/adapter/1123-qwen27b-r32/cpt/adapter"
+  out_dir: output/adapter/1123-qwen27b-r32/sft
+  seed: 3407
+  max_seq_length: 16384
+  load_in_4bit: true
+  text_only: true
+  chat_template: null
+
+hyperparams:
+  epochs: 1
+  batch_size: 1
+  grad_acc: 10
+  lr: 2.0e-4
+  embed_lr: 0
+  optimizer: adamw_8bit
+  scheduler: linear
+  warmup_steps: 10
+  weight_decay: 1.0e-3
+  max_steps: -1
+  save_steps: 5
+  save_total_limit: 2
+  do_eval: false
+  lora_rank: 32
+  lora_alpha: 23
+  lora_dropout: 0
+  rslora: true
+  bias: none
+  grad_checkpt: true
+  packing: true
+  target_module:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+  instruction_part: "<|im_start|>user\n"
+  response_part:    "<|im_start|>assistant\n"
+
+mixing:
+  strategy: sequential
+
+datasets:
+  - {task: code_completion, name: Nitin-composer-fn-nofence, split: [train, valid]}
+  - {task: js2jac, name: Nitin-js2jac-nofence, split: [train, valid]}
+  - {task: farm, name: Nitin-farm-nofence, split: [train, valid]}
+  - {task: osp, name: Nitin-osp-merged-nofence, split: [train, valid]}
+  - {task: py2osp, name: Nitin-osp-lift-gold-nofence, split: [train, valid]}
+  - {task: code_fix, name: Nitin-osp-repair-nofence, split: [train, valid]}
+  - {task: test_gen, name: Nitin-osp-repair-nofence, split: [train, valid]}
+  - {task: scaffold2impl, name: Rui-jacapp-scaffold-nofence, split: [train, valid]}

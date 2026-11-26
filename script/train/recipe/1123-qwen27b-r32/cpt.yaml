@@ -1,0 +1,56 @@
+# Qwen3.8-27B QLoRA r32, 16k packed (CPT). Derived from 1023-v135/cpt.yaml.
+# Changes vs v135: base Ornith-9B -> Qwen/Qwen3.8-27B, r64 -> r32 (alpha 23: rslora scale alpha/sqrt(r) kept at v135 CPT's 4),
+# max_seq_length 16384 for both stages, grad_checkpt true (on-GPU; offload needs more host RAM than this shared box has),
+# save_steps 5 + save_total_limit 2 (few checkpoints), 
+recipe:
+  name: qwen27b-r32-cpt
+  stage: cpt
+  base_model: Qwen/Qwen3.8-27B
+  adapter: ""
+  out_dir: output/adapter/1123-qwen27b-r32/cpt
+  seed: 3407
+  max_seq_length: 16384
+  load_in_4bit: true
+  text_only: true
+
+hyperparams:
+  epochs: 1
+  batch_size: 1
+  grad_acc: 10
+  lr: 5.0e-5
+  embed_lr: 0
+  optimizer: adamw_8bit
+  scheduler: linear
+  warmup_steps: 5
+  weight_decay: 1.0e-3
+  max_steps: -1
+  save_steps: 5
+  save_total_limit: 2
+  do_eval: false
+  lora_rank: 32
+  lora_alpha: 23
+  lora_dropout: 0
+  rslora: true
+  bias: none
+  grad_checkpt: true
+  packing: true
+  target_module:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+
+mixing:
+  strategy: sequential
+
+datasets:
+  - name: Ayush-JacDocs-26Sept
+  - name: Nitin-composer-fn
+  - name: Nitin-js2jac
+  - name: Nitin-farm
+  - name: Nitin-jachacks
+  - name: Nitin-osp
+  - name: Rui-jacapp-5

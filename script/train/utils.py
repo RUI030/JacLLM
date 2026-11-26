@@ -48,6 +48,9 @@ def load_trainable(cfg: dict):
         dtype          = cfg["dtype"],
         load_in_4bit   = cfg["load_in_4bit"],
         text_only      = cfg["text_only"],
+        # An adapter/resume load wraps the model inside from_pretrained, whose default "unsloth" offloads
+        # checkpoints to host RAM (~0.65GB per 1k tokens on 27B) and ignores recipe.grad_checkpt.
+        use_gradient_checkpointing = cfg["grad_checkpt"],
     )
     if not (cfg["adapter"] or cfg["resume_from"]):
         model = FastLanguageModel.get_peft_model(

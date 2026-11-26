@@ -18,3 +18,8 @@ api_key
 .env
 .env.*
 .secrets
+
+# Local JacBuilder pilot contains internal harness prompts; review before publication.
+/dataset/sft/jacbuilder/debug-pilot-v1/
+/dataset/sft/jacbuilder/debug-pilot-v2-projected/
+/dataset/sft/jacbuilder/live-teacher-candidate-audit-v1/
